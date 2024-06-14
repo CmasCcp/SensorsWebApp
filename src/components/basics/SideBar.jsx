@@ -1,3 +1,5 @@
+import { NavLink } from "react-router-dom"
+
 export const SideBar = ({show}) => {
 
     return (
@@ -17,11 +19,22 @@ export const SideBar = ({show}) => {
                             </a>
                             <div className="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                                 <nav className="sb-sidenav-menu-nested nav">
-                                    <a className="nav-link" href="layout-static.html">Proyectos</a>
-                                    <a className="nav-link" href="layout-sidenav-light.html">Personas</a>
-                                    <a className="nav-link" href="layout-sidenav-light.html">Grupos</a>
-                                    <a className="nav-link" href="layout-sidenav-light.html">Sensores</a>
-                                    <a className="nav-link" href="layout-sidenav-light.html">Dispositivos</a>
+                                    <NavLink className="nav-link" to="proyectos">
+                                        Proyectos
+                                    </NavLink>
+                                    <NavLink className="nav-link" to="personas">
+                                        Personas
+                                    </NavLink>
+                                    <NavLink className="nav-link" to="grupos">
+                                        Grupos
+                                    </NavLink>
+                                    <NavLink className="nav-link" to="sensores">
+                                        Sensores
+                                    </NavLink>
+                                    <NavLink className="nav-link" to="dispositivos">
+                                        Dispositivos
+                                    </NavLink>
+                                    
                                 </nav>
                             </div>
                             <div className="collapse" id="collapsePages" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">

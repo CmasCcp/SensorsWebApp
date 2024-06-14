@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link, NavLink } from 'react-router-dom';
 
 import "../../assets/js/scripts";
 
@@ -13,9 +14,13 @@ export const Navbar = ({toggleSideBar}) => {
     return (
         <nav className="sb-topnav navbar navbar-expand navbar-dark bg-dark">
             {/* Navbar Brand */}
-            <a className="navbar-brand-custom-logo ps-3" href="index.html">
+
+            <Link className="navbar-brand-custom-logo ps-3" to="/">
+
+            {/* <a className="navbar-brand-custom-logo ps-3" href="/"> */}
                 <img src="/src/assets/img/logo_white.png" alt="Logo" className="navbar-brand-custom-image-logo" />
-            </a>
+            {/* </a> */}
+            </Link>
             {/* Sidebar Toggle */}
             <button className="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0 text-white fs-4"  onClick={handleToggleSidebar} href="#">
                 <i className="fas fa-bars"></i>

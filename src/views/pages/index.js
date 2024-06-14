@@ -1,0 +1,5 @@
+export * from "./ProyectosPage"
+export * from "./PersonasPage"
+export * from "./GruposPage"
+export * from "./SensoresPage"
+export * from "./DispositivosPage"
