@@ -13,7 +13,6 @@ export const DashboardView = ({ widthClose }) => {
     // const { data, loading, error } = useFetch('https://jsonplaceholder.typicode.com/users');
 
     return (
-        <MainLayout>
             <div id="layoutSidenav_content" style={widthClose ? {} : { "marginLeft": "-225px" }}>
                 <main>
                     <div className="container-fluid px-4">
@@ -74,8 +73,5 @@ export const DashboardView = ({ widthClose }) => {
                     </div>
                 </footer>
             </div>
-
-        </MainLayout>
-
     )
 }
