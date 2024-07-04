@@ -1,17 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import useFetch from '../../hooks/useFetch';
 import {DataTable} from 'simple-datatables'; // Importing the simple-datatables library
 import 'simple-datatables/dist/style.css';
+import React, { useEffect, useState } from 'react';
+import useFetch from '../../hooks/useFetch';
 
 export const DataTableGraphic = ({ apiUrl }) => {
     const { data, error, loading } = useFetch(apiUrl);
     const [dataProperties, setDataProperties] = useState([]);
     
     let isArray = Array.isArray(data);
-
-
-    console.log("array? ", isArray);
-    console.log(data);
 
     useEffect(() => {
         if (data && Array.isArray(data) && data.length > 0) {
@@ -21,15 +17,12 @@ export const DataTableGraphic = ({ apiUrl }) => {
 
             if (datatablesSimple) {
                 
-                // const dataTable = new simpleDatatables.DataTable(datatablesSimple);
-                
-                // npm
                 let dataTable = new DataTable(datatablesSimple);
 
 
-                return () => {
-                    dataTable.destroy(); // Cleanup the table on component unmount
-                };
+                // return () => {
+                //     dataTable.destroy();
+                // };
             }
         }
     }, [data]);

@@ -1,48 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { MainLayout } from './layouts/MainLayout.jsx'
-import { DashboardView } from './views/DashboardView.jsx';
-import { SensoresPage, ProyectosPage } from './views/pages';
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <MainLayout></MainLayout>,
-    children: [
-      // {
-      //   index: true,
-      //   element: <DashboardView/>,
-      // },
-    //   {
-    //     path: "proyectos",
-    //     element: <ProyectosPage/>,
-    //   },
-    //   {
-    //     path: "personas",
-    //     element: <SensoresPage />,
-    //   },
-    //   {
-    //     path: "grupos",
-    //     element: <SensoresPage />,
-    //   },
-    //   {
-    //     path: "sensores",
-    //     element: <SensoresPage />,
-    //   },
-    //   {
-    //     path: "dispositivos",
-    //     element: <SensoresPage />,
-    //   },
-    ],
-  },
-]);
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// import { MainRoutes } from './routes/MainRoutes.jsx';
+// import { DashboardPage } from './pages/DashboardPage.jsx';
+// import { SensoresPage, ProyectosPage } from './views/pages';
+import { MainLayout } from './layouts/MainLayout'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider
-      router={router}
-      fallbackElement={<>esperando...</>}
-    />
+    <Router>
+      <MainLayout/>
+    </Router>
   </React.StrictMode>,
 )

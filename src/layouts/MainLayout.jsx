@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
-import { Outlet } from 'react-router-dom';
 import { Navbar } from '../components/basics/Navbar';
 import { SideBar } from '../components/basics/SideBar';
-import { DashboardView } from '../views/DashboardView';
+import { DashboardPage } from '../pages/DashboardPage';
 
-export const MainLayout = ({children}) => {
+export const MainLayout = () => {
 
     const [showSideBar, setShowSideBar] = useState(false);
 
@@ -21,8 +20,9 @@ export const MainLayout = ({children}) => {
             
             <div id="layoutSidenav">
                 <SideBar show={showSideBar}/>
-                <Outlet/>
-                
+                <DashboardPage widthClose={showSideBar}/>
+
+
             </div>
 
         </>
