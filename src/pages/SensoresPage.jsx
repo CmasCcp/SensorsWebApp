@@ -15,14 +15,14 @@ export const SensoresPage = ({ widthClose }) => {
 
                     <div className="row mt-4">
                         <div className="col-md-12">
-                            <iframe
+                            {/* <iframe
                                 title="Dashboard"
                                 width="100%"
                                 height="600"
                                 src="https://lookerstudio.google.com/embed/reporting/6b1d3791-542f-4c15-8c6e-5fcb0a7664f6/page/WuE6D"
                                 allowFullScreen
                                 sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-                            ></iframe>
+                            ></iframe> */}
                         </div>
                     </div>
 
