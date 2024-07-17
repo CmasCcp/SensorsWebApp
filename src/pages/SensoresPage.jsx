@@ -11,7 +11,7 @@ export const SensoresPage = ({ widthClose }) => {
         <div className="container-fluid m-0" id="layoutSidenav_content" style={widthClose ? {} : { "marginLeft": "-225px" }}>
             <main>
                 <div className="container-fluid px-4">
-                    <h1 className="mt-4">Dashboard</h1>
+                    <h1 className="mt-4">Dashboard de prueba eliminar aqui</h1>
 
                     <div className="row mt-4">
                         <div className="col-md-12">
