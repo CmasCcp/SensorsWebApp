@@ -37,7 +37,7 @@ export const Navbar = () => {
                                 <Link to="grupos" className="nav-link text-white">GRUPOS</Link>
                             </li>
                             <li className="nav-item active">
-                                <Link to="herramientas" className="nav-link text-white">HERRAMIENTAS</Link>
+                                <Link to="administrador" className="nav-link text-white">ADMINISTRADOR</Link>
                             </li>
                         </ul>
                         <div className="d-flex row"></div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
-export const useFetch = (url) => {
+export const useFetch = (apiUrl) => {
+  const [url, setUrl] = useState(apiUrl);
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(null);
@@ -16,9 +17,9 @@ export const useFetch = (url) => {
             'User-agent': 'learning app',
           }
         });
-        console.log(response);
         const responseData = await response.json();
-        setData(responseData.data);
+        console.log(responseData);
+        setData(responseData);
         setIsLoading(false);
         setHasError(null);
       } catch (error) {
@@ -30,5 +31,5 @@ export const useFetch = (url) => {
     fetchData();
   }, [url]);
 
-  return { data, isLoading, hasError };
+  return { data, isLoading, hasError, setUrl };
 };
