@@ -15,8 +15,6 @@ export const AdministradorPage = () => {
     <div className='col-12 p-5'>
         <h2>Administrador</h2>
 
-        <Modal type={"primary"} title="Editar fila"/>
-
         
         <div className="row">
           <button className='btn' onClick={()=>handleClick("Users")}>Users</button>
