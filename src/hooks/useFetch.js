@@ -18,6 +18,7 @@ export const useFetch = (apiUrl) => {
           }
         });
         const responseData = await response.json();
+        // const responseData = [{id:2, name: "david"}];
         console.log(responseData);
         setData(responseData);
         setIsLoading(false);

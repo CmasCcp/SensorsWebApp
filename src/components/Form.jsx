@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const Form = ({ properties,data }) => {
+export const Form = ({ properties, data }) => {
   return (
     <div className="container">
       <h2>Formulario</h2>
@@ -8,10 +8,9 @@ export const Form = ({ properties,data }) => {
         {properties.map(prop => (
           <div className="mb-3" key={prop}>
             <label htmlFor={prop} className="form-label">{prop}</label>
-            <input type="text" className="form-control" id={prop} name={prop} />
+            <input className="form-control" id={data[prop]} name={data[prop]} defaultValue={JSON.stringify(data[prop])}/>
           </div>
         ))}
-        <button type="submit" className="btn btn-primary">Enviar</button>
       </form>
     </div>
   );
