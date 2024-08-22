@@ -38,7 +38,7 @@ export const Modal = ({ type, title, id, action, properties, data, isOpen, onClo
                         </div>
                         <div className="modal-body">
                             {action === "Editar" && <Form properties={properties} data={data} />}
-                            {action === "Eliminar" && <p className='text-center'>¿Estás seguro de eliminar la fila?</p>}
+                            {action === "Eliminar" && <p className='text-center'>¿Estás seguro de eliminar la fila {JSON.stringify(data.id)}?</p>}
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" onClick={onClose}>Cerrar</button>

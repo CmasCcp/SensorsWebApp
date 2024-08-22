@@ -5,7 +5,8 @@ import { useFetch } from '../../hooks/useFetch';
 import { Modal } from '../Modal';
 
 export const DataTableGraphic = ({ apiUrl, title }) => {
-    const { data, hasError, isLoading } = useFetch(apiUrl);
+
+    const { data, hasError, isLoading } = useFetch(apiUrl); 
 
     const [dataProperties, setDataProperties] = useState([]);
     const [editData, setEditData] = useState({});
@@ -16,10 +17,10 @@ export const DataTableGraphic = ({ apiUrl, title }) => {
         if (data && Array.isArray(data) && data.length > 0) {
             setDataProperties(Object.keys(data[0]));
     
-            const initializeDataTable = async () => {
+            const initializeDataTable = () => {
                 const datatablesSimple = document.getElementById('datatablesSimple');
                 if (datatablesSimple instanceof HTMLTableElement) {
-                    await new DataTable(datatablesSimple);
+                    new DataTable(datatablesSimple);
                 }
             };
     
@@ -62,6 +63,7 @@ export const DataTableGraphic = ({ apiUrl, title }) => {
                 action="Eliminar"
                 title="Eliminar fila"
                 id="deleteModal"
+                data={editData}
                 isOpen={showDeleteModal}
                 onClose={handleCloseModal}
             />

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { DataTableGraphic } from '../components/graphics/DataTableGraphic'
-import { Modal } from '../components/Modal';
 
 
 export const AdministradorPage = () => {
@@ -22,10 +21,6 @@ export const AdministradorPage = () => {
           <button className='btn' onClick={()=>handleClick("Posts")}>Posts</button>
         </div>
         <hr className='m-0'/>
-
-        {/* <div className="row">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Cupiditate similique eos quidem aliquid sunt, nostrum architecto possimus in aut, dicta magnam pariatur repellendus sequi! Voluptates, sit? Dolor accusantium dignissimos velit?
-        </div> */}
 
         
         {option === "Todos" && <DataTableGraphic title={option} apiUrl={`https://jsonplaceholder.typicode.com/todos`} />}
