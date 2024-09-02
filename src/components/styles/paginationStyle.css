@@ -1,0 +1,47 @@
+:root{
+    --light:#d7d7d9 !important;
+    --customprimary:#1D355D!important;
+    --success: #3EDC85 !important;
+    --dos:#261501;
+    --warning:#0075a2 !important;
+    --dark: #010700;
+    --danger: #010700;
+}
+
+  
+.button {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: .9em;
+  background-color: var(--customprimary);
+  color: white;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s ease width;
+}
+
+.button:last-child {
+  margin-right: 0;
+}
+
+.button.active {
+  width: 60px;
+  cursor: auto;
+  background-color: var(--success);
+}
+.button.hidden {
+  display: none;
+}
+
+
+@media only screen and (max-width: 480px) {
+  .button.active{
+    width: 40px;
+  }
+  
+}
