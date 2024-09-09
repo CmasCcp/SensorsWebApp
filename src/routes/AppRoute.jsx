@@ -6,7 +6,7 @@ import { ProjectsRoute } from "./ProjectsRoute"
 import {Grupos} from "../pages/Grupos.jsx";
 import {Herramientas} from "../pages/Tools.jsx";
 import { AdministradorPage } from "../pages/AdministradorPage"
-
+import LoginPage from "../pages/LoginPage.jsx"
 
 export const AppRoute = () => {
     return (
@@ -17,6 +17,7 @@ export const AppRoute = () => {
             <Route path="/proyectos/*" element={<ProjectsRoute/>}/>
             <Route path="/grupos" element={<Grupos/>}/>
             <Route path="/administrador" element={<AdministradorPage/>}/>
+            <Route path="/login" element={<LoginPage/>}/>
         </Routes>
     )
 }

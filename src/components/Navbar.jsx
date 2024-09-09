@@ -40,6 +40,7 @@ export const Navbar = () => {
                                 <Link to="administrador" className="nav-link text-white">ADMINISTRADOR</Link>
                             </li>
                         </ul>
+                        <Link to="login" className="nav-link text-white text-center">Login</Link>
                         <div className="d-flex row"></div>
                     </div>
                 </div>
