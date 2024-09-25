@@ -11,6 +11,8 @@ function LoginPage() {
             .then(response => {
                 // Maneja la respuesta, el usuario está autenticado
                 console.log("Usuario autenticado:", response.account);
+                console.log("Token:", response.accessToken);
+                console.log("Expira en:", response.expiresOn);
             })
             .catch(error => {
                 // Maneja el error
@@ -19,12 +21,9 @@ function LoginPage() {
     };
 
     return (
-        <div>
-            <h2>Iniciar sesión con Microsoft</h2>
-            <button onClick={handleLogin}>
-                Iniciar sesión
+            <button className="bg-customprimary text-white btn" onClick={handleLogin}>
+                Acceder
             </button>
-        </div>
     );
 }
 

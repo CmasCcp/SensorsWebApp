@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { IconHorizontal } from './IconHorizontal'
+import LoginPage from '../pages/LoginPage'
 
 export const Navbar = () => {
     return (
@@ -40,7 +41,9 @@ export const Navbar = () => {
                                 <Link to="administrador" className="nav-link text-white">ADMINISTRADOR</Link>
                             </li>
                         </ul>
-                        <Link to="login" className="nav-link text-white text-center">Login</Link>
+                        <div className="px-3">
+                            <LoginPage/>
+                        </div>
                         <div className="d-flex row"></div>
                     </div>
                 </div>
