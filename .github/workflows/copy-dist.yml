@@ -21,11 +21,14 @@ jobs:
         run: |
           git config --global user.name "davidKressin"
           git config --global user.email "david@garciagonzales.com"
+          git config --global credential.helper store
 
       # Clone the backend repository into a separate folder
       - name: Clone backend repository
         run: |
-          git clone https://github.com/CmasCcp/backend.git backend-repo
+#          git clone https://github.com/CmasCcp/backend.git backend-repo
+          git clone https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/CmasCcp/backend.git backend-repo
+
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
@@ -41,6 +44,7 @@ jobs:
           cd backend-repo
           git add public/
           git commit -m "Update public folder from frontend dist"
-          git push
+          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/username/backend.git
+
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
