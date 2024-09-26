@@ -1,0 +1,46 @@
+name: Copy Dist to Backend
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'dist/**' # Trigger only when changes are made in the dist folder
+
+jobs:
+  copy-dist:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the frontend repository
+      - name: Checkout frontend repo
+        uses: actions/checkout@v3
+
+      # Configure Git
+      - name: Setup Git
+        run: |
+          git config --global user.name "davidKressin"
+          git config --global user.email "david@garciagonzales.com"
+
+      # Clone the backend repository into a separate folder
+      - name: Clone backend repository
+        run: |
+          git clone https://github.com/CmasCcp/backend.git backend-repo
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      # Copy the contents of the dist folder to the backend's public folder
+      - name: Copy dist to backend public
+        run: |
+          rm -rf backend-repo/public/* # Optional: Clear the existing public folder
+          cp -R dist/* backend-repo/public/
+
+      # Commit and push changes to the backend repository
+      - name: Commit and Push changes
+        run: |
+          cd backend-repo
+          git add public/
+          git commit -m "Update public folder from frontend dist"
+          git push
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
