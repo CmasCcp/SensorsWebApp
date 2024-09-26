@@ -26,7 +26,6 @@ jobs:
       # Clone the backend repository into a separate folder
       - name: Clone backend repository
         run: |
-#          git clone https://github.com/CmasCcp/backend.git backend-repo
           git clone https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/CmasCcp/backend.git backend-repo
 
         env:
