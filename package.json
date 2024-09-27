@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@iframe-resizer/react": "^5.3.1",
+    "@azure/msal-browser": "^3.22.0",
+    "@azure/msal-react": "^2.0.22",
     "@react-three/fiber": "^8.13.6",
     "@reduxjs/toolkit": "1.9.3",
     "package.json": "^2.0.1",
