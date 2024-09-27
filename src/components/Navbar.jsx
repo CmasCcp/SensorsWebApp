@@ -1,10 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-<<<<<<< HEAD
-=======
-import { IconHorizontal } from './IconHorizontal'
-import LoginPage from '../pages/LoginPage'
->>>>>>> 48ba55b560bc7e795c047ce99fc1e9fbe0ecc751
+import LoginPage from '../pages/LoginPage.jsx'
 
 export const Navbar = () => {
     return (
@@ -27,13 +23,9 @@ export const Navbar = () => {
                                 <Link to="administrador" className="nav-link text-customdark">ADMINISTRADOR</Link>
                             </li>
                             <li className="nav-item active">
-                                <Link to="grupos" className="nav-link text-customdark">INGRESAR</Link>
+                                <LoginPage/>
                             </li>
                         </ul>
-                        <div className="px-3">
-                            <LoginPage/>
-                        </div>
-                        <div className="d-flex row"></div>
                     </div>
                 </div>
             </nav>

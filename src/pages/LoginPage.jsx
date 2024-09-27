@@ -2,6 +2,7 @@
 import React from "react";
 import { useMsal } from "@azure/msal-react";
 import { loginRequest } from "../helpers/authConfig";
+import { Link } from 'react-router-dom'
 
 function LoginPage() {
     const { instance } = useMsal();
@@ -21,9 +22,9 @@ function LoginPage() {
     };
 
     return (
-            <button className="bg-customprimary text-white btn" onClick={handleLogin}>
-                Acceder
-            </button>
+            <Link to="#" className="nav-link text-customdark" onClick={handleLogin}>
+                INGRESAR            
+            </Link>
     );
 }
 
