@@ -4,10 +4,13 @@ import { Navbar } from "../components/Navbar"
 export const Layout = ({ children }) => {
     return (
         <>
-            <Navbar/>
-            {children}
-
-            <Footer />
+            <div className="app-container">
+                <Navbar/>
+                <div className="content">
+                    {children}
+                </div>
+                <Footer />
+            </div>
         </>
     )
 }
