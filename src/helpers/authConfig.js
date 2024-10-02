@@ -3,7 +3,7 @@ export const msalConfig = {
     auth: {
         clientId: "61c007e7-7036-4b52-9156-0394c2b31132", // Reemplaza con tu ID de cliente
         authority: "https://login.microsoftonline.com/common", // Para cuentas personales y de trabajo/educativas
-        redirectUri: "http://localhost:5173", // Cambia al URI de redirección de tu aplicación
+        redirectUri: "https://sensores.cmasccp.cl", // Cambia al URI de redirección de tu aplicación
     },         
     cache: {
         cacheLocation: "sessionStorage", // Puedes usar 'localStorage' si prefieres
