@@ -152,6 +152,10 @@ body{
     color: #666;
   }
 
+  .reportClass{
+    height: 70vh;
+  }
+
 .transparencia-bg-1{
     background-color: rgba(0, 0, 0, 0.7);
 }
