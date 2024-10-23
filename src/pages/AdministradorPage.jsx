@@ -3,7 +3,6 @@ import { DataTableGraphic } from '../components/graphics/DataTableGraphic'
 
 
 export const AdministradorPage = () => {
-
   const [option, setOption] = useState("Todos");
 
   const handleClick = (option)=>{
@@ -24,10 +23,10 @@ export const AdministradorPage = () => {
         </div>
         <hr className='m-0'/>
 
-        {option === "Mediciones" && <DataTableGraphic title={option} apiUrl={`http://localhost:8080/listarDatos?tabla=medicion`} />}
-        {option === "Sensores" && <DataTableGraphic title={option} apiUrl={`http://localhost:8080/listarDatos?tabla=sensores`} />}
-        {option === "Dispositivos" && <DataTableGraphic title={option} apiUrl={`http://localhost:8080/listarDatos?tabla=dispositivos`} />}
-        {option === "Proyectos" && <DataTableGraphic title={option} apiUrl={`http://localhost:8080/listarDatos?tabla=proyectos`} />}
+        {option === "Mediciones" && <DataTableGraphic title={option} tableName={'datos'} />}
+        {option === "Sensores" && <DataTableGraphic title={option} tableName={'sensores'}/>}
+        {option === "Dispositivos" && <DataTableGraphic title={option} tableName={'dispositivos'}/>}
+        {option === "Proyectos" && <DataTableGraphic title={option} tableName={'proyectos'}/>}
 
     </div>
   )

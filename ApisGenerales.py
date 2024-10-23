@@ -35,8 +35,15 @@ config = {"user": "root", "password": "root", "host": "localhost", "database": "
 def listar_datos():
     args = request.args
     tabla = args.get('tabla')  # El nombre de la tabla viene como un parámetro
-    idValor = args.get('id')  # El valor de la clave primaria
     formato = args.get('format', 'json')
+
+    args_dict = request.args.to_dict()
+    not_primary_keys = ['tabla', 'formato']
+
+    filtered_args = {key: value for key, value in args_dict.items() if key not in not_primary_keys}
+    concatenated_filter = 'AND'.join([f"{key}={value}" for key, value in filtered_args.items()])
+    if concatenated_filter != '':
+        concatenated_filter = 'WHERE '+concatenated_filter
 
     if tabla not in ALLOWED_TABLES:
         return jsonify({'status': 'fail', 'error': 'Tabla no permitida'}), 403
@@ -44,33 +51,9 @@ def listar_datos():
     try:
         conn = mysql.connector.connect(**config)
         cursor = conn.cursor()
-
-        primary_key_query = """
-        SELECT COLUMN_NAME
-        FROM information_schema.KEY_COLUMN_USAGE
-        WHERE TABLE_SCHEMA = %s
-        AND TABLE_NAME = %s
-        AND CONSTRAINT_NAME = 'PRIMARY'
-        """
-        cursor.execute(primary_key_query, (config['database'], tabla))
-        primary_key_column = cursor.fetchone()
-
-        if not primary_key_column:
-            return jsonify({'status': 'fail', 'error': 'No se encontró clave primaria para esta tabla'}), 400
-
-        primary_key_column = primary_key_column[0]
-
-        columns_query = f"SHOW COLUMNS FROM {tabla}"
-        cursor.execute(columns_query)
-        columns = [f"`{col[0]}`" for col in cursor.fetchall() if col[0] != primary_key_column] # No se entrega la clave primaria dos veces
-        columns_query_str = ", ".join(columns)
         
-        if idValor:
-            sql_query = f"SELECT {columns_query_str} FROM {tabla} WHERE {primary_key_column} = %s"
-            cursor.execute(sql_query, (idValor,))
-        else:
-            sql_query = f"SELECT {columns_query_str} FROM {tabla}"
-            cursor.execute(sql_query)
+        sql_query = f"SELECT * FROM {tabla} {concatenated_filter}"
+        cursor.execute(sql_query)
 
         filas = cursor.fetchall()
 
@@ -89,7 +72,6 @@ def listar_datos():
                 'status': 'success',
                 'data': {
                     'tableData': respuesta,
-                    'id':primary_key_column,
                     'tabla':tabla
                 }
             })
@@ -118,7 +100,6 @@ def listar_datos():
 
 @app.route('/schema/<table_name>', methods=['GET'])
 def get_table_schema(table_name):
-
     try:
         conn = mysql.connector.connect(**config)
         if not conn:
@@ -160,44 +141,25 @@ def get_table_schema(table_name):
 @app.route('/modificarDatos', methods=['PUT'])
 def modificar_datos():
     data = request.get_json()
-    tabla = data.get('tabla')  # El nombre de la tabla viene como un parámetro
-    idValor = data.get('id')  # El valor de la clave primaria
+    table_name = data.get('tableName')  # Las valores del formulario SIN las primary keys
+    primary_keys = data.get('primaryKeys')  
+    form_data = data.get('formData')
 
-    if tabla not in ALLOWED_TABLES:
+    concatenated_filter = 'AND'.join([f"{key}={value}" for key, value in primary_keys.items()])
+
+    if table_name not in ALLOWED_TABLES:
         return jsonify({'status': 'fail', 'error': 'Tabla no permitida'}), 403
     
     try:
         conn = mysql.connector.connect(**config)
         cursor = conn.cursor()
 
-        primary_key_query = """
-                SELECT COLUMN_NAME
-                FROM information_schema.KEY_COLUMN_USAGE
-                WHERE TABLE_SCHEMA = %s
-                AND TABLE_NAME = %s
-                AND CONSTRAINT_NAME = 'PRIMARY'
-                """
-        cursor.execute(primary_key_query, (config['database'], tabla))
-        primary_key_column = cursor.fetchone()
-
-        if not primary_key_column:
-            return jsonify({'status': 'fail', 'error': 'No se encontró clave primaria para esta tabla'}), 400
-
-        primary_key_column = primary_key_column[0]
-
-        data_copy = data['tableData'].copy()
-        data_copy.pop('id', None)
-        data_copy.pop('tabla', None)
-        if not data_copy or not isinstance(data_copy, dict):
-            return jsonify({'status': 'fail', 'error': 'Datos no válidos o faltantes'}), 400
-
         # Generar dinámicamente la consulta SQL para actualizar los campos
-        set_clause = ", ".join([f"{key} = %s" for key in data_copy.keys()])
-        valores = list(data_copy.values())
-        valores.append(idValor)  # Agregar el valor del ID para la cláusula WHERE
+        set_clause = ", ".join([f"{key} = %s" for key in form_data.keys()])
+        valores = list(form_data.values())
 
         # Construir la consulta de actualización
-        sql_query = f"UPDATE {tabla} SET {set_clause} WHERE {primary_key_column} = %s"
+        sql_query = f"UPDATE {table_name} SET {set_clause} WHERE {concatenated_filter}"
 
         log_query = sql_query % tuple(valores)  # Sustituye los %s por los valores reales
         print("Consulta SQL para depuración:", log_query)

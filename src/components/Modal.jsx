@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Form } from './Form';
 
+
 export const Modal = ({ type, title, id, action, properties, data, isOpen, onClose, pkValue, tableName }) => {
     const modalRef = useRef(null);
-    const formRef = useRef(null);  // Referencia al formulario para obtener los datos
     const [formData, setFormData] = useState();
-    
+
     useEffect(() => {
         setFormData(data);
     }, [data]);
@@ -22,9 +22,9 @@ export const Modal = ({ type, title, id, action, properties, data, isOpen, onClo
     const handleSend = async () => {
         try {
             const payload = {
-                id: pkValue,
-                tabla: tableName,
-                tableData: formData   // Los datos del formulario
+                tableName: tableName,
+                primaryKeys: pkValue,
+                formData: formData  // Los datos del formulario
             };
 
             const response = await fetch(`http://localhost:8080/modificarDatos`, {

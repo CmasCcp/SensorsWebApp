@@ -4,14 +4,29 @@ import 'simple-datatables/dist/style.css';
 import { useFetch } from '../../hooks/useFetch';
 import { Modal } from '../Modal';
 
-export const DataTableGraphic = ({ apiUrl, title }) => {
+export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => {
 
-    const { data, hasError, isLoading } = useFetch(apiUrl); 
+    const { data:schemaData, hasError:schemaHasError, isLoading:schemaIsLoading } = useFetch(`http://localhost:8080/schema/${tableName}`); 
+    const { data, hasError, isLoading } = useFetch(`http://localhost:8080/listarDatos?tabla=${tableName}`, reloadFlag);
 
     const [dataProperties, setDataProperties] = useState([]);
+
+    const [filteredKeys, setFilteredKeys] = useState([]);
+    const [itemPK, setItemPK] = useState({});
+
     const [editData, setEditData] = useState({});
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal ] = useState(false);
+
+    useEffect(() => {
+        if ( schemaData && schemaData.length > 0) {
+          const keys = schemaData
+            .filter(field => field.Key === 'PRI') // Solo los campos con "PRI"
+            .map(field => field.Field);           // Obtenemos solo el nombre del campo (Field)
+          
+          setFilteredKeys(keys); // Actualizamos el estado con los campos filtrados
+        }
+      }, [schemaData]);
 
     useEffect(() => {
         if (data && Array.isArray(data.data.tableData) && data.data.tableData.length > 0) {
@@ -27,15 +42,17 @@ export const DataTableGraphic = ({ apiUrl, title }) => {
             initializeDataTable();
         }
     }, [data]);
-    
+
     const handleOnClickEdit = (item) => {
-        console.log("edit");
+        const filteredItem = Object.fromEntries(
+            Object.entries(item).filter(([key]) => filteredKeys.includes(key))
+        );
+        setItemPK(filteredItem);
         setEditData(item);
         setShowEditModal(true);
     };
 
     const handleOnClickDelete = (item) => {
-        console.log("delete");
         setEditData(item);
         setShowDeleteModal(true);
     };
@@ -57,7 +74,7 @@ export const DataTableGraphic = ({ apiUrl, title }) => {
                 data={editData}
                 isOpen={showEditModal}
                 onClose={handleCloseModal}
-                pkValue={data?.data?.id ?? "noPkValue"}
+                pkValue={itemPK}
                 tableName={data?.data?.tabla ?? "noTableValue"}
                 />
             <Modal
@@ -85,7 +102,7 @@ export const DataTableGraphic = ({ apiUrl, title }) => {
                             <thead>
                                 <tr>
                                     {dataProperties.map(prop => (
-                                        <th key={prop}>{prop}</th>
+                                        <th>{prop}</th>
                                     ))}
                                     <th>Editar</th>
                                     <th>Eliminar</th>
@@ -93,9 +110,9 @@ export const DataTableGraphic = ({ apiUrl, title }) => {
                             </thead>
                             <tbody>
                                 {data.data.tableData.map((item, index) => (
-                                    <tr key={item.id} name={item.id}>
+                                    <tr>
                                         {dataProperties.map(prop => (
-                                            <td key={prop} name={prop}>
+                                            <td name={prop}>
                                                 {typeof item[prop] === 'object' ? JSON.stringify(item[prop]) : item[prop]}
                                             </td>
                                         ))}
