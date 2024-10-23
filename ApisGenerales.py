@@ -41,7 +41,7 @@ def listar_datos():
     not_primary_keys = ['tabla', 'formato']
 
     filtered_args = {key: value for key, value in args_dict.items() if key not in not_primary_keys}
-    concatenated_filter = 'AND'.join([f"{key}={value}" for key, value in filtered_args.items()])
+    concatenated_filter = ' AND'.join([f"{key}={value}" for key, value in filtered_args.items()])
     if concatenated_filter != '':
         concatenated_filter = 'WHERE '+concatenated_filter
 
@@ -98,8 +98,11 @@ def listar_datos():
             cursor.close()
             conn.close()
 
-@app.route('/schema/<table_name>', methods=['GET'])
-def get_table_schema(table_name):
+@app.route('/schema', methods=['GET'])
+def get_table_schema():
+    args = request.args
+    tabla = args.get('tabla')
+
     try:
         conn = mysql.connector.connect(**config)
         if not conn:
@@ -108,7 +111,7 @@ def get_table_schema(table_name):
         cursor = conn.cursor()
         
         # Ejecutar una consulta para obtener la información del esquema de la tabla
-        cursor.execute(f"DESCRIBE {table_name}")
+        cursor.execute(f"DESCRIBE {tabla}")
         schema = cursor.fetchall()
         
         # Transformar el resultado en un formato más legible
@@ -145,7 +148,9 @@ def modificar_datos():
     primary_keys = data.get('primaryKeys')  
     form_data = data.get('formData')
 
-    concatenated_filter = 'AND'.join([f"{key}={value}" for key, value in primary_keys.items()])
+    concatenated_filter = ' AND'.join([f"{key}={value}" for key, value in primary_keys.items()])
+    if concatenated_filter != '':
+        concatenated_filter = 'WHERE '+concatenated_filter
 
     if table_name not in ALLOWED_TABLES:
         return jsonify({'status': 'fail', 'error': 'Tabla no permitida'}), 403
@@ -159,7 +164,7 @@ def modificar_datos():
         valores = list(form_data.values())
 
         # Construir la consulta de actualización
-        sql_query = f"UPDATE {table_name} SET {set_clause} WHERE {concatenated_filter}"
+        sql_query = f"UPDATE {table_name} SET {set_clause} {concatenated_filter}"
 
         log_query = sql_query % tuple(valores)  # Sustituye los %s por los valores reales
         print("Consulta SQL para depuración:", log_query)
@@ -188,11 +193,21 @@ def modificar_datos():
             cursor.close()
             conn.close()
 
-@app.route('/eliminarDatos', methods=['PUT'])
-def eliminar_datos(idDispositivo):
+@app.route('/eliminarDatos', methods=['GET'])
+def eliminar_datos():
     args = request.args
     tabla = args.get('tabla')  # El nombre de la tabla viene como un parámetro
-    idValor = args.get('id')  # El valor de la clave primaria
+
+    args_dict = request.args.to_dict()
+    not_primary_keys = ['tabla']
+
+    filtered_args = {key: value for key, value in args_dict.items() if key not in not_primary_keys}
+    concatenated_filter = ' AND'.join([f"{key}={value}" for key, value in filtered_args.items()])
+    if concatenated_filter != '':
+        concatenated_filter = 'WHERE '+concatenated_filter
+
+    if concatenated_filter == '':
+        return jsonify({'status': 'fail', 'error': 'Se requiere un ID'}), 403
 
     if tabla not in ALLOWED_TABLES:
         return jsonify({'status': 'fail', 'error': 'Tabla no permitida'}), 403
@@ -201,36 +216,8 @@ def eliminar_datos(idDispositivo):
         conn = mysql.connector.connect(**config)
         cursor = conn.cursor()
 
-        primary_key_query = """
-                SELECT COLUMN_NAME
-                FROM information_schema.KEY_COLUMN_USAGE
-                WHERE TABLE_SCHEMA = %s
-                AND TABLE_NAME = %s
-                AND CONSTRAINT_NAME = 'PRIMARY'
-                """
-        cursor.execute(primary_key_query, (config['database'], tabla))
-        primary_key_column = cursor.fetchone()
-
-        if not primary_key_column:
-            return jsonify({'status': 'fail', 'error': 'No se encontró clave primaria para esta tabla'}), 400
-
-        primary_key_column = primary_key_column[0]
-
-        datos = request.json
-
-        if not datos or not isinstance(datos, dict):
-            return jsonify({'status': 'fail', 'error': 'Datos no válidos o faltantes'}), 400
-
-        # Generar dinámicamente la consulta SQL para actualizar los campos
-        set_clause = ", ".join([f"{key} = %s" for key in datos.keys()])
-        valores = list(datos.values())
-        valores.append(idValor)  # Agregar el valor del ID para la cláusula WHERE
-
-        # Construir la consulta de actualización
-        sql_query = f"UPDATE {tabla} SET {set_clause} WHERE {primary_key_column} = %s"
-        
-        # Ejecutar la consulta
-        cursor.execute(sql_query, valores)
+        sql_query = f"DELETE FROM {tabla} {concatenated_filter}"
+        cursor.execute(sql_query)
         conn.commit()
 
         if cursor.rowcount == 0:
@@ -240,7 +227,11 @@ def eliminar_datos(idDispositivo):
 
     except mysql.connector.Error as e:
         mensaje_error = f"Error al conectarse a la base de datos: {e}"
-        print(mensaje_error)
+
+        if(e.errno == 1451):
+            mensaje_error = f"Error: No es posible eliminar el registro pues existe una referencia a este en otra tabla\n{e}"
+            
+        print(mensaje_error)        
         return jsonify({'status': 'fail', 'error': mensaje_error}), 500
 
     except Exception as e:

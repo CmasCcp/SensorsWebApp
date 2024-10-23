@@ -6,7 +6,7 @@ import { Modal } from '../Modal';
 
 export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => {
 
-    const { data:schemaData, hasError:schemaHasError, isLoading:schemaIsLoading } = useFetch(`http://localhost:8080/schema/${tableName}`); 
+    const { data:schemaData, hasError:schemaHasError, isLoading:schemaIsLoading } = useFetch(`http://localhost:8080/schema?tabla=${tableName}`); 
     const { data, hasError, isLoading } = useFetch(`http://localhost:8080/listarDatos?tabla=${tableName}`, reloadFlag);
 
     const [dataProperties, setDataProperties] = useState([]);
@@ -53,6 +53,10 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => 
     };
 
     const handleOnClickDelete = (item) => {
+        const filteredItem = Object.fromEntries(
+            Object.entries(item).filter(([key]) => filteredKeys.includes(key))
+        );
+        setItemPK(filteredItem);
         setEditData(item);
         setShowDeleteModal(true);
     };
@@ -85,15 +89,17 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => 
                 data={editData}
                 isOpen={showDeleteModal}
                 onClose={handleCloseModal}
+                pkValue={itemPK}
+                tableName={data?.data?.tabla ?? "noTableValue"}
             />
 
-            <div className="card my-4">
+           <div>
                 <div className="card-header">
                     <i className="fas fa-table me-1 mr-2"></i>
                     {title}
                 </div>
 
-                <div className="card-body table-responsive">
+                <div className=" table-responsive">
                     {isLoading && (<div className="error-message">Cargando...</div>)}
                     {!!hasError && (<div className="error-message">{hasError.message}</div>)}
 

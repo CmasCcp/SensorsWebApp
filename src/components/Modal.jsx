@@ -45,6 +45,29 @@ export const Modal = ({ type, title, id, action, properties, data, isOpen, onClo
         }
     };
 
+    const handleRemove = async () => {
+        try {
+            const queryString = Object.keys(pkValue)
+                .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(pkValue[key])}`)
+                .join('&');
+
+            const response = await fetch(`http://localhost:8080/eliminarDatos?tabla=${tableName}&${queryString}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                console.log('Dispositivo actualizado correctamente');
+            } else {
+                console.error('Error al actualizar el dispositivo');
+            }
+        } catch (error) {
+            console.error('Error al hacer la solicitud:', error);
+        }
+    };
+
     // Actualizar el estado del formulario cuando cambia
     const handleFormChange = (newData) => {
         setFormData(newData);
@@ -89,8 +112,12 @@ export const Modal = ({ type, title, id, action, properties, data, isOpen, onClo
                               type="button" 
                               className={`btn btn-${type}`} 
                               onClick={() => {
+                                   if(action=="Editar"){
+                                        handleSend();  // Llamar a la función para enviar los datos
+                                   } else if(action=="Eliminar"){
+                                        handleRemove();
+                                   }
                                   onClose();
-                                  handleSend();  // Llamar a la función para enviar los datos
                               }}>
                               {action}
                             </button>
