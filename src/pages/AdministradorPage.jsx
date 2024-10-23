@@ -16,16 +16,18 @@ export const AdministradorPage = () => {
 
         
         <div className="row">
-          <button className='btn' onClick={()=>handleClick("Users")}>Users</button>
-          <button className='btn' onClick={()=>handleClick("Todos")}>Todos</button>
-          <button className='btn' onClick={()=>handleClick("Posts")}>Posts</button>
+        <button className='btn' onClick={()=>handleClick("Mediciones")}>Mediciones</button>
+        <button className='btn' onClick={()=>handleClick("Sensores")}>Sensores</button>
+        <button className='btn' onClick={()=>handleClick("Dispositivos")}>Dispositivos</button>
+        <button className='btn' onClick={()=>handleClick("Proyectos")}>Proyectos</button>
+
         </div>
         <hr className='m-0'/>
 
-        
-        {option === "Todos" && <DataTableGraphic title={option} apiUrl={`https://jsonplaceholder.typicode.com/todos`} />}
-        {option === "Users" && <DataTableGraphic title={option} apiUrl={`https://jsonplaceholder.typicode.com/users`} />}
-        {option === "Posts" && <DataTableGraphic title={option} apiUrl={`https://jsonplaceholder.typicode.com/posts`} />}
+        {option === "Mediciones" && <DataTableGraphic title={option} apiUrl={`http://localhost:8080/listarDatos?tabla=medicion`} />}
+        {option === "Sensores" && <DataTableGraphic title={option} apiUrl={`http://localhost:8080/listarDatos?tabla=sensores`} />}
+        {option === "Dispositivos" && <DataTableGraphic title={option} apiUrl={`http://localhost:8080/listarDatos?tabla=dispositivos`} />}
+        {option === "Proyectos" && <DataTableGraphic title={option} apiUrl={`http://localhost:8080/listarDatos?tabla=proyectos`} />}
 
     </div>
   )

@@ -1,0 +1,27 @@
+{
+    "homeAccountId": "928238ce-0f7a-414d-8a2b-d55404a7cc3d.b5d78927-25d0-44a9-8370-d86e57c7ba96",
+    "environment": "login.windows.net",
+    "tenantId": "b5d78927-25d0-44a9-8370-d86e57c7ba96",
+    "username": "sariasn@udd.cl",
+    "localAccountId": "928238ce-0f7a-414d-8a2b-d55404a7cc3d",
+    "name": "Simon Francisco Arias Neira",
+    "authorityType": "MSSTS",
+    "tenantProfiles": {},
+    "idTokenClaims": {
+        "aud": "61c007e7-7036-4b52-9156-0394c2b31132",
+        "iss": "https://login.microsoftonline.com/b5d78927-25d0-44a9-8370-d86e57c7ba96/v2.0",
+        "iat": 1727980220,
+        "nbf": 1727980220,
+        "exp": 1727984120,
+        "name": "Simon Francisco Arias Neira",
+        "nonce": "019253a9-ed84-7dde-b402-669bc2207868",
+        "oid": "928238ce-0f7a-414d-8a2b-d55404a7cc3d",
+        "preferred_username": "sariasn@udd.cl",
+        "rh": "0.ATQAJ4nXtdAlqUSDcNhuV8e6lucHwGE2cFJLkVYDlMKzETI0AEM.",
+        "sub": "zgZtS2Seq18mNxoYhBNDYs2cecdotSkMccf-OTzJKks",
+        "tid": "b5d78927-25d0-44a9-8370-d86e57c7ba96",
+        "uti": "_j-rIsX-D0qEr_prIoNdAA",
+        "ver": "2.0"
+    },
+    "idToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ik1jN2wzSXo5M2c3dXdnTmVFbW13X1dZR1BrbyJ9.eyJhdWQiOiI2MWMwMDdlNy03MDM2LTRiNTItOTE1Ni0wMzk0YzJiMzExMzIiLCJpc3MiOiJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vYjVkNzg5MjctMjVkMC00NGE5LTgzNzAtZDg2ZTU3YzdiYTk2L3YyLjAiLCJpYXQiOjE3Mjc5ODAyMjAsIm5iZiI6MTcyNzk4MDIyMCwiZXhwIjoxNzI3OTg0MTIwLCJuYW1lIjoiU2ltb24gRnJhbmNpc2NvIEFyaWFzIE5laXJhIiwibm9uY2UiOiIwMTkyNTNhOS1lZDg0LTdkZGUtYjQwMi02NjliYzIyMDc4NjgiLCJvaWQiOiI5MjgyMzhjZS0wZjdhLTQxNGQtOGEyYi1kNTU0MDRhN2NjM2QiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJzYXJpYXNuQHVkZC5jbCIsInJoIjoiMC5BVFFBSjRuWHRkQWxxVVNEY05odVY4ZTZsdWNId0dFMmNGSkxrVllEbE1LekVUSTBBRU0uIiwic3ViIjoiemdadFMyU2VxMThtTnhvWWhCTkRZczJjZWNkb3RTa01jY2YtT1R6SktrcyIsInRpZCI6ImI1ZDc4OTI3LTI1ZDAtNDRhOS04MzcwLWQ4NmU1N2M3YmE5NiIsInV0aSI6Il9qLXJJc1gtRDBxRXJfcHJJb05kQUEiLCJ2ZXIiOiIyLjAifQ.Avlc0283gON9NSvOW-sbge4c_bVRrW_G0bFPTEeX8XLGN6W4sh_3PTn_d6vh9x0l8F-70yMjB8d5nVsRyjGEwMTJBOiktOnijpeoxplcmJLk3ml9nVecrX8ljHR7xM_G3RaWzOZNtq9cP8OZS19YkE8h5_n9bna-VpeilCHxBKNh2OBhXySu6Y1ie09ZE5CAeZPI-Qum0sMUhUQzxmvhfr1n_e25o65tQRn0zrWRP5gcLP60zszQTeItJAgGCL4A7ec4ltvjreeeOTnZXfqukaxYYrA1ysHDfPwOm41OgNSlz2_f4rLocWV_R-l5J5KOzF6Pu1KU2LPRzvV3PAUI_A"
+}

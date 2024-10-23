@@ -14,8 +14,8 @@ export const DataTableGraphic = ({ apiUrl, title }) => {
     const [showDeleteModal, setShowDeleteModal ] = useState(false);
 
     useEffect(() => {
-        if (data && Array.isArray(data) && data.length > 0) {
-            setDataProperties(Object.keys(data[0]));
+        if (data && Array.isArray(data.data.tableData) && data.data.tableData.length > 0) {
+            setDataProperties(Object.keys(data.data.tableData[0]));
     
             const initializeDataTable = () => {
                 const datatablesSimple = document.getElementById('datatablesSimple');
@@ -57,6 +57,8 @@ export const DataTableGraphic = ({ apiUrl, title }) => {
                 data={editData}
                 isOpen={showEditModal}
                 onClose={handleCloseModal}
+                pkValue={data?.data?.id ?? "noPkValue"}
+                tableName={data?.data?.tabla ?? "noTableValue"}
                 />
             <Modal
                 type={"danger"}
@@ -90,7 +92,7 @@ export const DataTableGraphic = ({ apiUrl, title }) => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {data.map((item, index) => (
+                                {data.data.tableData.map((item, index) => (
                                     <tr key={item.id} name={item.id}>
                                         {dataProperties.map(prop => (
                                             <td key={prop} name={prop}>
