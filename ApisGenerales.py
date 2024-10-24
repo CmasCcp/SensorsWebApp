@@ -2,34 +2,38 @@ from flask import Flask, jsonify, request, Response
 from flask_cors import CORS
 
 import mysql.connector
-import json
 import csv
 import decimal
 from datetime import datetime, date
 import io
-import os
 
 app = Flask(__name__)
 CORS(app)
 
-ALLOWED_TABLES = [
-'datos',
-'dispositivos',
-'estados',
-'laboratorios',
-'personas',
-'proyectos',
-'roles',
-'rolesenlaboratorios',
-'rolesenproyectos',
-'sensores',
-'sensoresendispositivo',
-'sensorestipo',
-'sesiones',
-'variables'
+ALLOWED_TABLES_PROP = [
+  {'displayName': 'Datos', 'dataName': 'datos'},
+  {'displayName': 'Dispositivos', 'dataName': 'dispositivos'},
+  {'displayName': 'Estados', 'dataName': 'estados'},
+  {'displayName': 'Laboratorios', 'dataName': 'laboratorios'},
+  {'displayName': 'Personas', 'dataName': 'personas'},
+  {'displayName': 'Proyectos', 'dataName': 'proyectos'},
+  {'displayName': 'Roles', 'dataName': 'roles'},
+  {'displayName': 'Roles En Laboratorio', 'dataName': 'rolesenlaboratorios'},
+  {'displayName': 'Roles En Proyecto', 'dataName': 'rolesenproyectos'},
+  {'displayName': 'Sensores', 'dataName': 'sensores'},
+  {'displayName': 'Sensores En dispositivos', 'dataName': 'sensoresendispositivo'},
+  {'displayName': 'Sensores Tipo', 'dataName': 'sensorestipo'},
+  {'displayName': 'Sesiones', 'dataName': 'sesiones'},
+  {'displayName': 'Variables', 'dataName': 'variables'}
 ]
+
+ALLOWED_TABLES = [table['dataName'] for table in ALLOWED_TABLES_PROP]
+
 config = {"user": "root", "password": "root", "host": "localhost", "database": "sensores_dev", "port": 3306}
 
+@app.route('/listarTablas', methods=['GET'])
+def listar_tablas():
+    return jsonify(ALLOWED_TABLES_PROP)
 
 @app.route('/listarDatos', methods=['GET'])
 def listar_datos():

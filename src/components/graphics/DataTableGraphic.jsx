@@ -39,9 +39,10 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => 
                 }
             };
     
-            initializeDataTable();
+            initializeDataTable();   
         }
     }, [data]);
+
 
     const handleOnClickEdit = (item) => {
         const filteredItem = Object.fromEntries(
