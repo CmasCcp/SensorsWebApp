@@ -27,7 +27,7 @@ export const Modal = ({ type, title, id, action, properties, data, isOpen, onClo
                 formData: formData  // Los datos del formulario
             };
 
-            const response = await fetch(`http://localhost:8080/modificarDatos`, {
+            const response = await fetch(`http://localhost:8084/modificarDatos`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ export const Modal = ({ type, title, id, action, properties, data, isOpen, onClo
                 .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(pkValue[key])}`)
                 .join('&');
 
-            const response = await fetch(`http://localhost:8080/eliminarDatos?tabla=${tableName}&${queryString}`, {
+            const response = await fetch(`http://localhost:8084/eliminarDatos?tabla=${tableName}&${queryString}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

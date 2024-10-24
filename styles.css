@@ -132,10 +132,13 @@ body{
   }
   
   /* Efecto de hover para mayor elevación */
+  
+  /*
   .card:hover {
     transform: translateY(-5px);
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
   }
+  */
   
   /* Título de la tarjeta */
   .card-title {

@@ -6,8 +6,8 @@ import { Modal } from '../Modal';
 
 export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => {
 
-    const { data:schemaData, hasError:schemaHasError, isLoading:schemaIsLoading } = useFetch(`http://localhost:8080/schema?tabla=${tableName}`); 
-    const { data, hasError, isLoading } = useFetch(`http://localhost:8080/listarDatos?tabla=${tableName}`, reloadFlag);
+    const { data:schemaData, hasError:schemaHasError, isLoading:schemaIsLoading } = useFetch(`http://localhost:8084/schema?tabla=${tableName}`); 
+    const { data, hasError, isLoading } = useFetch(`http://localhost:8084/listarDatos?tabla=${tableName}`, reloadFlag);
 
     const [dataProperties, setDataProperties] = useState([]);
 
