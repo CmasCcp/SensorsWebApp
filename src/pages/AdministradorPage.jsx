@@ -5,7 +5,7 @@ import { useFetch } from '../hooks/useFetch';
 export const AdministradorPage = () => {
   const [option, setOption] = useState();
 
-  const { data:options } = useFetch('http://localhost:8084/listarTablas')
+  const { data:options } = useFetch(`${import.meta.env.VITE_API_URL}/listarTablas`)
 
   const handleClick = (option) => {
     setOption(option);
