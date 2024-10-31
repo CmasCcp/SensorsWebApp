@@ -1,8 +1,14 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Form } from './Form';
 
-export const Modal = ({ type, title, id, action, properties, data, isOpen, onClose }) => {
+
+export const Modal = ({ type, title, id, action, properties, data, isOpen, onClose, pkValue, tableName }) => {
     const modalRef = useRef(null);
+    const [formData, setFormData] = useState();
+
+    useEffect(() => {
+        setFormData(data);
+    }, [data]);
 
     useEffect(() => {
         if (isOpen) {
@@ -11,6 +17,61 @@ export const Modal = ({ type, title, id, action, properties, data, isOpen, onClo
             $(modalRef.current).modal('hide');
         }
     }, [isOpen]);
+
+    // Manejar el cambio en los datos del formulario
+    const handleSend = async () => {
+        try {
+            const payload = {
+                tableName: tableName,
+                primaryKeys: pkValue,
+                formData: formData  // Los datos del formulario
+            };
+
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/modificarDatos`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),  // Enviar los datos del formulario como JSON
+            });
+
+            if (response.ok) {
+                console.log('Dispositivo actualizado correctamente');
+            } else {
+                console.error('Error al actualizar el dispositivo');
+            }
+        } catch (error) {
+            console.error('Error al hacer la solicitud:', error);
+        }
+    };
+
+    const handleRemove = async () => {
+        try {
+            const queryString = Object.keys(pkValue)
+                .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(pkValue[key])}`)
+                .join('&');
+
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/eliminarDatos?tabla=${tableName}&${queryString}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                console.log('Dispositivo actualizado correctamente');
+            } else {
+                console.error('Error al actualizar el dispositivo');
+            }
+        } catch (error) {
+            console.error('Error al hacer la solicitud:', error);
+        }
+    };
+
+    // Actualizar el estado del formulario cuando cambia
+    const handleFormChange = (newData) => {
+        setFormData(newData);
+    };
 
     return (
         <div className="container mt-5">
@@ -37,12 +98,29 @@ export const Modal = ({ type, title, id, action, properties, data, isOpen, onClo
                             </button>
                         </div>
                         <div className="modal-body">
-                            {action === "Editar" && <Form properties={properties} data={data} />}
+                            {action === "Editar" && 
+                              <Form 
+                                properties={properties} 
+                                data={formData} 
+                                onChange={handleFormChange}  // Pasar la función para actualizar el formulario
+                              />}
                             {action === "Eliminar" && <p className='text-center'>¿Estás seguro de eliminar la fila {JSON.stringify(data.id)}?</p>}
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" onClick={onClose}>Cerrar</button>
-                            <button type="button" className={`btn btn-${type}`} onClick={onClose}>{action}</button>
+                            <button 
+                              type="button" 
+                              className={`btn btn-${type}`} 
+                              onClick={() => {
+                                   if(action=="Editar"){
+                                        handleSend();  // Llamar a la función para enviar los datos
+                                   } else if(action=="Eliminar"){
+                                        handleRemove();
+                                   }
+                                  onClose();
+                              }}>
+                              {action}
+                            </button>
                         </div>
                     </div>
                 </div>

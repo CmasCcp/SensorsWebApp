@@ -1,32 +1,46 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react';
 import { DataTableGraphic } from '../components/graphics/DataTableGraphic'
-
+import { useFetch } from '../hooks/useFetch';
 
 export const AdministradorPage = () => {
+  const [option, setOption] = useState();
 
-  const [option, setOption] = useState("Todos");
+  const { data:options } = useFetch(`${import.meta.env.VITE_API_URL}/listarTablas`)
 
-  const handleClick = (option)=>{
+  const handleClick = (option) => {
     setOption(option);
-  }
+  };
 
   return (
-    <div className='col-12 p-5'>
-        <h2>Administrador</h2>
+    <div className="container-fluid d-flex justify-content-center align-items-center">
+      <div className="card">
+        <h2 className="card-title">Administrador</h2>
+        <div className="card-content">
+          <div className="row">
+            {options !== null && options.map((opt) => (
+              <button
+               key={opt.dataName}
+               className='btn m-1'
+               onClick={() => handleClick(opt.displayName)}
+              >
+                {opt.displayName}
+              </button>
+            ))}
+          </div>
 
         
-        <div className="row">
-          <button className='btn' onClick={()=>handleClick("Users")}>Users</button>
-          <button className='btn' onClick={()=>handleClick("Todos")}>Todos</button>
-          <button className='btn' onClick={()=>handleClick("Posts")}>Posts</button>
+          {options !== null && options.map((opt) => (
+            option === opt.displayName && (
+              <DataTableGraphic
+                key={opt.dataName}
+                title={opt.displayName}
+                tableName={opt.dataName}
+              />
+          )
+        ))}
         </div>
-        <hr className='m-0'/>
-
-        
-        {option === "Todos" && <DataTableGraphic title={option} apiUrl={`https://jsonplaceholder.typicode.com/todos`} />}
-        {option === "Users" && <DataTableGraphic title={option} apiUrl={`https://jsonplaceholder.typicode.com/users`} />}
-        {option === "Posts" && <DataTableGraphic title={option} apiUrl={`https://jsonplaceholder.typicode.com/posts`} />}
-
+      </div>
     </div>
-  )
-}
+  );
+};
+
