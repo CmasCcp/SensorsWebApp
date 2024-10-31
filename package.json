@@ -15,6 +15,7 @@
     "@azure/msal-react": "^2.0.22",
     "@react-three/fiber": "^8.13.6",
     "@reduxjs/toolkit": "1.9.3",
+    "install": "^0.13.0",
     "package.json": "^2.0.1",
     "powerbi-client": "^2.23.1",
     "powerbi-client-react": "^1.4.0",
