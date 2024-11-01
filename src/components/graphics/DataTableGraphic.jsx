@@ -6,7 +6,7 @@ import { Modal } from '../Modal';
 
 export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => {
 
-    const { data:schemaData, hasError:schemaHasError, isLoading:schemaIsLoading } = useFetch(`${import.meta.env.VITE_API_URL}/schema?tabla=${tableName}`); 
+    const { data: schemaData, hasError: schemaHasError, isLoading: schemaIsLoading } = useFetch(`${import.meta.env.VITE_API_URL}/schema?tabla=${tableName}`);
     const { data, hasError, isLoading } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}`, reloadFlag);
 
     const [dataProperties, setDataProperties] = useState([]);
@@ -15,31 +15,44 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => 
     const [itemPK, setItemPK] = useState({});
 
     const [editData, setEditData] = useState({});
+
     const [showEditModal, setShowEditModal] = useState(false);
-    const [showDeleteModal, setShowDeleteModal ] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showAddModal, setShowAddModal] = useState(false);
 
     useEffect(() => {
-        if ( schemaData && schemaData.length > 0) {
-          const keys = schemaData
-            .filter(field => field.Key === 'PRI') // Solo los campos con "PRI"
-            .map(field => field.Field);           // Obtenemos solo el nombre del campo (Field)
-          
-          setFilteredKeys(keys); // Actualizamos el estado con los campos filtrados
+        if (schemaData && schemaData.length > 0) {
+            const keys = schemaData
+                .filter(field => field.Key === 'PRI') // Solo los campos con "PRI"
+                .map(field => field.Field);           // Obtenemos solo el nombre del campo (Field)
+
+            setFilteredKeys(keys); // Actualizamos el estado con los campos filtrados
+            
+            
+            console.log(schemaData);
+            
+            const dataKeys = schemaData
+                .map(field => field.Field);
+
+            setDataProperties(dataKeys); // En caso de no tener datos, puedo establecer los keys desde el schema data
         }
-      }, [schemaData]);
+    }, [schemaData]);
 
     useEffect(() => {
         if (data && Array.isArray(data.data.tableData) && data.data.tableData.length > 0) {
-            setDataProperties(Object.keys(data.data.tableData[0]));
-    
+
+
+            // CREO QUE ES MEJOR ESTABLECER LAS PROPIEDADES CON EL SCHEMADATA, PARA QUE CUANDO NO HAYAN DATOS, IGUAL SE PUEDA CREAR LA TABLA
+            // setDataProperties(Object.keys(data.data.tableData[0]));
+
             const initializeDataTable = () => {
                 const datatablesSimple = document.getElementById('datatablesSimple');
                 if (datatablesSimple instanceof HTMLTableElement) {
                     new DataTable(datatablesSimple);
                 }
             };
-    
-            initializeDataTable();   
+
+            initializeDataTable();
         }
     }, [data]);
 
@@ -50,18 +63,23 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => 
         );
         setItemPK(filteredItem);
         setEditData(item);
-        setShowEditModal(true);
+        setShowEditModal(prev => !prev);
     };
 
     const handleOnClickDelete = (item) => {
+        console.log("delete1");
         const filteredItem = Object.fromEntries(
             Object.entries(item).filter(([key]) => filteredKeys.includes(key))
         );
         setItemPK(filteredItem);
         setEditData(item);
-        setShowDeleteModal(true);
+        setShowDeleteModal(prev => !prev);
     };
-    
+
+    const handleOnClickAdd = () => {
+        setShowAddModal(prev => !prev);
+    };
+
     const handleCloseModal = () => {
         setEditData({});
         setShowEditModal(false);
@@ -70,31 +88,45 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => 
 
     return (
         <>
-            <Modal
-                type={"primary"}
-                action="Editar"
-                title="Editar fila"
-                id="insertModal"
-                properties={dataProperties}
-                data={editData}
-                isOpen={showEditModal}
-                onClose={handleCloseModal}
-                pkValue={itemPK}
-                tableName={data?.data?.tabla ?? "noTableValue"}
+            <>
+                <Modal
+                    type={"primary"}
+                    action="Editar"
+                    title="Editar fila"
+                    id="insertModal"
+                    properties={dataProperties}
+                    data={editData}
+                    isOpen={showEditModal}
+                    onClose={handleCloseModal}
+                    pkValue={itemPK}
+                    tableName={data?.data?.tabla ?? "noTableValue"}
                 />
-            <Modal
-                type={"danger"}
-                action="Eliminar"
-                title="Eliminar fila"
-                id="deleteModal"
-                data={editData}
-                isOpen={showDeleteModal}
-                onClose={handleCloseModal}
-                pkValue={itemPK}
-                tableName={data?.data?.tabla ?? "noTableValue"}
-            />
+                <Modal
+                    type={"danger"}
+                    action="Eliminar"
+                    title="Eliminar fila"
+                    id="deleteModal"
+                    data={editData}
+                    isOpen={showDeleteModal}
+                    onClose={handleCloseModal}
+                    pkValue={itemPK}
+                    tableName={data?.data?.tabla ?? "noTableValue"}
+                />
 
-           <div>
+                <Modal
+                    type={"warning"}
+                    action={"Agregar"}
+                    title={"Agregar fila"}
+                    id="addModal"
+                    properties={dataProperties}
+                    isOpen={showAddModal}
+                    onClose={handleCloseModal}
+                    tableName={data?.data?.tabla ?? "noTableValue"}
+
+                />
+            </>
+
+            <div>
                 <div className="card-header">
                     <i className="fas fa-table me-1 mr-2"></i>
                     {title}
@@ -138,6 +170,13 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => 
                             </tbody>
                         </table>
                     )}
+
+                    <div className="row">
+                        <button
+                            className='btn m-1 ml-auto'
+                            onClick={() => handleOnClickAdd(title)}
+                        >Agregar {title}</button>
+                    </div>
                 </div>
             </div>
         </>

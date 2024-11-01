@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { DataTableGraphic } from '../components/graphics/DataTableGraphic'
 import { useFetch } from '../hooks/useFetch';
+import { Modal } from '../components/Modal';
 
 export const AdministradorPage = () => {
   const [option, setOption] = useState();
 
-  const { data:options } = useFetch(`${import.meta.env.VITE_API_URL}/listarTablas`)
+  const { data: options } = useFetch(`${import.meta.env.VITE_API_URL}/listarTablas`);
 
   const handleClick = (option) => {
     setOption(option);
   };
+
 
   return (
     <div className="container-fluid d-flex justify-content-center align-items-center">
@@ -19,25 +21,26 @@ export const AdministradorPage = () => {
           <div className="row">
             {options !== null && options.map((opt) => (
               <button
-               key={opt.dataName}
-               className='btn m-1'
-               onClick={() => handleClick(opt.displayName)}
+              key={opt.dataName}
+              className='btn m-1'
+              onClick={() => handleClick(opt.displayName)}
               >
                 {opt.displayName}
               </button>
             ))}
           </div>
 
-        
+
           {options !== null && options.map((opt) => (
             option === opt.displayName && (
               <DataTableGraphic
-                key={opt.dataName}
-                title={opt.displayName}
-                tableName={opt.dataName}
+              key={opt.dataName}
+              title={opt.displayName}
+              tableName={opt.dataName}
               />
-          )
-        ))}
+            )
+          ))}
+
         </div>
       </div>
     </div>
