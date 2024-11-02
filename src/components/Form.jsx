@@ -6,6 +6,8 @@ export const Form = ({ properties, data, onChange }) => {
     // Llamar a la función onChange con los nuevos datos actualizados
     onChange({ ...data, [name]: value });
   };
+
+  console.log(properties);
   
   return (
     <div className="container">
@@ -14,7 +16,11 @@ export const Form = ({ properties, data, onChange }) => {
         {properties.map(prop => (
           <div className="mb-3" key={prop}>
             <label htmlFor={prop} className="form-label">{prop}</label>
-            <input className="form-control" id={data[prop]} name={prop} defaultValue={data[prop]} onChange={handleChange}/>
+            {!!data 
+              ? <input className="form-control" id={data[prop]} name={prop} defaultValue={data[prop]} onChange={handleChange}/>
+              : <input className="form-control" name={prop}  onChange={handleChange}/>
+            }
+            
           </div>
         ))}
       </form>

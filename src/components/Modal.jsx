@@ -6,6 +6,8 @@ export const Modal = ({ type, title, id, action, properties, data, isOpen, onClo
     const modalRef = useRef(null);
     const [formData, setFormData] = useState();
 
+    console.log("prop", properties)
+
     useEffect(() => {
         setFormData(data);
     }, [data]);
@@ -45,6 +47,32 @@ export const Modal = ({ type, title, id, action, properties, data, isOpen, onClo
         }
     };
 
+    const handleAdd = async () => {
+        try {
+            const payload = {
+                tableName: tableName,
+                formData: formData  // Los datos del formulario
+            };
+            console.log("payload", payload);
+
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/agregarDatos`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),  // Enviar los datos del formulario como JSON
+            });
+
+            if (response.ok) {
+                console.log('Dispositivo actualizado correctamente');
+            } else {
+                console.error('Error al actualizar el dispositivo');
+            }
+        } catch (error) {
+            console.error('Error al hacer la solicitud:', error);
+        }
+    };
+
     const handleRemove = async () => {
         try {
             const queryString = Object.keys(pkValue)
@@ -67,6 +95,8 @@ export const Modal = ({ type, title, id, action, properties, data, isOpen, onClo
             console.error('Error al hacer la solicitud:', error);
         }
     };
+
+
 
     // Actualizar el estado del formulario cuando cambia
     const handleFormChange = (newData) => {
@@ -103,6 +133,12 @@ export const Modal = ({ type, title, id, action, properties, data, isOpen, onClo
                                 properties={properties} 
                                 data={formData} 
                                 onChange={handleFormChange}  // Pasar la función para actualizar el formulario
+                                />}
+                            {action === "Agregar" && 
+                              <Form 
+                                properties={properties}
+                                data={formData} 
+                                onChange={handleFormChange}  // Pasar la función para actualizar el formulario
                               />}
                             {action === "Eliminar" && <p className='text-center'>¿Estás seguro de eliminar la fila {JSON.stringify(data.id)}?</p>}
                         </div>
@@ -116,6 +152,8 @@ export const Modal = ({ type, title, id, action, properties, data, isOpen, onClo
                                         handleSend();  // Llamar a la función para enviar los datos
                                    } else if(action=="Eliminar"){
                                         handleRemove();
+                                   } else if(action=="Agregar"){
+                                        handleAdd();
                                    }
                                   onClose();
                               }}>

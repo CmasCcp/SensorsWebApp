@@ -248,6 +248,50 @@ def eliminar_datos():
             cursor.close()
             conn.close()
 
+@app.route('/agregarDatos', methods=['POST'])
+def agregar_datos():
+    data = request.get_json()
+    table_name = data.get('tableName')  # El nombre de la tabla
+    form_data = data.get('formData')  # Los valores del formulario
+    if table_name not in ALLOWED_TABLES:
+        return jsonify({'status': 'fail', 'error': 'Tabla no permitida'}), 403
+
+    try:
+        conn = mysql.connector.connect(**config)
+        cursor = conn.cursor()
+
+        # Generar dinámicamente la consulta SQL para insertar los campos
+        columns = ", ".join(form_data.keys())
+        placeholders = ", ".join(["%s"] * len(form_data))
+        valores = list(form_data.values())
+
+        # Construir la consulta de inserción
+        sql_query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+        
+        log_query = sql_query % tuple(valores)  # Para fines de depuración
+        print("Consulta SQL para depuración:", log_query)
+
+        # Ejecutar la consulta
+        cursor.execute(sql_query, valores)
+        conn.commit()
+
+        return jsonify({'status': 'success', 'message': 'Registro insertado correctamente'}), 201, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
+
+    except mysql.connector.Error as e:
+        mensaje_error = f"Error al conectarse a la base de datos: {e}"
+        print(mensaje_error)
+        return jsonify({'status': 'fail', 'error': mensaje_error}), 500
+
+    except Exception as e:
+        mensaje_error = f"Error desconocido: {e}"
+        print(mensaje_error)
+        return jsonify({'status': 'fail', 'error': mensaje_error}), 500
+
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+
 
 def generar_csv(data):
     if not data:
