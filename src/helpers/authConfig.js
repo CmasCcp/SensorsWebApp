@@ -1,8 +1,11 @@
+import * as config from './config';
+import { PublicClientApplication } from "@azure/msal-browser";
+
 // src/authConfig.js
-export const msalConfig = {
+const msalConfig = {
     auth: {
-        clientId: "fd9f480c-a4e3-4ad6-9250-f8ad25231a60", // Reemplaza con tu ID de cliente
-        authority: "https://login.microsoftonline.com/b5d78927-25d0-44a9-8370-d86e57c7ba96", // Para cuentas personales y de trabajo/educativas
+        clientId: config.clientId, // Reemplaza con tu ID de cliente
+        authority: config.authorityUrl, // Para cuentas personales y de trabajo/educativas
         redirectUri: import.meta.env.VITE_REDIRECT_URI, // Cambia al URI de redirección de tu aplicación
     },         
     cache: {
@@ -11,9 +14,4 @@ export const msalConfig = {
     }
 };
 
-export const loginRequest = {
-    scopes: [
-        "User.Read"
-    ], // Los permisos que estás solicitando
-    prompt: "login"
-};
+export const msalInstance = new PublicClientApplication(msalConfig);

@@ -1,6 +1,6 @@
 import { models } from 'powerbi-client';
 import { PowerBIEmbed } from 'powerbi-client-react';
-
+import * as config from "../helpers/config";
 const filter = {
   $schema: "http://powerbi.com/product/schema#basic",
   target: {
@@ -12,21 +12,20 @@ const filter = {
 };
 
 export const SensoresPage = ({ widthClose }) => {
-  const embedToken = localStorage.getItem('embedToken');
+  const embedToken = sessionStorage.getItem('embedToken');
 
   return (
     <div className="container-fluid d-flex justify-content-center align-items-center">
       <div className="card">
         <h2 className="card-title">Dashboard</h2>
         <div className="card-content">
-
         <PowerBIEmbed
           embedConfig = {{
             type: 'report',   // Supported types: report, dashboard, tile, visual, qna, paginated report and create
-            id: 'af0cd53d-4c4b-4ce8-b6d8-f7d85483408e',
-            embedUrl: 'https://app.powerbi.com/reportEmbed?reportId=af0cd53d-4c4b-4ce8-b6d8-f7d85483408e&groupId=869a590a-0426-48e3-8c31-ea20c5e79c6c&w=2&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLVNPVVRILUNFTlRSQUwtVVMtcmVkaXJlY3QuYW5hbHlzaXMud2luZG93cy5uZXQiLCJlbWJlZEZlYXR1cmVzIjp7InVzYWdlTWV0cmljc1ZOZXh0Ijp0cnVlfX0%3d',
+            id: config.reportId,
+            embedUrl: config.embedUrl,
             accessToken: embedToken,
-            tokenType: models.TokenType.Embed, // Use models.TokenType.Aad for SaaS embed
+            tokenType: models.TokenType.Aad, // Use models.TokenType.Aad for SaaS embed
             settings: {
               panes: {
                 filters: {
