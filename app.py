@@ -39,15 +39,16 @@ def listar_tablas():
 def listar_datos():
     args = request.args
     tabla = args.get('tabla')  # El nombre de la tabla viene como un parámetro
-    formato = args.get('format', 'json')
+    limit = int(args.get('limite',100))
+    offset = int(args.get('offset',0))
+    formato = args.get('formato', 'json')
 
     args_dict = request.args.to_dict()
-    not_primary_keys = ['tabla', 'formato']
+    not_primary_keys = ['tabla','limite', 'offset', 'formato']
 
     filtered_args = {key: value for key, value in args_dict.items() if key not in not_primary_keys}
-    concatenated_filter = ' AND'.join([f"{key}={value}" for key, value in filtered_args.items()])
-    if concatenated_filter != '':
-        concatenated_filter = 'WHERE '+concatenated_filter
+    where_clause  = ' AND '.join([f"{key}=%s" for key in filtered_args.keys()])
+    where_clause = f"WHERE {where_clause}" if where_clause else ""
 
     if tabla not in ALLOWED_TABLES:
         return jsonify({'status': 'fail', 'error': 'Tabla no permitida'}), 403
@@ -56,8 +57,9 @@ def listar_datos():
         conn = mysql.connector.connect(**config)
         cursor = conn.cursor()
         
-        sql_query = f"SELECT * FROM {tabla} {concatenated_filter}"
-        cursor.execute(sql_query)
+        sql_query = f"SELECT * FROM {tabla} {where_clause} LIMIT %s OFFSET %s"
+        params = list(filtered_args.values())+[limit, offset]
+        cursor.execute(sql_query, params)
 
         filas = cursor.fetchall()
 
@@ -114,6 +116,9 @@ def get_table_schema():
         
         cursor = conn.cursor()
         
+        cursor.execute(f"SELECT COUNT(*) FROM {tabla}")
+        total_count = cursor.fetchone()[0]
+
         # Ejecutar una consulta para obtener la información del esquema de la tabla
         cursor.execute(f"DESCRIBE {tabla}")
         schema = cursor.fetchall()
@@ -127,7 +132,8 @@ def get_table_schema():
                 "Null": column[2],
                 "Key": column[3],
                 "Default": column[4],
-                "Extra": column[5]
+                "Extra": column[5],
+                "Count": total_count
             }
             columns.append(column_info)
 

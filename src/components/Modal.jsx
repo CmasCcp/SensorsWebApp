@@ -1,12 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Form } from './Form';
 
-
-export const Modal = ({ type, title, id, action, properties, data, isOpen, onClose, pkValue, tableName }) => {
+export const Modal = ({ type, title, id, action, properties, data, isOpen, onClose, pkValue, tableName}) => {
     const modalRef = useRef(null);
     const [formData, setFormData] = useState();
-
-    console.log("prop", properties)
 
     useEffect(() => {
         setFormData(data);
@@ -96,8 +93,6 @@ export const Modal = ({ type, title, id, action, properties, data, isOpen, onClo
         }
     };
 
-
-
     // Actualizar el estado del formulario cuando cambia
     const handleFormChange = (newData) => {
         setFormData(newData);
@@ -143,10 +138,10 @@ export const Modal = ({ type, title, id, action, properties, data, isOpen, onClo
                             {action === "Eliminar" && <p className='text-center'>¿Estás seguro de eliminar la fila {JSON.stringify(data.id)}?</p>}
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" onClick={onClose}>Cerrar</button>
+                            <button type="button" className="btn m-1 btn-secondary" onClick={onClose}>Cerrar</button>
                             <button 
                               type="button" 
-                              className={`btn btn-${type}`} 
+                              className={`btn m-1 custom-button`} 
                               onClick={() => {
                                    if(action=="Editar"){
                                         handleSend();  // Llamar a la función para enviar los datos

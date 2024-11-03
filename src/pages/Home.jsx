@@ -12,10 +12,6 @@ export const Home = () => {
     //Accedemos a los valores
     var go_to = urlParams.get('go_to');
 
-    //Verificar si existe el parámetro
-    console.log(urlParams.has(go_to));
-    console.log(go_to)
-
     if (go_to === "herramientas") {
         // useNavigate(go_to)
         return (<Navigate to="/herramientas"/>);

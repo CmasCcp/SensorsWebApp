@@ -7,8 +7,6 @@ export const Form = ({ properties, data, onChange }) => {
     onChange({ ...data, [name]: value });
   };
 
-  console.log(properties);
-  
   return (
     <div className="container">
       <h2>Formulario</h2>

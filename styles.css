@@ -159,6 +159,19 @@ body{
     height: 70vh;
   }
 
+
+  .custom-button {
+    background-color: #2C2C2C;
+    color: #F4F5F7;
+    border: none;
+  }
+  .custom-button:hover {
+    background-color: #3D3D3D; /* Color ligeramente más claro para hover */
+  }
+  .custom-button .btn-text {
+    margin-right: 8px; /* Espacio entre el texto y el icono */
+  }
+  
 .transparencia-bg-1{
     background-color: rgba(0, 0, 0, 0.7);
 }

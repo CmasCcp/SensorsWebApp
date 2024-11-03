@@ -4,11 +4,12 @@ import 'simple-datatables/dist/style.css';
 import { useFetch } from '../../hooks/useFetch';
 import { Modal } from '../Modal';
 
-export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => {
+export const DataTableGraphic = ({ tableName, title, reloadFlag }) => {
 
     const { data: schemaData, hasError: schemaHasError, isLoading: schemaIsLoading } = useFetch(`${import.meta.env.VITE_API_URL}/schema?tabla=${tableName}`);
     const { data, hasError, isLoading } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}`, reloadFlag);
 
+    // Función para cargar los datos desde la API
     const [dataProperties, setDataProperties] = useState([]);
 
     const [filteredKeys, setFilteredKeys] = useState([]);
@@ -20,6 +21,7 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
 
+
     useEffect(() => {
         if (schemaData && schemaData.length > 0) {
             const keys = schemaData
@@ -27,9 +29,6 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => 
                 .map(field => field.Field);           // Obtenemos solo el nombre del campo (Field)
 
             setFilteredKeys(keys); // Actualizamos el estado con los campos filtrados
-            
-            
-            console.log(schemaData);
             
             const dataKeys = schemaData
                 .map(field => field.Field);
@@ -39,12 +38,7 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => 
     }, [schemaData]);
 
     useEffect(() => {
-        if (data && Array.isArray(data.data.tableData) && data.data.tableData.length > 0) {
-
-
-            // CREO QUE ES MEJOR ESTABLECER LAS PROPIEDADES CON EL SCHEMADATA, PARA QUE CUANDO NO HAYAN DATOS, IGUAL SE PUEDA CREAR LA TABLA
-            // setDataProperties(Object.keys(data.data.tableData[0]));
-
+        if (data && Array.isArray(data.data.tableData)) {
             const initializeDataTable = () => {
                 const datatablesSimple = document.getElementById('datatablesSimple');
                 if (datatablesSimple instanceof HTMLTableElement) {
@@ -112,7 +106,6 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => 
                     pkValue={itemPK}
                     tableName={data?.data?.tabla ?? "noTableValue"}
                 />
-
                 <Modal
                     type={"warning"}
                     action={"Agregar"}
@@ -122,8 +115,7 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => 
                     isOpen={showAddModal}
                     onClose={handleCloseModal}
                     tableName={data?.data?.tabla ?? "noTableValue"}
-
-                />
+                />              
             </>
 
             <div>
@@ -141,7 +133,7 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => 
                             <thead>
                                 <tr>
                                     {dataProperties.map(prop => (
-                                        <th>{prop}</th>
+                                        <th name={prop}>{prop}</th>
                                     ))}
                                     <th>Editar</th>
                                     <th>Eliminar</th>
@@ -170,15 +162,16 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, onReload }) => 
                             </tbody>
                         </table>
                     )}
-
-                    <div className="row">
-                        <button
-                            className='btn m-1 ml-auto'
-                            onClick={() => handleOnClickAdd(title)}
-                        >Agregar {title}</button>
-                    </div>
                 </div>
             </div>
+            <>
+            <div className="row my-4">
+                <button className="btn m-1 ml-auto custom-button" onClick={() => handleOnClickAdd(title)}>
+                    <span className="btn-text">Agregar {title}</span>
+                    <i className="fas fa-plus-circle"></i>
+                </button>
+            </div>  
+            </>
         </>
     );
 };

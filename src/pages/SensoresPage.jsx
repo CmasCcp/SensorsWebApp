@@ -1,6 +1,8 @@
 import { models } from 'powerbi-client';
 import { PowerBIEmbed } from 'powerbi-client-react';
 import * as config from "../helpers/config";
+import { useMsal } from '@azure/msal-react';
+
 const filter = {
   $schema: "http://powerbi.com/product/schema#basic",
   target: {
@@ -12,6 +14,9 @@ const filter = {
 };
 
 export const SensoresPage = ({ widthClose }) => {
+  const { accounts } = useMsal();
+  const username = accounts[0] && accounts[0].username;
+
   const embedToken = sessionStorage.getItem('embedToken');
 
   return (
@@ -19,7 +24,7 @@ export const SensoresPage = ({ widthClose }) => {
       <div className="card">
         <h2 className="card-title">Dashboard</h2>
         <div className="card-content">
-        <PowerBIEmbed
+        {username && (        <PowerBIEmbed
           embedConfig = {{
             type: 'report',   // Supported types: report, dashboard, tile, visual, qna, paginated report and create
             id: config.reportId,
@@ -65,7 +70,14 @@ export const SensoresPage = ({ widthClose }) => {
             //window.report = embeddedReport;
 
           }}
-        />
+        />)}
+        {!username &&(
+            <>
+            <h2>Acceso Restringido</h2>
+            <p>Para ver este contenido, es necesario que inicies sesión.</p>
+            </>
+          )}
+
         </div>
       </div>
     </div>
