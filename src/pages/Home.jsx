@@ -21,7 +21,7 @@ export const Home = () => {
         <div>
             <div className="container-fluid d-flex justify-content-center align-items-center">
                 <div className="card">
-                    <h2 className="card-title">Centro de investigación en tecnologías para la sociedad</h2>
+                    <h2 className="card-title">Centro de Investigación en Tecnologías para la Sociedad</h2>
                     <p className="card-content">Nuestra WebApp está diseñada para ofrecer una visualización integral de los sensores, proyectos, grupos y personas dentro del centro de investigación. Además, permite la manipulación de bases de datos de manera fácil y sencilla, facilitando la gestión y el acceso a la información crucial para los investigadores. Con esta herramienta, se optimiza la organización y el análisis de los datos, mejorando la eficiencia y colaboración dentro del centro.</p>
                 </div>
             </div>

@@ -11,25 +11,83 @@ app = Flask(__name__)
 CORS(app)
 
 ALLOWED_TABLES_PROP = [
-  {'displayName': 'Datos', 'dataName': 'datos'},
-  {'displayName': 'Dispositivos', 'dataName': 'dispositivos'},
-  {'displayName': 'Estados', 'dataName': 'estados'},
-  {'displayName': 'Laboratorios', 'dataName': 'laboratorios'},
-  {'displayName': 'Personas', 'dataName': 'personas'},
-  {'displayName': 'Proyectos', 'dataName': 'proyectos'},
-  {'displayName': 'Roles', 'dataName': 'roles'},
-  {'displayName': 'Roles En Laboratorio', 'dataName': 'rolesenlaboratorios'},
-  {'displayName': 'Roles En Proyecto', 'dataName': 'rolesenproyectos'},
-  {'displayName': 'Sensores', 'dataName': 'sensores'},
-  {'displayName': 'Sensores En dispositivos', 'dataName': 'sensoresendispositivo'},
-  {'displayName': 'Sensores Tipo', 'dataName': 'sensorestipo'},
-  {'displayName': 'Sesiones', 'dataName': 'sesiones'},
-  {'displayName': 'Variables', 'dataName': 'variables'}
+{'displayName':'Datos','dataName':'datos'},
+{'displayName':'Dispositivos','dataName':'dispositivos'},
+{'displayName':'Estados','dataName':'estados'},
+{'displayName':'Grupos','dataName':'grupos'},
+{'displayName':'Personas','dataName':'personas'},
+{'displayName':'Proyectos','dataName':'proyectos'},
+{'displayName':'Roles','dataName':'roles'},
+{'displayName':'Roles en grupos','dataName':'roles_en_grupos'},
+{'displayName':'Roles en proyectos','dataName':'roles_en_proyectos'},
+{'displayName':'Sensores','dataName':'sensores'},
+{'displayName':'Sensores en dispositivo','dataName':'sensores_en_dispositivo'},
+{'displayName':'Sensores tipo','dataName':'sensores_tipo'},
+{'displayName':'Sesiones','dataName':'sesiones'},
+{'displayName':'Variables','dataName':'variables'},
+{'displayName':'Variables en sensores','dataName':'variables_en_sensores'},
 ]
+
 
 ALLOWED_TABLES = [table['dataName'] for table in ALLOWED_TABLES_PROP]
 
 config = {"user": "root", "password": "root", "host": "localhost", "database": "sensores_dev", "port": 3306}
+
+@app.route('/insertarMedicion', methods=['GET'])
+def insertar_medicion():
+    timestamps = request.args.get('times', '').split(',')
+    sensor_ids = request.args.get('idsSensores', '').split(',')
+    variable_ids = request.args.get('idsVariables', '').split(',')
+    values = request.args.get('valores', '').split(',')
+
+    if not (len(timestamps) == len(sensor_ids) == len(variable_ids) == len(values)):
+        return jsonify({'status': 'fail', 'error': 'Las longitudes de los parametros no coinciden'}), 400
+    
+    measurements = []
+
+    for i in range(len(sensor_ids)):
+        timestamp_float = float(timestamps[i])
+        datetime_obj = datetime.fromtimestamp(timestamp_float)
+        formatted_datetime = datetime_obj.strftime('%Y-%m-%d %H:%M:%S')
+
+        measurements.append({
+            "timestamp":formatted_datetime, #timestamps[i],
+            "sensorId": sensor_ids[i],
+            "variableId": variable_ids[i],
+            "value": values[i]
+        })
+
+    try:
+        conn = mysql.connector.connect(**config)
+        cursor = conn.cursor()
+
+        for measurement in measurements:
+            valores = [measurement['sensorId'], measurement['value'], measurement['timestamp'], measurement['variableId']]
+            sql_query = f"INSERT INTO Datos (idSensor, valorMedicion, FechaMedicion, idVariable) VALUES (%s, %s, %s, %s)"
+            log_query = sql_query % tuple(valores)  # Para fines de depuración
+            print("Consulta SQL para depuración:", log_query)
+            cursor.execute(sql_query, valores)
+
+        conn.commit()
+
+        return jsonify({'status': 'success', 'message': 'Registro insertado correctamente'}), 201, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
+
+    except mysql.connector.Error as e:
+        mensaje_error = f"Error al conectarse a la base de datos: {e}"
+        print(mensaje_error)
+        return jsonify({'status': 'fail', 'error': mensaje_error}), 500
+
+    except Exception as e:
+        mensaje_error = f"Error desconocido: {e}"
+        print(mensaje_error)
+        return jsonify({'status': 'fail', 'error': mensaje_error}), 500
+
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+
+
 
 @app.route('/listarTablas', methods=['GET'])
 def listar_tablas():

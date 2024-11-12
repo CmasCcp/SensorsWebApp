@@ -24,7 +24,10 @@ export const SensoresPage = ({ widthClose }) => {
       <div className="card">
         <h2 className="card-title">Dashboard</h2>
         <div className="card-content">
-        {username && (        <PowerBIEmbed
+        {username && (        
+          <iframe title="DashboardPROD" width="100%" height="600" src="https://app.powerbi.com/view?r=eyJrIjoiYTkyMmJmNGQtNWEyNy00Y2YzLTk4YmYtOTdhOWY0OWM5ODVhIiwidCI6ImI1ZDc4OTI3LTI1ZDAtNDRhOS04MzcwLWQ4NmU1N2M3YmE5NiIsImMiOjR9&pageName=4d187fa8b0aa8033ca99" frameborder="0" allowFullScreen="true"></iframe>
+          /*
+          <PowerBIEmbed
           embedConfig = {{
             type: 'report',   // Supported types: report, dashboard, tile, visual, qna, paginated report and create
             id: config.reportId,
@@ -70,7 +73,9 @@ export const SensoresPage = ({ widthClose }) => {
             //window.report = embeddedReport;
 
           }}
-        />)}
+        />
+        */
+       )}
         {!username &&(
             <>
             <h2>Acceso Restringido</h2>
