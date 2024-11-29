@@ -3,6 +3,7 @@ from flask_cors import CORS
 
 import mysql.connector
 import csv
+import json
 import decimal
 from datetime import datetime, date
 import io
@@ -29,9 +30,74 @@ ALLOWED_TABLES_PROP = [
 ]
 
 
+
+
 ALLOWED_TABLES = [table['dataName'] for table in ALLOWED_TABLES_PROP]
 
+#config = {"user": "root", "password": "", "host": "localhost", "database": "sensores_dev", "port": 3306}
 config = {"user": "root", "password": "root", "host": "localhost", "database": "sensores_dev", "port": 3306}
+
+@app.route('/clavesForaneas', methods=['GET'])
+def claves_foraneas():
+    tablas_foraneas = [
+        {"sesiones": ["id_sesion", "descripcion"]},
+        {"variables": ["id_variable", "descripcion"]},
+        {"grupos": ["id_grupo", "nombre"]},
+        {"estados": ["id_estado", "nombre"]},
+        {"proyectos": ["id_proyecto", "nombre"]},
+        {"personas": ["id_persona", "nombre", "apellido"]},
+        {"Id_persona_responsable_ingreso": ["id_persona", "nombre", "apellido"]},  # "personas"
+        {"Id_persona_responsable_salida": ["id_persona", "nombre", "apellido"]},  # "personas"
+        {"Id_persona_responsable": ["id_persona", "nombre", "apellido"]},  # "personas"
+        {"sensores": ["id_sensor", "numero_serial"]},
+        {"sensores_tipo": ["id_sensor_tipo", "marca"]},
+    ]
+
+    try:
+        conn = mysql.connector.connect(**config)
+        cursor = conn.cursor(dictionary=True)
+
+        resultado = []
+        for tabla in tablas_foraneas:
+            for nombre_tabla, columnas in tabla.items():
+                if nombre_tabla in ["Id_persona_responsable_ingreso", "Id_persona_responsable_salida", "Id_persona_responsable"]:
+                    # Estas tablas corresponden a "personas"
+                    nombre_tabla_real = "personas"
+                else:
+                    nombre_tabla_real = nombre_tabla
+
+                # Construir la consulta SQL
+                columnas_str = ", ".join(columnas)
+                query = f"SELECT {columnas_str} FROM {nombre_tabla_real}"
+
+                # Ejecutar la consulta y obtener los datos
+                cursor.execute(query)
+                filas = cursor.fetchall()
+
+                # Formatear cada tabla como un objeto dentro del array de resultados
+                resultado.append({
+                    nombre_tabla: filas
+                })
+
+        return jsonify({"status": "success", "data": resultado}), 200
+
+    except mysql.connector.Error as e:
+        mensaje_error = f"Error al conectarse a la base de datos: {e}"
+        print(mensaje_error)
+        return jsonify({"status": "fail", "error": mensaje_error}), 500
+
+    except Exception as e:
+        mensaje_error = f"Error desconocido: {e}"
+        print(mensaje_error)
+        return jsonify({"status": "fail", "error": mensaje_error}), 500
+
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+
+
+
 
 @app.route('/insertarMedicion', methods=['GET'])
 def insertar_medicion():
