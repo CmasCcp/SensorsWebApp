@@ -33,14 +33,95 @@ ALLOWED_TABLES = [table['dataName'] for table in ALLOWED_TABLES_PROP]
 
 config = {"user": "root", "password": "root", "host": "localhost", "database": "sensores_dev", "port": 3306}
 
+ 
+@app.route('/endovenosaDummy', methods=['GET'])
+def endovenosa_dummy():
+    return jsonify({
+    'name': "Dispositivo 1",
+    'license': "JLZJ41",
+    'password': "3508239",
+    'firmwareVersion': "v10.3",
+    'status': "Transmitting",
+    'lastConnection': "07/10/2024",
+    'alertMsg': "Burbuja de aire detectada",
+    'alertType': "Danger"}), 200
+
+@app.route('/generarSesion', methods=['GET'])
+def generar_sesion():
+    id_proyecto = request.args.get('id_proyecto')  # Obligatorio
+    id_persona_responsable = request.args.get('id_persona_responsable')  # Opcional
+    descripcion = request.args.get('descripcion', '')  # Predeterminado a cadena vacía
+    fecha_inicio = request.args.get('fecha_inicio', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))  # Predeterminado a la fecha actual
+    version = request.args.get('version', '1.0')  # Predeterminado a "1.0"
+    ubicacion = request.args.get('ubicacion', '')  # Predeterminado a cadena vacía
+
+    # Validar parámetros obligatorios
+    if not id_proyecto:
+        return jsonify({'status': 'fail', 'error': 'El parámetro id_proyecto es obligatorio'}), 400
+
+    valores = [
+        None,
+        id_proyecto,
+        id_persona_responsable if id_persona_responsable else None,  # Si no se proporciona, usar NULL
+        descripcion,
+        fecha_inicio,
+        version,
+        ubicacion
+    ]
+
+    try:
+        conn = mysql.connector.connect(**config)
+        cursor = conn.cursor()
+
+        sql_query = """
+            INSERT INTO sesiones (id_sesion, id_proyecto, id_persona_responsable, descripcion, fecha_inicio, version, ubicacion)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """
+
+        cursor.execute(sql_query, valores)
+        conn.commit()
+        generated_id = cursor.lastrowid
+
+        return jsonify({
+            'status': 'success',
+            'message': 'Sesión creada correctamente',
+            'generated_id': generated_id
+        }), 201
+    except Exception as e:
+        return jsonify({'status': 'fail', 'error': str(e)}), 500
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+    
+
 @app.route('/insertarMedicion', methods=['GET'])
 def insertar_medicion():
     timestamps = request.args.get('times', '').split(',')
+    sesiones_ids = request.args.get('idsSesiones', '').split(',')
     sensor_ids = request.args.get('idsSensores', '').split(',')
     variable_ids = request.args.get('idsVariables', '').split(',')
     values = request.args.get('valores', '').split(',')
 
-    if not (len(timestamps) == len(sensor_ids) == len(variable_ids) == len(values)):
+    # Si timestamps tiene un solo valor
+    if len(timestamps) == 1 and timestamps[0]:  # Un solo valor
+        timestamps = [timestamps[0]] * len(sensor_ids)
+
+    # Si timestamps NO tiene valor
+    elif not timestamps[0]:  
+        current_timestamp = datetime.now().timestamp()
+        timestamps = [str(current_timestamp)] * len(sensor_ids)
+
+    # Si sesiones_ids tiene un solo valor
+    if len(sesiones_ids) == 1 and sesiones_ids[0]:  # Un solo valor
+        sesiones_ids = [sesiones_ids[0]] * len(sensor_ids)
+
+    # Si sesiones_ids NO tiene valor
+    elif not sesiones_ids[0]:  
+        sesiones_ids = [None] * len(sensor_ids)
+
+
+    if not (len(timestamps) == len(sensor_ids) == len(variable_ids) == len(values) == len(sesiones_ids)):
         return jsonify({'status': 'fail', 'error': 'Las longitudes de los parametros no coinciden'}), 400
     
     measurements = []
@@ -52,6 +133,7 @@ def insertar_medicion():
 
         measurements.append({
             "timestamp":formatted_datetime, #timestamps[i],
+            "sesionId": sesiones_ids[i],
             "sensorId": sensor_ids[i],
             "variableId": variable_ids[i],
             "value": values[i]
@@ -62,8 +144,8 @@ def insertar_medicion():
         cursor = conn.cursor()
 
         for measurement in measurements:
-            valores = [measurement['sensorId'], measurement['value'], measurement['timestamp'], measurement['variableId']]
-            sql_query = f"INSERT INTO Datos (idSensor, valorMedicion, FechaMedicion, idVariable) VALUES (%s, %s, %s, %s)"
+            valores = [measurement['sensorId'], measurement['value'], measurement['timestamp'], measurement['variableId'], measurement['sesionId']]
+            sql_query = f"INSERT INTO datos (id_sensor, valor, fecha, id_variable, id_sesion) VALUES (%s, %s, %s, %s, %s)"
             log_query = sql_query % tuple(valores)  # Para fines de depuración
             print("Consulta SQL para depuración:", log_query)
             cursor.execute(sql_query, valores)

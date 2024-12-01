@@ -25,7 +25,7 @@ export const SensoresPage = ({ widthClose }) => {
         <h2 className="card-title">Dashboard</h2>
         <div className="card-content">
         {username && (        
-          <iframe title="DashboardPROD" width="100%" height="600" src="https://app.powerbi.com/view?r=eyJrIjoiYTkyMmJmNGQtNWEyNy00Y2YzLTk4YmYtOTdhOWY0OWM5ODVhIiwidCI6ImI1ZDc4OTI3LTI1ZDAtNDRhOS04MzcwLWQ4NmU1N2M3YmE5NiIsImMiOjR9&pageName=4d187fa8b0aa8033ca99" frameborder="0" allowFullScreen="true"></iframe>
+          <iframe title="DashboardPRODv2" width="100%" height="600" src="https://app.powerbi.com/view?r=eyJrIjoiNWZiNDAwNTYtMTc0My00ZWVmLTljMjktNjg2ZDMyNTE4YzI4IiwidCI6ImI1ZDc4OTI3LTI1ZDAtNDRhOS04MzcwLWQ4NmU1N2M3YmE5NiIsImMiOjR9&pageName=a6725ea5db51d7e84517" frameborder="0" allowFullScreen="true"></iframe>
           /*
           <PowerBIEmbed
           embedConfig = {{

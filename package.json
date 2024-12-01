@@ -23,6 +23,7 @@
     "react-dom": "18.2.0",
     "react-redux": "8.0.5",
     "react-router-dom": "6.0.0",
+    "react-select": "^5.8.3",
     "simple-datatables": "^9.0.4",
     "three": "^0.154.0"
   },
