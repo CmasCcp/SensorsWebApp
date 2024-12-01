@@ -1,44 +1,86 @@
 import { useMsal } from '@azure/msal-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Select from 'react-select';
+import { useFetch } from '../hooks/useFetch';
 
 export const RegisterPage = () => {
   const { accounts } = useMsal();
   const username = accounts[0] && accounts[0].username;
-
-  const projectOptions = [
-    { value: 'Proyecto 1', label: 'Proyecto 1' },
-    { value: 'Proyecto 2', label: 'Proyecto 2' },
-    { value: 'Proyecto 3', label: 'Proyecto 3' },
-  ];
-
-  const filterOptions = ['Dispositivo 1', 'Dispositivo 2', 'Dispositivo 3'];
-
-  const tableData = {
-    'Dispositivo 1': [
-      { id: 1, name: 'Item 1', description: 'Descripción 1' },
-      { id: 2, name: 'Item 2', description: 'Descripción 2' },
-    ],
-    'Dispositivo 2': [
-      { id: 3, name: 'Item 3', description: 'Descripción 3' },
-      { id: 4, name: 'Item 4', description: 'Descripción 4' },
-    ],
-    'Dispositivo 3': [
-      { id: 5, name: 'Item 5', description: 'Descripción 5' },
-      { id: 6, name: 'Item 6', description: 'Descripción 6' },
-    ],
-  };
-
+  const proyectsTableName = "proyectos";
+  const devicesTableName = "dispositivos";
+  const sensorsTableName = "sensores_en_dispositivo";
+  const [projectOptions, setProjectOptions] = useState([]);
+  const [deviceOptions, setDeviceOptions] = useState([]);//['Dispositivo 1', 'Dispositivo 2', 'Dispositivo 3'];
   const [selectedProject, setSelectedProject] = useState(null);
-  const [selectedFilter, setSelectedFilter] = useState(null);
+  const [selectedDevice, setSelectedDevice] = useState(null);
+  const [tableData, setTableData] = useState([]);
 
-  const handleProjectChange = (selectedOption) => {
-    setSelectedProject(selectedOption);
-    setSelectedFilter(null); // Reset filter when project changes
+  const { data: proyectsData, hasError: proyectsHasError, isLoading: proyectsIsLoading } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${proyectsTableName}`);
+  const { data: devicesData, hasError: devicesHasError, isLoading: devicesIsLoading, setUrl: devicesSetUrl } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject}`);
+  const { data: sensorsData, hasError: sensorsHasError, isLoading: sensorsIsLoading, setUrl: sensorsSetUrl } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${sensorsTableName}&id_dispositivo=${selectedDevice}`);
+
+  useEffect(() =>{
+    devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject?.value || ''}`);
+  },[selectedProject])
+
+  useEffect(() =>{
+    console.log(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${sensorsTableName}&id_dispositivo=${selectedDevice?.value || ''}`);
+    sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${sensorsTableName}&id_dispositivo=${selectedDevice?.value || ''}`);
+  }, [selectedDevice])
+
+  useEffect(() => {
+    try{    
+        if (proyectsData && proyectsData.status === 'success') {
+        const options = proyectsData.data.tableData.map((project) => ({
+            value: project.id_proyecto,
+            label: `${project.id_proyecto}. ${project.nombre}`,
+          }));
+          setProjectOptions(options);
+    } else {
+        console.error('Error fetching projects by request:', proyectsHasError);
+      }} catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+
+  }, [proyectsData]);
+
+
+  useEffect(() => {
+    try{    
+        if (devicesData && devicesData.status === 'success') {
+        const options = devicesData.data.tableData.map((device) => ({
+            value: device.id_dispositivo,
+            label: device.codigo_interno,
+          }));
+          setDeviceOptions(options);
+    } else {
+        console.error('Error fetching projects by request:', devicesHasError);
+      }} catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+
+  }, [devicesData]);
+
+  useEffect(()=>{
+    try{    
+        if (sensorsData && sensorsData.status === 'success') {
+        const options = sensorsData.data.tableData;
+        console.log(options);
+        setTableData(options);
+    } else {
+        console.error('Error fetching projects by request:', sensorsHasError);
+      }} catch (error) {
+        console.error('Error fetching projects:', error);
+      } 
+  },[sensorsData])
+
+  const handleProjectChange = (selectedProject) => {
+    setSelectedProject(selectedProject);
+    setSelectedDevice(null); // Reset filter when project changes
   };
 
   const handleFilterClick = (filter) => {
-    setSelectedFilter(filter);
+    setSelectedDevice(filter);
   };
 
   const customStyles = {
@@ -80,16 +122,16 @@ export const RegisterPage = () => {
                 <div className="col-2">
                   <h5>Dispositivos</h5>
                   <ul className="list-group">
-                    {filterOptions.map((filter) => (
+                    {deviceOptions.map((device) => (
                       <li
-                        key={filter}
+                        key={device}
                         className={`list-group-item ${
-                          filter === selectedFilter ? 'active' : ''
+                          device === selectedDevice ? 'active' : ''
                         }`}
-                        onClick={() => handleFilterClick(filter)}
+                        onClick={() => handleFilterClick(device)}
                         style={{ cursor: 'pointer' }}
                       >
-                        {filter}
+                        {device.label}
                       </li>
                     ))}
                   </ul>
@@ -97,7 +139,7 @@ export const RegisterPage = () => {
                 {/* Right Column: Data Table */}
                 <div className="col-10">
                   <h5>Sensores</h5>
-                  {selectedFilter ? (
+                  {selectedDevice &&tableData.lenght>0 ? (
                     <table className="table table-bordered">
                       <thead>
                         <tr>
@@ -107,7 +149,7 @@ export const RegisterPage = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {tableData[selectedFilter]?.map((row) => (
+                        {tableData[selectedDevice]?.map((row) => (
                           <tr key={row.id}>
                             <td>{row.id}</td>
                             <td>{row.name}</td>
