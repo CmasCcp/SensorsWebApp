@@ -1,14 +1,14 @@
+from dotenv import load_dotenv
+
 from flask import Flask, jsonify, request, Response
 from flask_cors import CORS
 
 import mysql.connector
 
-import csv
-import json
-import decimal
+import csv, decimal, io, os
 from datetime import datetime, date
-import io
 
+load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
@@ -31,7 +31,14 @@ ALLOWED_TABLES_PROP = [
 ]
 
 ALLOWED_TABLES = [table['dataName'] for table in ALLOWED_TABLES_PROP]
-config = {"user": "root", "password": "root", "host": "localhost", "database": "sensores_dev", "port": 3306}
+config = {
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
+    "host": os.getenv("DB_HOST"),
+    "database": os.getenv("DB_NAME"),
+    "port": int(os.getenv("DB_PORT", 3306)),  # Valor por defecto: 3306
+}
+print(config)
 
  
 @app.route('/endovenosaDummy', methods=['GET'])

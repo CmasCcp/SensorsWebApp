@@ -133,6 +133,9 @@ export const RegisterPage = () => {
                         {device.label}
                       </li>
                     ))}
+                    {selectedProject && (
+                      <li className='list-group-item' onClick={()=>{}} style={{ cursor: 'pointer' }}>Agregar Dispositivo</li>
+                    )}
                   </ul>
                 </div>
                 {/* Right Column: Data Table */}
@@ -140,24 +143,30 @@ export const RegisterPage = () => {
                   <h5>Sensores</h5>
                   {selectedDevice && tableData.length>0 ? (
                     <div style={{ overflowX: 'auto' }}>
-                    <table className="table table-bordered">
-                      <thead>
-                        <tr>
-                          {tableData[0].map((header, index) => (
-                            <th key={index}>{header}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {tableData.slice(1).map((row, rowIndex) => (
-                          <tr key={rowIndex}>
-                            {row.map((value, colIndex) => (
-                              <td key={colIndex}>{value}</td>
+                      <table className="table table-bordered">
+                        <thead>
+                          <tr>
+                            {tableData[0].map((header, index) => (
+                              <th key={index}>{header}</th>
                             ))}
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {tableData.slice(1).map((row, rowIndex) => (
+                            <tr key={rowIndex}>
+                              {row.map((value, colIndex) => (
+                                <td key={colIndex}>{value}</td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <div className="row my-4">
+                        <button className="btn m-1 ml-auto custom-button" onClick={() => {}}>
+                            <span className="btn-text">Agregar Sensor</span>
+                            <i className="fas fa-plus-circle"></i>
+                        </button>
+                      </div>  
                     </div>
                   ) : (
                     <p>Seleccione un filtro para ver los datos.</p>
