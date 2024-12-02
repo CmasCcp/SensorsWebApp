@@ -26,8 +26,9 @@ export const useFetch = (apiUrl) => {
         setHasError(error);
       }
     };
-
-    fetchData();
+    if(url !== ''){
+      fetchData();
+    }
   }, [url]);
 
   return { data, isLoading, hasError, setUrl };

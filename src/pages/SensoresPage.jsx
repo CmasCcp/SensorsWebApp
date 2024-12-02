@@ -1,23 +1,8 @@
-import { models } from 'powerbi-client';
-import { PowerBIEmbed } from 'powerbi-client-react';
-import * as config from "../helpers/config";
 import { useMsal } from '@azure/msal-react';
 
-const filter = {
-  $schema: "http://powerbi.com/product/schema#basic",
-  target: {
-      table: "dbAysen dataAysen",
-      column: "idSensor"
-  },
-  operator: "In",
-  values: [40, 29]
-};
-
-export const SensoresPage = ({ widthClose }) => {
+export const SensoresPage = () => {
   const { accounts } = useMsal();
-  const username = accounts[0] && accounts[0].username;
-
-  const embedToken = sessionStorage.getItem('embedToken');
+  const username = accounts.length > 0;
 
   return (
     <div className="container-fluid d-flex justify-content-center align-items-center">
@@ -25,56 +10,7 @@ export const SensoresPage = ({ widthClose }) => {
         <h2 className="card-title">Dashboard</h2>
         <div className="card-content">
         {username && (        
-          <iframe title="DashboardPRODv2" width="100%" height="600" src="https://app.powerbi.com/view?r=eyJrIjoiNWZiNDAwNTYtMTc0My00ZWVmLTljMjktNjg2ZDMyNTE4YzI4IiwidCI6ImI1ZDc4OTI3LTI1ZDAtNDRhOS04MzcwLWQ4NmU1N2M3YmE5NiIsImMiOjR9&pageName=a6725ea5db51d7e84517" frameborder="0" allowFullScreen="true"></iframe>
-          /*
-          <PowerBIEmbed
-          embedConfig = {{
-            type: 'report',   // Supported types: report, dashboard, tile, visual, qna, paginated report and create
-            id: config.reportId,
-            embedUrl: config.embedUrl,
-            accessToken: embedToken,
-            tokenType: models.TokenType.Aad, // Use models.TokenType.Aad for SaaS embed
-            settings: {
-              panes: {
-                filters: {
-                  expanded: false,
-                  visible: false
-                },
-                pageNavigation: {
-                  visible: false // Oculta la navegación entre páginas
-                }
-              },
-              background: models.BackgroundType.Transparent,
-            },
-            filters:[filter]
-          }}
-
-          eventHandlers = {
-            new Map([
-              ['loaded', function () {
-                console.log('Report loaded');
-                const iframe = document.querySelector("iframe");
-                if (iframe) {
-                  iframe.style.border = "none"; // Eliminar el borde del iframe
-                }
-                console.log("Se cargó el iframee");
-              }
-              ],
-              ['rendered', function () {console.log('Report rendered');}],
-              ['error', function (event) {console.log(event.detail);}],
-              ['visualClicked', () => console.log('visual clicked')],
-              ['pageChanged', (event) => console.log(event)],
-            ])
-          }
-
-          cssClassName = { "reportClass" }
-
-          getEmbeddedComponent = { (embeddedReport) => {
-            //window.report = embeddedReport;
-
-          }}
-        />
-        */
+          <iframe className='custom-iframe' title="DashboardPRODv2" width="100%" height="600" src="https://app.powerbi.com/view?r=eyJrIjoiNWZiNDAwNTYtMTc0My00ZWVmLTljMjktNjg2ZDMyNTE4YzI4IiwidCI6ImI1ZDc4OTI3LTI1ZDAtNDRhOS04MzcwLWQ4NmU1N2M3YmE5NiIsImMiOjR9&pageName=a6725ea5db51d7e84517" allowFullScreen={true}></iframe>
        )}
         {!username &&(
             <>

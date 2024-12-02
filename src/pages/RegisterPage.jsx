@@ -5,19 +5,19 @@ import { useFetch } from '../hooks/useFetch';
 
 export const RegisterPage = () => {
   const { accounts } = useMsal();
-  const username = accounts[0] && accounts[0].username;
-  const proyectsTableName = "proyectos";
+  const username = accounts.length > 0;
+  const projectsTableName = "proyectos";
   const devicesTableName = "dispositivos";
-  const sensorsTableName = "sensores_en_dispositivo";
+
   const [projectOptions, setProjectOptions] = useState([]);
   const [deviceOptions, setDeviceOptions] = useState([]);//['Dispositivo 1', 'Dispositivo 2', 'Dispositivo 3'];
   const [selectedProject, setSelectedProject] = useState(null);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [tableData, setTableData] = useState([]);
 
-  const { data: proyectsData, hasError: proyectsHasError, isLoading: proyectsIsLoading } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${proyectsTableName}`);
-  const { data: devicesData, hasError: devicesHasError, isLoading: devicesIsLoading, setUrl: devicesSetUrl } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject}`);
-  const { data: sensorsData, hasError: sensorsHasError, isLoading: sensorsIsLoading, setUrl: sensorsSetUrl } = useFetch(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
+  const { data: projectsData, hasError: projectsHasError } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${projectsTableName}`);
+  const { data: devicesData, hasError: devicesHasError, setUrl: devicesSetUrl } = useFetch('');
+  const { data: sensorsData, hasError: sensorsHasError, setUrl: sensorsSetUrl } = useFetch('');
 
   useEffect(() =>{
     devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject?.value || ''}`);
@@ -30,19 +30,19 @@ export const RegisterPage = () => {
 
   useEffect(() => {
     try{    
-        if (proyectsData && proyectsData.status === 'success') {
-        const options = proyectsData.data.tableData.map((project) => ({
+        if (projectsData && projectsData.status === 'success') {
+        const options = projectsData.data.tableData.map((project) => ({
             value: project.id_proyecto,
             label: `${project.id_proyecto}. ${project.nombre}`,
           }));
           setProjectOptions(options);
     } else {
-        console.error('Error fetching projects by request:', proyectsHasError);
+        console.error('Error fetching projects by request:', projectsHasError);
       }} catch (error) {
         console.error('Error fetching projects:', error);
       }
 
-  }, [proyectsData]);
+  }, [projectsData]);
 
 
   useEffect(() => {
@@ -72,8 +72,6 @@ export const RegisterPage = () => {
         console.error('Error fetching projects:', error);
       } 
   },[sensorsData])
-
-  useEffect(()=>{console.log(`Esto es table data: ${tableData.length} ${selectedDevice} ${selectedDevice && tableData.length>0}`)},[tableData])
 
   const handleProjectChange = (selectedProject) => {
     setSelectedProject(selectedProject);
@@ -125,7 +123,7 @@ export const RegisterPage = () => {
                   <ul className="list-group">
                     {deviceOptions.map((device) => (
                       <li
-                        key={device}
+                        key={device.value}
                         className={`list-group-item ${
                           device === selectedDevice ? 'active' : ''
                         }`}

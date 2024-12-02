@@ -150,8 +150,7 @@ export const projectSlice = createSlice({
         },
         setActiveProject: (state, { payload }) => {
             state.isLoading = true;
-            const activeProject = state.projectListDataless.filter(project => project.name == payload);
-            state.activeProject = activeProject;
+            state.activeProject = state.projectListDataless.filter(project => project.name === payload);
             state.isLoading = false;
         },
         setIsLoading:(state, {payload})=>{
