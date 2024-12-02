@@ -17,15 +17,15 @@ export const RegisterPage = () => {
 
   const { data: proyectsData, hasError: proyectsHasError, isLoading: proyectsIsLoading } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${proyectsTableName}`);
   const { data: devicesData, hasError: devicesHasError, isLoading: devicesIsLoading, setUrl: devicesSetUrl } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject}`);
-  const { data: sensorsData, hasError: sensorsHasError, isLoading: sensorsIsLoading, setUrl: sensorsSetUrl } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${sensorsTableName}&id_dispositivo=${selectedDevice}`);
+  const { data: sensorsData, hasError: sensorsHasError, isLoading: sensorsIsLoading, setUrl: sensorsSetUrl } = useFetch(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
 
   useEffect(() =>{
     devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject?.value || ''}`);
   },[selectedProject])
 
   useEffect(() =>{
-    console.log(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${sensorsTableName}&id_dispositivo=${selectedDevice?.value || ''}`);
-    sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${sensorsTableName}&id_dispositivo=${selectedDevice?.value || ''}`);
+    console.log(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
+    sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
   }, [selectedDevice])
 
   useEffect(() => {
@@ -65,7 +65,6 @@ export const RegisterPage = () => {
     try{    
         if (sensorsData && sensorsData.status === 'success') {
         const options = sensorsData.data.tableData;
-        console.log(options);
         setTableData(options);
     } else {
         console.error('Error fetching projects by request:', sensorsHasError);
@@ -73,6 +72,8 @@ export const RegisterPage = () => {
         console.error('Error fetching projects:', error);
       } 
   },[sensorsData])
+
+  useEffect(()=>{console.log(`Esto es table data: ${tableData.length} ${selectedDevice} ${selectedDevice && tableData.length>0}`)},[tableData])
 
   const handleProjectChange = (selectedProject) => {
     setSelectedProject(selectedProject);
@@ -139,25 +140,27 @@ export const RegisterPage = () => {
                 {/* Right Column: Data Table */}
                 <div className="col-10">
                   <h5>Sensores</h5>
-                  {selectedDevice &&tableData.lenght>0 ? (
+                  {selectedDevice && tableData.length>0 ? (
+                    <div style={{ overflowX: 'auto' }}>
                     <table className="table table-bordered">
                       <thead>
                         <tr>
-                          <th>ID</th>
-                          <th>Nombre</th>
-                          <th>Descripción</th>
+                          {tableData[0].map((header, index) => (
+                            <th key={index}>{header}</th>
+                          ))}
                         </tr>
                       </thead>
                       <tbody>
-                        {tableData[selectedDevice]?.map((row) => (
-                          <tr key={row.id}>
-                            <td>{row.id}</td>
-                            <td>{row.name}</td>
-                            <td>{row.description}</td>
+                        {tableData.slice(1).map((row, rowIndex) => (
+                          <tr key={rowIndex}>
+                            {row.map((value, colIndex) => (
+                              <td key={colIndex}>{value}</td>
+                            ))}
                           </tr>
                         ))}
                       </tbody>
                     </table>
+                    </div>
                   ) : (
                     <p>Seleccione un filtro para ver los datos.</p>
                   )}

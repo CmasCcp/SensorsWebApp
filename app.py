@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request, Response
 from flask_cors import CORS
 
 import mysql.connector
+
 import csv
 import decimal
 from datetime import datetime, date
@@ -243,6 +244,86 @@ def listar_datos():
         if conn.is_connected():
             cursor.close()
             conn.close()
+
+@app.route('/listarSensores', methods=['GET'])
+def listar_sensores():
+    args = request.args
+    limit = int(args.get('limite', 100))
+    offset = int(args.get('offset', 0))
+    id_dispositivo = args.get('id_dispositivo')
+
+    try:
+        conn = mysql.connector.connect(**config)
+        cursor = conn.cursor()
+
+        # Consulta SQL con uniones
+        sql_query = """
+        SELECT 
+            sensores.id_sensor,	
+            sensores.id_sensor_tipo,
+            sensores.numero_serial,
+            sensores_tipo.codigo_interno,
+            sensores_tipo.marca,	
+            sensores_tipo.modelo,
+            sensores_tipo.descripcion	
+        FROM sensores
+        LEFT JOIN sensores_tipo ON sensores.id_sensor_tipo = sensores_tipo.id_sensor_tipo
+        LEFT JOIN sensores_en_dispositivo ON sensores.id_sensor = sensores_en_dispositivo.id_sensor
+       """
+        if id_dispositivo:
+            sql_query += "WHERE sensores_en_dispositivo.id_dispositivo = %s "
+        
+        sql_query += "LIMIT %s OFFSET %s"
+
+        params = []
+        if id_dispositivo:
+            params.append(id_dispositivo)
+        params.extend([limit, offset])
+
+        # Ejecutar la consulta
+        cursor.execute(sql_query, params)
+        filas = cursor.fetchall()
+
+        columnas = [
+            "Id Sensor",
+            "Id Sensor Tipo",
+            "N° de Serie",
+            "Código Interno",
+            "Marca",
+            "Modelo",
+            "Descripcion",
+        ]
+
+        # Construir los diccionarios con el orden deseado
+        respuesta = [columnas]+filas
+
+
+        # Manejar formato de respuesta
+        json_respuesta = jsonify({
+            'status': 'success',
+            'data': {
+                'tableData': respuesta,
+                'tabla': 'sensores_combinados'
+            }
+        })
+        return json_respuesta, 200, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
+
+
+    except mysql.connector.Error as e:
+        mensaje_error = f"Error al conectarse a la base de datos: {e}"
+        print(mensaje_error)
+        return jsonify({'status': 'fail', 'error': mensaje_error}), 500
+
+    except Exception as e:
+        mensaje_error = f"Error desconocido: {e}"
+        print(mensaje_error)
+        return jsonify({'status': 'fail', 'error': mensaje_error}), 500
+
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+
 
 @app.route('/schema', methods=['GET'])
 def get_table_schema():
