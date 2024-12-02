@@ -7,6 +7,7 @@ import { useMsal } from '@azure/msal-react';
 export const AdministradorPage = () => {
   const [option, setOption] = useState();
   const { data: options } = useFetch(`${import.meta.env.VITE_API_URL}/listarTablas`);
+  const { data: clavesForaneas } = useFetch(`${import.meta.env.VITE_API_URL}/clavesForaneas`);
   const { accounts } = useMsal();
   const username = accounts.length>0;
   
@@ -35,6 +36,7 @@ export const AdministradorPage = () => {
           {options !== null && username && options.map((opt) => (
             option === opt.displayName && (
               <DataTableGraphic
+              clavesForaneas={clavesForaneas}
               key={opt.dataName}
               title={opt.displayName}
               tableName={opt.dataName}

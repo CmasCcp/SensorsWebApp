@@ -3,8 +3,9 @@ import { DataTable } from 'simple-datatables';
 import 'simple-datatables/dist/style.css';
 import { useFetch } from '../../hooks/useFetch';
 import { Modal } from '../Modal';
+import { Probando } from './Probando';
 
-export const DataTableGraphic = ({ tableName, title, reloadFlag }) => {
+export const DataTableGraphic = ({ tableName, title, reloadFlag, clavesForaneas }) => {
 
     const { data: schemaData} = useFetch(`${import.meta.env.VITE_API_URL}/schema?tabla=${tableName}`);
     const { data, hasError, isLoading } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}`, reloadFlag);
@@ -47,6 +48,7 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag }) => {
             };
 
             initializeDataTable();
+            console.log("data", data);
         }
     }, [data]);
 
@@ -127,6 +129,8 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag }) => {
                 <div className=" table-responsive">
                     {isLoading && (<div className="error-message">Cargando...</div>)}
                     {!!hasError && (<div className="error-message">{hasError.message}</div>)}
+
+                    <Probando tableName={tableName} dataProperties={dataProperties} clavesForaneas={clavesForaneas}/>
 
                     {data !== null && dataProperties.length > 0 && (
                         <table id="datatablesSimple" className='table table-bordered'>
