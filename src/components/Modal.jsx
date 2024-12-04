@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Form } from './Form';
 
-export const Modal = ({ type, title, id, action, properties, data, isOpen, onClose, pkValue, tableName}) => {
+export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkValue, tableName}) => {
     const modalRef = useRef(null);
     const [formData, setFormData] = useState();
 
@@ -143,11 +143,11 @@ export const Modal = ({ type, title, id, action, properties, data, isOpen, onClo
                               type="button" 
                               className={`btn m-1 custom-button`} 
                               onClick={() => {
-                                   if(action=="Editar"){
+                                   if(action==="Editar"){
                                         handleSend();  // Llamar a la función para enviar los datos
-                                   } else if(action=="Eliminar"){
+                                   } else if(action==="Eliminar"){
                                         handleRemove();
-                                   } else if(action=="Agregar"){
+                                   } else if(action==="Agregar"){
                                         handleAdd();
                                    }
                                   onClose();

@@ -10,7 +10,7 @@ export const Home = () => {
     const urlParams = new URLSearchParams(valores);
 
     //Accedemos a los valores
-    var go_to = urlParams.get('go_to');
+    const go_to = urlParams.get('go_to');
 
     if (go_to === "herramientas") {
         // useNavigate(go_to)

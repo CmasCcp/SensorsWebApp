@@ -6,7 +6,7 @@ import * as config from "../helpers/config";
 
 const LoginPage = () => {
     const msalContext = useContext(MsalContext);
-    const [userEmail, setUserEmail] = useState();
+    const [userEmail, setUserEmail] = useState(null);
     const msalInstance = msalContext.instance;
     const msalAccounts = msalContext.accounts;
     const msalInProgress = msalContext.inProgress;

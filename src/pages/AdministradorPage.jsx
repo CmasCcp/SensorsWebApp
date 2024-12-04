@@ -9,14 +9,11 @@ export const AdministradorPage = () => {
   const { data: options } = useFetch(`${import.meta.env.VITE_API_URL}/listarTablas`);
   const { data: clavesForaneas } = useFetch(`${import.meta.env.VITE_API_URL}/clavesForaneas`);
   const { accounts } = useMsal();
-  const username = accounts[0] && accounts[0].username;
-
-  console.log(clavesForaneas);
+  const username = accounts.length>0;
   
   const handleClick = (option) => {
     setOption(option);
   };
-
 
   return (
     <div className="container-fluid d-flex justify-content-center align-items-center">

@@ -7,7 +7,7 @@ import { Probando } from './Probando';
 
 export const DataTableGraphic = ({ tableName, title, reloadFlag, clavesForaneas }) => {
 
-    const { data: schemaData, hasError: schemaHasError, isLoading: schemaIsLoading } = useFetch(`${import.meta.env.VITE_API_URL}/schema?tabla=${tableName}`);
+    const { data: schemaData} = useFetch(`${import.meta.env.VITE_API_URL}/schema?tabla=${tableName}`);
     const { data, hasError, isLoading } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}`, reloadFlag);
 
     // Función para cargar los datos desde la API
@@ -136,19 +136,18 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, clavesForaneas 
                         <table id="datatablesSimple" className='table table-bordered'>
                             <thead>
                                 <tr>
-                                    {dataProperties.map(prop => {
-                                        return(
-                                        <th name={prop}>{prop}</th>
-                                    )})}
-                                    <th>Editar</th>
-                                    <th>Eliminar</th>
+                                    {dataProperties.map(prop => (
+                                        <th key={prop}>{prop}</th>
+                                    ))}
+                                    <th key={'editar'}>Editar</th>
+                                    <th key={'eliminar'}>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {data.data.tableData.map((item, index) => (
-                                    <tr>
-                                        {dataProperties.map(prop => (
-                                            <td name={prop}>
+                                    <tr key={index}>
+                                        {dataProperties.map((prop, propIdx) => (
+                                            <td key={propIdx}>
                                                 {typeof item[prop] === 'object' ? JSON.stringify(item[prop]) : item[prop]}
                                             </td>
                                         ))}
