@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const Form = ({ properties, data, onChange }) => {
+export const Form = ({ properties=[], data, onChange }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     // Llamar a la función onChange con los nuevos datos actualizados
