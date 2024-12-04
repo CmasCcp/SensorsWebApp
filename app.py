@@ -34,7 +34,7 @@ ALLOWED_TABLES_PROP = [
 
 ALLOWED_TABLES = [table['dataName'] for table in ALLOWED_TABLES_PROP]
 
-#config = {"user": "root", "password": "", "host": "localhost", "database": "sensores_dev", "port": 3306}
+# config = {"user": "root", "password": "", "host": "localhost", "database": "sensores_dev", "port": 3306}
 config = {"user": "root", "password": "root", "host": "localhost", "database": "sensores_dev", "port": 3306}
 
 @app.route('/clavesForaneas', methods=['GET'])
