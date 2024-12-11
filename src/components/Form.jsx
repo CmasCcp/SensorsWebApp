@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
+import useForeignKeyValidator from '../hooks/useForeignKeyValidator';
+import { useFetch } from '../hooks/useFetch';
 
-export const Form = ({ properties=[], data, onChange }) => {
+
+export const Form = ({ properties = [], data, onChange }) => {
+  const { isForeignKey, getTableName, validateForm, foreignKeys, getValue } = useForeignKeyValidator();
+  const { data: clavesForaneas } = useFetch(`${import.meta.env.VITE_API_URL}/clavesForaneas`);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // Llamar a la función onChange con los nuevos datos actualizados
     onChange({ ...data, [name]: value });
   };
+
 
   return (
     <div className="container">
@@ -13,15 +19,48 @@ export const Form = ({ properties=[], data, onChange }) => {
       <form>
         {properties.map(prop => (
           <div className="mb-3" key={prop}>
-            <label htmlFor={prop} className="form-label">{prop}</label>
-            {!!data 
-              ? <input className="form-control" id={data[prop]} name={prop} defaultValue={data[prop]} onChange={handleChange}/>
-              : <input className="form-control" name={prop}  onChange={handleChange}/>
+            <label htmlFor={prop} className="form-label">{getTableName(prop)}</label>
+            {!!data
+              ? (Array.isArray(getValue(clavesForaneas.data, prop)))
+                ? (<select
+                  className="form-control"
+                  id={data[prop]}
+                  name={prop}
+                  value={data[prop]} // Utiliza `value` en lugar de `defaultValue` para reflejar el valor seleccionado
+                  onChange={handleChange}
+                >
+                  {getValue(clavesForaneas.data, prop).map((option, index) => (
+                    <option key={index} value={option}>
+                      {option} {/* Muestra el texto de la opción */}
+                    </option>
+                  ))}
+                </select>)
+                : <input className="form-control" id={data[prop]} name={prop} defaultValue={getValue(clavesForaneas.data, prop)} onChange={handleChange} />
+              // : <input className="form-control" name={prop} onChange={handleChange} />
+              : (Array.isArray(getValue(clavesForaneas?.data, prop)))
+                ? (<select
+                  className="form-control"
+                  // id={data[prop]}
+                  name={prop}
+                  // value={data[prop]} // Utiliza `value` en lugar de `defaultValue` para reflejar el valor seleccionado
+                  onChange={handleChange}
+                >
+                  {getValue(clavesForaneas.data, prop).map((option, index) => (
+                    <option key={index} value={option}>
+                      {option} {/* Muestra el texto de la opción */}
+                    </option>
+                  ))}
+                </select>)
+              : <input className="form-control" name={prop} onChange={handleChange} />
+
             }
-            
+
           </div>
         ))}
       </form>
     </div>
   );
 };
+
+
+// TODO: hay que poner los labels en singular y con primera letra en mayúscula

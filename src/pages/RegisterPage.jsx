@@ -91,7 +91,7 @@ export const RegisterPage = () => {
   const handleOnClickAddDevice = () => {
     let deviceKeys = Object.keys(devicesData?.data?.tableData[0]);
     setDeviceKeys(deviceKeys);
-    setShowAddModal(true);
+    setShowAddModal(prev=>!prev);
 
     console.log("deviceOptions", deviceOptions);
     console.log("devicesData", Object.keys(devicesData?.data?.tableData[0]));
@@ -99,7 +99,7 @@ export const RegisterPage = () => {
   }
 
   const handleCloseModal = () => {
-    setShowAddModal(false);
+    setShowAddModal(prev=>!prev);
   };
 
   const customStyles = {

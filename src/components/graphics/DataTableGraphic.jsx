@@ -57,6 +57,8 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, clavesForaneas 
         const filteredItem = Object.fromEntries(
             Object.entries(item).filter(([key]) => filteredKeys.includes(key))
         );
+
+        console.log("boton editar");
         setItemPK(filteredItem);
         setEditData(item);
         setShowEditModal(prev => !prev);
@@ -129,8 +131,6 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, clavesForaneas 
                 <div className=" table-responsive">
                     {isLoading && (<div className="error-message">Cargando...</div>)}
                     {!!hasError && (<div className="error-message">{hasError.message}</div>)}
-
-                    <Probando tableName={tableName} dataProperties={dataProperties} clavesForaneas={clavesForaneas}/>
 
                     {data !== null && dataProperties.length > 0 && (
                         <table id="datatablesSimple" className='table table-bordered'>

@@ -15,33 +15,60 @@ export const Probando = ({ tableName, dataProperties, clavesForaneas }) => {
         "id_persona_responsable"
     ];
 
-    const id_tabla ={
-        "id_sesion":"sesiones",
-        "id_variable":"variables",
-        "id_grupo":"grupos",
-        "id_estado":"estados",
-        "id_proyecto":"proyectos",
-        "id_persona":"personas",
-        "id_sensor":"sensores",
-        "id_sensor_tipo":"sensores_tipo",
+    const id_tabla = {
+        "id_sesion": "sesiones",
+        "id_variable": "variables",
+        "id_grupo": "grupos",
+        "id_estado": "estados",
+        "id_proyecto": "proyectos",
+        "id_persona": "personas",
+        "id_sensor": "sensores",
+        "id_sensor_tipo": "sensores_tipo",
         "id_persona_responsable_ingreso": "personas",
-        "id_persona_responsable_salida": "personas",  
+        "id_persona_responsable_salida": "personas",
         "id_persona_responsable": "personas"
+    };
+
+    // Validar si clavesForaneas.data es un array válido
+    if (!Array.isArray(clavesForaneas.data)) {
+        return <div>Error: `clavesForaneas.data` no es un array válido.</div>;
     }
 
+    const resultUI = dataProperties.map((prop, index) => {
+        const isKey = tabla_id.includes(prop); // Verifica si `prop` es una clave foránea
+        const isTablaForanea = tableName !== id_tabla[prop]; // Verifica si pertenece a otra tabla
 
-    console.log(clavesForaneas); // Array de claves foráneas
-    console.log(dataProperties); // Array de propiedades
-    console.log(tableName); // Array de propiedades
+        if (isKey && isTablaForanea) {
+            const valores = clavesForaneas.data.map((x, idx) => {
+                const datosForaneos = x[id_tabla[prop]]; // Obtiene datos de la tabla foránea
+                if (datosForaneos) {
+                    // Convertir el objeto en una representación legible
+                    return (
+                        <div key={idx}>
+                            {Object.entries(datosForaneos).map(([key, value], i) => (
+                                <div key={i}>
+                                    <strong>{key}:</strong> {String(Object.entries(value))}
+                                </div>
+                            ))}
+                        </div>
+                    );
+                }
+                return null;
+            });
 
-    const result = dataProperties.map((prop, index) => {
-        const isKey = tabla_id.some(id => id === prop); // Verifica si `prop` está en `tabla_id`
+            return (
+                <div key={index}>
+                    <b>{prop}</b>: {valores}
+                </div>
+            );
+        }
+
         return (
             <div key={index}>
-                {(tableName !== id_tabla[prop] && isKey) ? id_tabla[prop] : `${prop} no es clave`}
+                {prop} no es clave foránea o pertenece a la misma tabla
             </div>
         );
     });
 
-    return <div>{result}</div>;
+    return <div>{resultUI}</div>;
 };
