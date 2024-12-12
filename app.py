@@ -4,8 +4,8 @@ from flask import Flask, jsonify, request, Response
 from flask_cors import CORS
 
 import mysql.connector
-
-import csv, decimal, io, os
+import pandas as pd
+import csv, decimal, io, os, json
 from datetime import datetime, date
 
 load_dotenv()
@@ -244,15 +244,26 @@ def listar_tablas():
 def listar_datos():
     args = request.args
     tabla = args.get('tabla')  # El nombre de la tabla viene como un parámetro
-    limit = int(args.get('limite',100))
-    offset = int(args.get('offset',0))
+    limit = args.get('limite')
+    offset = int(args.get('offset', 0))
     formato = args.get('formato', 'json')
 
     args_dict = request.args.to_dict()
-    not_primary_keys = ['tabla','limite', 'offset', 'formato']
+    not_primary_keys = ['tabla', 'limite', 'offset', 'formato']
 
-    filtered_args = {key: value for key, value in args_dict.items() if key not in not_primary_keys}
-    where_clause  = ' AND '.join([f"{key}=%s" for key in filtered_args.keys()])
+    # Filtrar los argumentos relevantes
+    filtered_args = {key: value.split(',') for key, value in args_dict.items() if key not in not_primary_keys}
+
+    # Construir la cláusula WHERE con OR y AND
+    where_clauses = []
+    params = []
+
+    for key, values in filtered_args.items():
+        or_conditions = " OR ".join([f"{key}=%s" for _ in values])
+        where_clauses.append(f"({or_conditions})")
+        params.extend(values)  # Agregar los valores a los parámetros
+
+    where_clause = ' AND '.join(where_clauses)
     where_clause = f"WHERE {where_clause}" if where_clause else ""
 
     if tabla not in ALLOWED_TABLES:
@@ -261,9 +272,15 @@ def listar_datos():
     try:
         conn = mysql.connector.connect(**config)
         cursor = conn.cursor()
-        
-        sql_query = f"SELECT * FROM {tabla} {where_clause} LIMIT %s OFFSET %s"
-        params = list(filtered_args.values())+[limit, offset]
+
+
+        sql_query = f"SELECT * FROM {tabla} {where_clause}"
+        if limit is not None:
+            sql_query += " LIMIT %s OFFSET %s"
+            params.extend([int(limit), offset])
+
+        print("Consulta SQL:", sql_query)
+        print("Parámetros:", params)
         cursor.execute(sql_query, params)
 
         filas = cursor.fetchall()
@@ -283,13 +300,155 @@ def listar_datos():
                 'status': 'success',
                 'data': {
                     'tableData': respuesta,
-                    'tabla':tabla
+                    'tabla': tabla
                 }
             })
             return json_respuesta, 200, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
         elif formato == 'csv':
             csv_respuesta = generar_csv(respuesta)
             return Response(csv_respuesta, mimetype='text/csv')
+        else:
+            mensaje_error = f"Formato '{formato}' no soportado. Use 'json' o 'csv'."
+            return jsonify({'status': 'fail', 'error': mensaje_error}), 400
+
+    except mysql.connector.Error as e:
+        mensaje_error = f"Error al conectarse a la base de datos: {e}"
+        print(mensaje_error)
+        return jsonify({'status': 'fail', 'error': mensaje_error}), 500
+
+    except Exception as e:
+        mensaje_error = f"Error desconocido: {e}"
+        print(mensaje_error)
+        return jsonify({'status': 'fail', 'error': mensaje_error}), 500
+
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+
+@app.route('/listarFormateado', methods=['GET'])
+def listar_formateado():
+    args = request.args
+    tabla = args.get('tabla')  # El nombre de la tabla viene como un parámetro
+    limit = args.get('limite')
+    offset = int(args.get('offset', 0))
+    formato = args.get('formato', 'json')
+
+    args_dict = request.args.to_dict()
+    not_primary_keys = ['tabla', 'limite', 'offset', 'formato']
+
+    # Filtrar los argumentos relevantes
+    filtered_args = {key: value.split(',') for key, value in args_dict.items() if key not in not_primary_keys}
+
+    # Construir la cláusula WHERE con OR y AND
+    where_clauses = []
+    params = []
+
+    for key, values in filtered_args.items():
+        or_conditions = " OR ".join([f"{key}=%s" for _ in values])
+        where_clauses.append(f"({or_conditions})")
+        params.extend(values)  # Agregar los valores a los parámetros
+
+    where_clause = ' AND '.join(where_clauses)
+    where_clause = f"WHERE {where_clause}" if where_clause else ""
+
+    if tabla not in ALLOWED_TABLES:
+        return jsonify({'status': 'fail', 'error': 'Tabla no permitida'}), 403
+
+    try:
+        conn = mysql.connector.connect(**config)
+        cursor = conn.cursor()
+
+
+        #sql_query = f"SELECT * FROM {tabla} {where_clause}"
+        sql_query = f"""SELECT
+                        d.fecha,
+                        d.id_sesion,
+                        d.valor,
+                        CONCAT(v.descripcion,' (',v.unidad,')') AS unidad_medida,
+                        s.descripcion AS sesion_descripcion,
+                        s.fecha_inicio,
+                        s.ubicacion,
+                        disp.id_proyecto,
+                        disp.codigo_interno,
+                        disp.descripcion AS dispositivo_descripcion
+                    FROM
+                        sensores_dev.datos AS d
+                    LEFT JOIN
+                        sensores_dev.variables AS v
+                    ON
+                        d.id_variable = v.id_variable
+                    LEFT JOIN
+                        sensores_dev.sesiones AS s
+                    ON
+                        d.id_sesion = s.id_sesion
+                    LEFT JOIN
+                        sensores_dev.sensores AS sens
+                    ON
+                        d.id_sensor = sens.id_sensor
+                    LEFT JOIN
+                        sensores_dev.sensores_en_dispositivo AS sed
+                    ON
+                        sens.id_sensor = sed.id_sensor
+                    LEFT JOIN
+                        sensores_dev.dispositivos AS disp
+                    ON
+                        sed.id_dispositivo = disp.id_dispositivo
+                    {where_clause}
+                    """
+        
+        if limit is not None:
+            sql_query += " LIMIT %s OFFSET %s"
+            params.extend([int(limit), offset])
+
+        cursor.execute(sql_query, params)
+
+        filas = cursor.fetchall()
+
+        respuesta = []
+        for fila in filas:
+            datos_dict = {key: value for key, value in zip(cursor.column_names, fila)}
+            for key, value in datos_dict.items():
+                if isinstance(value, decimal.Decimal):
+                    datos_dict[key] = float(value)
+                elif isinstance(value, (datetime, date)):
+                    datos_dict[key] = value.isoformat()
+            respuesta.append(datos_dict)
+
+        df = pd.DataFrame(respuesta)
+        df = df.fillna(value={"id_sesion": "Sin sesión", "sesion_descripcion": "", "fecha_inicio": "", "ubicacion": ""})
+        df_pivoted = df.pivot_table(
+            index=["fecha", "id_sesion", "sesion_descripcion","fecha_inicio", "ubicacion", "id_proyecto", "codigo_interno", "dispositivo_descripcion"],
+            columns="unidad_medida",
+            values="valor",
+            aggfunc="sum"
+        ).reset_index()
+
+        # Opcional: Renombrar las columnas para quitar el índice generado
+        df_pivoted.columns.name = None
+
+        if formato == 'json':
+            json_response  = df_pivoted.to_dict(orient="records")
+            json_respuesta = json.dumps({
+                'status': 'success',
+                'data': {
+                    'tableData': json_response,
+                    'tabla': tabla
+                }
+            }, ensure_ascii=False)
+            return json_respuesta, 200, {'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*'}
+        elif formato == 'csv':
+            output = io.BytesIO()
+            df_pivoted.to_csv(output, index=False, encoding="utf-8-sig")
+            output.seek(0)
+            csv_respuesta = output.getvalue()
+            output.close()
+            
+            return Response(
+                csv_respuesta,
+                mimetype='text/csv',
+                headers={"Content-Disposition": "attachment;filename=output.csv"}
+            )
         else:
             mensaje_error = f"Formato '{formato}' no soportado. Use 'json' o 'csv'."
             return jsonify({'status': 'fail', 'error': mensaje_error}), 400
