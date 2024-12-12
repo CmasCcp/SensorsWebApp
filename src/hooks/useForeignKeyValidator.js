@@ -54,6 +54,22 @@ const useForeignKeyValidator = () => {
     [idTabla, isForeignKey]
   );
 
+  const getTableNameSingular = useCallback(
+    (prop) =>{
+        let table_name = getTableName(prop);
+
+        if (table_name.endsWith("s")) {
+          // Quitamos la última letra
+          table_name = table_name.slice(0, -1);
+        }
+
+        // return table_name;
+        return table_name.charAt(0).toUpperCase() + table_name.slice(1);
+       
+      },
+      [idTabla, isForeignKey]
+  );
+
   /**
    * Valida todas las propiedades de un formulario
    * @param {object} formData - Objeto con las propiedades del formulario
@@ -80,7 +96,7 @@ const useForeignKeyValidator = () => {
    */
   const getValue = useCallback((data, id_table) => {
     if (!Array.isArray(data)) {
-      console.error("El parámetro `data` debe ser un array.");
+      // console.log("El parámetro `data` debe ser un array. Data: ", data);
       return null;
     }
 
@@ -89,18 +105,25 @@ const useForeignKeyValidator = () => {
     
     // Buscar en el array data, el objeto que tenga como propiedad el nombre de la tabla "tabla". Esta propiedad tiene como valor un array con objetos que son las filas de la tabla.
     // Hay que buscar cuál de esas filas tiene el valor de la propiedad "id_table" igual a "id"
+    // const [ObjTabla] = data.filter(objTable => !!objTable[tabla]);
+    // const ObjTabla = data.filter(objTable => !!objTable[tabla]);
+    const ObjTabla = data.find(obj => obj.hasOwnProperty(tabla));
+    // const ArrayTabla= ObjTabla;
+    // console.log("ObjTabla", ObjTabla?.[tabla]);
+    // console.log("data", data);
 
-    const [ObjTabla] = data.filter(objTable => !!objTable[tabla]);
-    // console.log("result", ObjTabla?.[tabla] || null);
     let value = ObjTabla?.[tabla] || null;
-    
     if(Array.isArray(value)){
       value = value.map(fila => {
-        delete fila[id_table];
-        return Object.values(fila).join(" "); // Concatenamos los valores con espacios
+        const id = fila[id_table]; 
+        let valueObj = {...fila};
+        delete valueObj[id_table];
+        const value = Object.values(valueObj).join(" "); // Concatenamos los valores con espacios
+        return {id:id, value:value};
       });
     }
     
+    // console.log("value", value);
 
 
     return value; // Retorna null si no se encuentra el ID
@@ -110,6 +133,7 @@ const useForeignKeyValidator = () => {
   return {
     isForeignKey,
     getTableName,
+    getTableNameSingular,
     validateForm,
     foreignKeys,
     getValue
@@ -117,3 +141,6 @@ const useForeignKeyValidator = () => {
 };
 
 export default useForeignKeyValidator;
+
+
+// TODO: Poner a prueba con distintos test la el hook de useForeignKeyValidator

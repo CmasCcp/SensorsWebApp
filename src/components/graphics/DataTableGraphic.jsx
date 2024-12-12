@@ -23,6 +23,7 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, clavesForaneas 
     const [showAddModal, setShowAddModal] = useState(false);
 
 
+
     useEffect(() => {
         if (schemaData && schemaData.length > 0) {
             const keys = schemaData
@@ -58,14 +59,13 @@ export const DataTableGraphic = ({ tableName, title, reloadFlag, clavesForaneas 
             Object.entries(item).filter(([key]) => filteredKeys.includes(key))
         );
 
-        console.log("boton editar");
+        // console.log("boton editar");
         setItemPK(filteredItem);
         setEditData(item);
         setShowEditModal(prev => !prev);
     };
 
     const handleOnClickDelete = (item) => {
-        console.log("delete1");
         const filteredItem = Object.fromEntries(
             Object.entries(item).filter(([key]) => filteredKeys.includes(key))
         );

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { useFetch } from '../hooks/useFetch';
 import { Modal } from '../components/Modal';
+import useForeignKeyValidator from '../hooks/useForeignKeyValidator';
 
 export const RegisterPage = () => {
   const { accounts } = useMsal();
@@ -21,6 +22,9 @@ export const RegisterPage = () => {
   const { data: projectsData, hasError: projectsHasError } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${projectsTableName}`);
   const { data: devicesData, hasError: devicesHasError, setUrl: devicesSetUrl } = useFetch('');
   const { data: sensorsData, hasError: sensorsHasError, setUrl: sensorsSetUrl } = useFetch('');
+
+  const { getTableName,getTableNameSingular } = useForeignKeyValidator();
+
 
   useEffect(() => {
     devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject?.value || ''}`);
@@ -127,7 +131,7 @@ export const RegisterPage = () => {
         properties={deviceKeys}
         isOpen={showAddModal}
         onClose={handleCloseModal}
-        // tableName={data?.data?.tabla ?? "noTableValue"}
+        tableName={"dispositivos"}
       />
       <div className="container-fluid d-flex justify-content-center align-items-center">
         <div className="card w-100">
@@ -217,3 +221,6 @@ export const RegisterPage = () => {
     </>
   );
 };
+
+
+// TODO: por qué no se muestran los nuevos dispositivos?? Por "data", el id del proyecto y estado se guardan como nulos
