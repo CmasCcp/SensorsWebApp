@@ -23,6 +23,9 @@ export const Navbar = () => {
                                 <Link to="registrar" className="nav-link text-customdark">DISPOSITIVOS<span className="sr-only">(current)</span></Link>
                             </li>
                             <li className="nav-item active">
+                                <Link to="datos" className="nav-link text-customdark">DATOS<span className="sr-only">(current)</span></Link>
+                            </li>
+                            <li className="nav-item active">
                                 <Link to="administrador" className="nav-link text-customdark">ADMINISTRADOR</Link>
                             </li>
                             <li className="nav-item active">

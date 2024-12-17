@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 
-from flask import Flask, jsonify, request, Response
+from flask import Flask, jsonify, request, Response, stream_with_context
 from flask_cors import CORS
 
 import mysql.connector
@@ -326,10 +326,10 @@ def listar_datos():
             cursor.close()
             conn.close()
 
-@app.route('/listarFormateado', methods=['GET'])
-def listar_formateado():
+@app.route('/listarDatosEstructurados', methods=['GET'])
+def listar_datos_estructurados():
     args = request.args
-    tabla = args.get('tabla')  # El nombre de la tabla viene como un parámetro
+    tabla = "datos" #args.get('tabla')  # El nombre de la tabla viene como un parámetro
     limit = args.get('limite')
     offset = int(args.get('offset', 0))
     formato = args.get('formato', 'json')
@@ -421,8 +421,19 @@ def listar_formateado():
             index=["fecha", "id_sesion", "sesion_descripcion","fecha_inicio", "ubicacion", "id_proyecto", "codigo_interno", "dispositivo_descripcion"],
             columns="unidad_medida",
             values="valor",
-            aggfunc="sum"
+            aggfunc="first"
         ).reset_index()
+
+        columnas_excluidas = [
+            "fecha", "id_sesion", "sesion_descripcion", "fecha_inicio",
+            "ubicacion", "id_proyecto", "codigo_interno", "dispositivo_descripcion", "unidad_medida"
+            ]
+
+        # Identificar las columnas que se deben convertir a float
+        columnas_a_convertir = [col for col in df_pivoted.columns if col not in columnas_excluidas]
+
+        # Convertir las columnas seleccionadas a float
+        df_pivoted[columnas_a_convertir] = df_pivoted[columnas_a_convertir].astype(float)
 
         # Opcional: Renombrar las columnas para quitar el índice generado
         df_pivoted.columns.name = None
@@ -437,16 +448,10 @@ def listar_formateado():
                 }
             }, ensure_ascii=False)
             return json_respuesta, 200, {'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*'}
-        elif formato == 'csv':
-            output = io.BytesIO()
-            df_pivoted.to_csv(output, index=False, encoding="utf-8-sig")
-            output.seek(0)
-            csv_respuesta = output.getvalue()
-            output.close()
-            
+        elif formato == 'csv':                    
             return Response(
-                csv_respuesta,
-                mimetype='text/csv',
+                stream_with_context(build_csv(df_pivoted)),
+                mimetype="text/csv",
                 headers={"Content-Disposition": "attachment;filename=output.csv"}
             )
         else:
@@ -753,6 +758,14 @@ def generar_csv(data):
     for row in data:
         writer.writerow(row)
     return output.getvalue()
+
+def build_csv(df_pivoted):
+    output = io.BytesIO()
+    df_pivoted.to_csv(output, index=False, encoding="utf-8-sig")
+    output.seek(0)
+    for line in output:
+        yield line    
+    output.close()
 
 
 if __name__ == "__main__":
