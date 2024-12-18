@@ -43,6 +43,15 @@ const useForeignKeyValidator = () => {
     (prop) => tablaId.includes(prop),
     [tablaId]
   );
+  /**
+   * Verifica si una propiedad es clave primaria
+   * @param {string} prop - Propiedad a validar
+   * @returns {boolean} - Si es clave foránea o no
+   */
+  const isPrimaryKey = useCallback(
+    (prop) => prop.startsWith("id"),
+    []
+  );
 
   /**
    * Obtiene el nombre de la tabla asociada a una clave foránea
@@ -108,9 +117,6 @@ const useForeignKeyValidator = () => {
     // const [ObjTabla] = data.filter(objTable => !!objTable[tabla]);
     // const ObjTabla = data.filter(objTable => !!objTable[tabla]);
     const ObjTabla = data.find(obj => obj.hasOwnProperty(tabla));
-    // const ArrayTabla= ObjTabla;
-    // console.log("ObjTabla", ObjTabla?.[tabla]);
-    // console.log("data", data);
 
     let value = ObjTabla?.[tabla] || null;
     if(Array.isArray(value)){
@@ -132,6 +138,7 @@ const useForeignKeyValidator = () => {
 
   return {
     isForeignKey,
+    isPrimaryKey,
     getTableName,
     getTableNameSingular,
     validateForm,
