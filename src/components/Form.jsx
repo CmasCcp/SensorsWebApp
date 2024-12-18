@@ -4,7 +4,7 @@ import { useFetch } from '../hooks/useFetch';
 
 
 export const Form = ({ properties = [], data, onChange }) => {
-  const { isForeignKey, getTableName,getTableNameSingular, validateForm, foreignKeys, getValue } = useForeignKeyValidator();
+  const { isForeignKey, isPrimaryKey, getTableName, getTableNameSingular, validateForm, foreignKeys, getValue } = useForeignKeyValidator();
   const { data: clavesForaneas } = useFetch(`${import.meta.env.VITE_API_URL}/clavesForaneas`);
 
   const handleChange = (e) => {
@@ -35,15 +35,19 @@ export const Form = ({ properties = [], data, onChange }) => {
                     </option>
                   ))}
                 </select>)
-                : <input className="form-control" id={data[prop] || ""} name={prop} 
-                    value={data[prop] || ""} 
-                    onChange={handleChange} />
+                : <input 
+                  className="form-control" 
+                  id={data[prop] || ""} name={prop}
+                  value={data[prop] || ""}
+                  onChange={handleChange}
+                  disabled={isPrimaryKey(prop) ? true : false} />
               : (Array.isArray(getValue(clavesForaneas?.data, prop)))
                 ? (<select
                   className="form-control"
                   // id={data[prop]}
                   name={prop}
                   // value={data[prop]} // Utiliza `value` en lugar de `defaultValue` para reflejar el valor seleccionado
+                  defaultValue={null}
                   onChange={handleChange}
                 >
                   {getValue(clavesForaneas.data, prop).map((option, index) => (
@@ -52,7 +56,12 @@ export const Form = ({ properties = [], data, onChange }) => {
                     </option>
                   ))}
                 </select>)
-              : <input className="form-control" name={prop} onChange={handleChange} />
+                : <input
+                  className="form-control"
+                  name={prop}
+                  value={isPrimaryKey(prop) ? null : ""}
+                  onChange={handleChange}
+                  disabled={isPrimaryKey(prop) ? true : false} />
 
             }
 
