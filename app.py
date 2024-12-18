@@ -118,7 +118,9 @@ def claves_foraneas():
     ]
 
     try:
+        print("Antes")
         conn = mysql.connector.connect(**config)
+        print("Despues")
         cursor = conn.cursor(dictionary=True)
 
         resultado = []
