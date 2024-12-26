@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
+import { Dropdown } from "react-bootstrap";
 import { MsalContext } from "@azure/msal-react";
 import { InteractionType } from "@azure/msal-browser";
 import * as config from "../helpers/config";
@@ -42,8 +43,19 @@ const LoginPage = () => {
         }
     };
 
+    const handleLogout = () => {
+        msalInstance.logoutRedirect();
+    };
+
     return userEmail ? (
-        <span className="nav-link text-customdark">{userEmail}</span>
+        <Dropdown>
+            <Dropdown.Toggle as="span" className="nav-link text-customdark" style={{ cursor: "pointer" }}>
+                {userEmail}
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+                <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
+            </Dropdown.Menu>
+        </Dropdown>
     ) : (
         <Link to="#" className="nav-link text-customdark" onClick={handleLogin}>
             INGRESAR

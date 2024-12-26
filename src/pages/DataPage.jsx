@@ -111,6 +111,25 @@ export const DataPage = () => {
     }),
   };
 
+  const downloadFile = async () => {
+    const fileName = 'archivo.csv';
+
+    try {
+      const response = await fetch(`${sensorsUrl}&formato=csv`);
+      const blob = await response.blob();
+
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error al descargar el archivo:', error);
+    }
+  };
+
   return (
     <>
       <Modal
@@ -154,7 +173,7 @@ export const DataPage = () => {
                     />
                   </div>
                   <div>
-                    <button className="btn m-1 ml-auto custom-button" onClick={() => {useFetch(`${sensorsUrl}&formato=csv`)}}>
+                    <button className="btn m-1 ml-auto custom-button" onClick={downloadFile}>
                       <span className="btn-text">Descargar CSV</span>
                       <i className="fas fa-plus-circle"></i>
                     </button>
