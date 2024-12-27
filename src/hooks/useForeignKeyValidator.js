@@ -64,20 +64,20 @@ const useForeignKeyValidator = () => {
   );
 
   const getTableNameSingular = useCallback(
-    (prop) =>{
-        let table_name = getTableName(prop);
-
-        if (table_name.endsWith("s")) {
-          // Quitamos la última letra
-          table_name = table_name.slice(0, -1);
-        }
-
-        // return table_name;
-        return table_name.charAt(0).toUpperCase() + table_name.slice(1);
-       
-      },
-      [idTabla, isForeignKey]
+    (prop) => {
+      let table_name = getTableName(prop);
+  
+      if (table_name.endsWith("s")) {
+        table_name = table_name.slice(0, -1);
+      }
+  
+      table_name = table_name.replace(/_/g, " ");
+  
+      return table_name.charAt(0).toUpperCase() + table_name.slice(1);
+    },
+    [idTabla, isForeignKey]
   );
+  
 
   /**
    * Valida todas las propiedades de un formulario

@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Form } from './Form';
 
-export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkValue, tableName}) => {
+export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkValue, tableName, hiddenData}) => {
     const modalRef = useRef(null);
     const [formData, setFormData] = useState();
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
-
         setFormData(data);
     }, [data]);
 
@@ -18,13 +18,31 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
         }
     }, [isOpen]);
 
+    const validateForm = () => {
+        const newErrors = {};
+        let isValid = true;
+
+        for (const prop of properties) {
+            const value = formData[prop];
+            if (!value || value === "noValueSelected") { // Verifica inputs vacíos o selects en opción por defecto
+                isValid = false;
+                newErrors[prop] = "Este campo es obligatorio.";
+            }
+        }
+
+        setErrors(newErrors); // Almacena los errores en el estado
+        return isValid;
+    };
+
     // Manejar el cambio en los datos del formulario
     const handleSend = async () => {
+        if (!validateForm()) return;
+
         try {
             const payload = {
                 tableName: tableName,
                 primaryKeys: pkValue,
-                formData: formData  // Los datos del formulario
+                formData: { ...formData, ...hiddenData }  // Los datos del formulario
             };
 
             const response = await fetch(`${import.meta.env.VITE_API_URL}/modificarDatos`, {
@@ -46,10 +64,12 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
     };
 
     const handleAdd = async () => {
+        if (!validateForm()) return;
+
         try {
             const payload = {
                 tableName: tableName,
-                formData: formData  // Los datos del formulario
+                formData: {...formData, ...hiddenData}//+hiddenData  // Los datos del formulario
             };
             console.log("payload", JSON.stringify(payload));
 
@@ -97,7 +117,6 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
     // Actualizar el estado del formulario cuando cambia
     const handleFormChange = (newData) => {
         setFormData(newData);
-        console.log("formData", formData);
     };
 
     return (

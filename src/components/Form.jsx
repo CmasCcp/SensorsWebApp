@@ -49,8 +49,8 @@ export const Form = ({ properties, data, onChange }) => {
                   value={data?.[prop] || ""} // Utiliza `value` en lugar de `defaultValue` para reflejar el valor seleccionado
                   onChange={handleChange}>
                       
-                  <option value={"selecciona"}>
-                    Seleccione...
+                  <option value={"noValueSelected"}>
+                    Seleccione un valor
                   </option>
                   {options.map((option, index) => (
                     <option key={index} value={option.value}>

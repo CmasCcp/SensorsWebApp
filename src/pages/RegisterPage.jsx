@@ -10,8 +10,6 @@ export const RegisterPage = () => {
   const username = accounts.length > 0;
   const projectsTableName = "proyectos";
   const devicesTableName = "dispositivos";
-  const [formData, setFormData] = useState();
-  
 
   const [projectOptions, setProjectOptions] = useState([]);
   const [deviceOptions, setDeviceOptions] = useState([]);//['Dispositivo 1', 'Dispositivo 2', 'Dispositivo 3'];
@@ -25,15 +23,11 @@ export const RegisterPage = () => {
   const { data: devicesData, hasError: devicesHasError, setUrl: devicesSetUrl } = useFetch('');
   const { data: sensorsData, hasError: sensorsHasError, setUrl: sensorsSetUrl } = useFetch('');
 
-  const { getTableName,getTableNameSingular } = useForeignKeyValidator();
-
-
   useEffect(() => {
     devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject?.value || ''}`);
   }, [selectedProject])
 
   useEffect(() => {
-    // console.log(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
     sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
   }, [selectedDevice])
 
@@ -95,14 +89,10 @@ export const RegisterPage = () => {
   };
 
   const handleOnClickAddDevice = () => {
-    let deviceKeys = Object.keys(devicesData?.data?.tableData[0]);
+    let excludedKeys = ['id_proyecto', 'id_dispositivo'];
+    let deviceKeys = Object.keys(devicesData?.data?.tableData[0] || {}).filter(key => !excludedKeys.includes(key));
     setDeviceKeys(deviceKeys);
-
     setShowAddModal(prev=>!prev);
-
-    // console.log("deviceOptions", deviceOptions);
-    // console.log("deviceKeys", Object.keys(devicesData?.data?.tableData[0]));
-
   }
 
   const handleCloseModal = () => {
@@ -135,6 +125,7 @@ export const RegisterPage = () => {
         isOpen={showAddModal}
         onClose={handleCloseModal}
         tableName={"dispositivos"}
+        hiddenData={{"id_proyecto": selectedProject?.value || ''}}
       />
       <div className="container-fluid d-flex justify-content-center align-items-center">
         <div className="card w-100">
