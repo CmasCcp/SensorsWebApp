@@ -125,12 +125,10 @@ const useForeignKeyValidator = () => {
         let valueObj = {...fila};
         delete valueObj[id_table];
         const value = Object.values(valueObj).join(" "); // Concatenamos los valores con espacios
-        return {id:id, value:value};
+        return {value:`${id}`, label:value};
       });
     }
     
-    // console.log("value", value);
-
 
     return value; // Retorna null si no se encuentra el ID
   }, []);

@@ -6,6 +6,7 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
     const [formData, setFormData] = useState();
 
     useEffect(() => {
+
         setFormData(data);
     }, [data]);
 
@@ -50,7 +51,7 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
                 tableName: tableName,
                 formData: formData  // Los datos del formulario
             };
-            console.log("payload", payload);
+            console.log("payload", JSON.stringify(payload));
 
             const response = await fetch(`${import.meta.env.VITE_API_URL}/agregarDatos`, {
                 method: 'POST',
@@ -96,6 +97,7 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
     // Actualizar el estado del formulario cuando cambia
     const handleFormChange = (newData) => {
         setFormData(newData);
+        console.log("formData", formData);
     };
 
     return (

@@ -10,6 +10,8 @@ export const RegisterPage = () => {
   const username = accounts.length > 0;
   const projectsTableName = "proyectos";
   const devicesTableName = "dispositivos";
+  const [formData, setFormData] = useState();
+  
 
   const [projectOptions, setProjectOptions] = useState([]);
   const [deviceOptions, setDeviceOptions] = useState([]);//['Dispositivo 1', 'Dispositivo 2', 'Dispositivo 3'];
@@ -31,7 +33,7 @@ export const RegisterPage = () => {
   }, [selectedProject])
 
   useEffect(() => {
-    console.log(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
+    // console.log(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
     sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
   }, [selectedDevice])
 
@@ -95,10 +97,11 @@ export const RegisterPage = () => {
   const handleOnClickAddDevice = () => {
     let deviceKeys = Object.keys(devicesData?.data?.tableData[0]);
     setDeviceKeys(deviceKeys);
+
     setShowAddModal(prev=>!prev);
 
-    console.log("deviceOptions", deviceOptions);
-    console.log("devicesData", Object.keys(devicesData?.data?.tableData[0]));
+    // console.log("deviceOptions", deviceOptions);
+    // console.log("deviceKeys", Object.keys(devicesData?.data?.tableData[0]));
 
   }
 
