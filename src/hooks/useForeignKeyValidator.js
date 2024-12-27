@@ -141,7 +141,7 @@ const useForeignKeyValidator = () => {
     getTableNameSingular,
     validateForm,
     foreignKeys,
-    getValue
+    getValue,
   };
 };
 

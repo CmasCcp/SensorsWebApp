@@ -30,6 +30,19 @@ ALLOWED_TABLES_PROP = [
 {'displayName':'Variables en sensores','dataName':'variables_en_sensores'},
 ]
 
+FOREIGN_KEYS_PROP = {
+    "id_sesion": {"table": "sesiones","columns": ["id_sesion", "descripcion"]}, 
+    "id_variable": {"table": "variables", "columns":["id_variable", "descripcion"]}, 
+    "id_grupo": {"table": "grupos", "columns":["id_grupo", "nombre"]}, 
+    "id_estado": {"table": "estados", "columns":["id_estado", "nombre"]}, 
+    "id_proyecto": {"table": "proyectos", "columns":["id_proyecto", "nombre"]}, 
+    "id_persona": {"table": "personas", "columns":["id_persona", "nombre", "apellido"]}, 
+    "id_persona_responsable_ingreso": {"table": "personas", "columns":["id_persona", "nombre", "apellido"]}, 
+    "id_persona_responsable_salida": {"table": "personas", "columns":["id_persona", "nombre", "apellido"]}, 
+    "id_sensor": {"table": "sensores", "columns":["id_sensor", "numero_serial"]}, 
+    "id_sensor_tipo": {"table": "sensores_tipo", "columns":["id_sensor_tipo", "marca"]}
+    }
+
 ALLOWED_TABLES = [table['dataName'] for table in ALLOWED_TABLES_PROP]
 config = {
     "user": os.getenv("DB_USER"),
@@ -101,6 +114,51 @@ def generar_sesion():
             cursor.close()
             conn.close()
 
+@app.route('/columnaForanea', methods=['GET'])
+def columna_foranea():
+    args = request.args
+    column = args.get('columna')
+    try:
+        conn = mysql.connector.connect(**config)
+        cursor = conn.cursor(dictionary=True)
+
+        if column in FOREIGN_KEYS_PROP.keys():
+            table_name = FOREIGN_KEYS_PROP[column]["table"]
+            columns = FOREIGN_KEYS_PROP[column]["columns"]
+
+            columnas_str = ", ".join(columns)
+            query = f"SELECT {columnas_str} FROM {table_name}"
+
+            cursor.execute(query)
+            filas = cursor.fetchall()
+
+            transformed_data = [
+                {
+                    "value": fila[column],  # El valor de la columna principal
+                    "label": " ".join(str(fila[col]) for col in columns if col != column)  # Concatenar otras columnas
+                }
+                for fila in filas
+            ]
+
+            return jsonify({"status": "success", "data": transformed_data}), 200
+
+        return jsonify({"status": "fail", "error": "No se han obtenido los datos"}), 400
+    
+    except mysql.connector.Error as e:
+        mensaje_error = f"Error al conectarse a la base de datos: {e}"
+        print(mensaje_error)
+        return jsonify({"status": "fail", "error": mensaje_error}), 500
+
+    except Exception as e:
+        mensaje_error = f"Error desconocido: {e}"
+        print(mensaje_error)
+        return jsonify({"status": "fail", "error": mensaje_error}), 500
+
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()         
+
 @app.route('/clavesForaneas', methods=['GET'])
 def claves_foraneas():
     tablas_foraneas = [
@@ -139,8 +197,9 @@ def claves_foraneas():
                 filas = cursor.fetchall()
 
                 # Formatear cada tabla como un objeto dentro del array de resultados
+                # [{sesiones: [{id_sesion: id_sesion_1, descripcion: descripcion_1}]}]
                 resultado.append({
-                    nombre_tabla: filas
+                    nombre_tabla: filas 
                 })
 
         return jsonify({"status": "success", "data": resultado}), 200
@@ -243,7 +302,7 @@ def listar_tablas():
 @app.route('/listarDatos', methods=['GET'])
 def listar_datos():
     args = request.args
-    tabla = args.get('tabla')  # El nombre de la tabla viene como un parámetro
+    tabla = args.get('tabla')
     limit = args.get('limite')
     offset = int(args.get('offset', 0))
     formato = args.get('formato', 'json')

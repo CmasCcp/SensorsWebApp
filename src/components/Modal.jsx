@@ -114,7 +114,7 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
                 <div className="modal-dialog" role="document">
                     <div className="modal-content">
                         <div className="modal-header text-center">
-                            <h5 className="modal-title" id="exampleModalLabel">{title}</h5>
+                            <h2 className="modal-title" id="exampleModalLabel">{title}</h2>
                             <button
                                 type="button"
                                 className="close"
