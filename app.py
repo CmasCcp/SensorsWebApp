@@ -393,14 +393,25 @@ def listar_datos_estructurados():
     offset = int(args.get('offset', 0))
     formato = args.get('formato', 'json')
 
+    fecha_inicio = args.get('fecha_inicio')
+    fecha_fin = args.get('fecha_fin')
+
     args_dict = request.args.to_dict()
-    not_primary_keys = ['tabla', 'limite', 'offset', 'formato']
+    not_primary_keys = ['tabla', 'limite', 'offset', 'formato', 'fecha_inicio', 'fecha_fin']
 
     # Filtrar los argumentos relevantes
     filtered_args = {key: value.split(',') for key, value in args_dict.items() if key not in not_primary_keys}
 
     where_clauses = []
     params = []
+
+    # Rango de fechas
+    if fecha_inicio:
+        where_clauses.append("(d.fecha >= %s)")
+        params.append(fecha_inicio)
+    if fecha_fin:
+        where_clauses.append("(d.fecha <= %s)")
+        params.append(fecha_fin)
 
     for key, values in filtered_args.items():
         or_conditions = " OR ".join([f"{key}=%s" for _ in values])
@@ -446,7 +457,9 @@ def listar_datos_estructurados():
 
         cursor.execute(sql_query, params)
         filas = cursor.fetchall()
-
+        if len(filas) == 0:
+            mensaje_error = f"No hay registros para los filtros solicitados"
+            return jsonify({'status': 'fail', 'error': mensaje_error}), 400
         # Convertir resultados en DataFrame
         respuesta = []
         for fila in filas:

@@ -31,5 +31,5 @@ export const useFetch = (apiUrl) => {
     }
   }, [url]);
 
-  return { data, isLoading, hasError, setUrl };
+  return { data, isLoading, hasError, setUrl, url};
 };
