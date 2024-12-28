@@ -388,8 +388,8 @@ def listar_datos():
 @app.route('/listarDatosEstructurados', methods=['GET'])
 def listar_datos_estructurados():
     args = request.args
-    tabla = "datos" #args.get('tabla')  # El nombre de la tabla viene como un parámetro
-    limit = args.get('limite')
+    tabla = "datos"  # args.get('tabla')  # Nombre de la tabla como parámetro
+    limit = int(args.get('limite', 0))
     offset = int(args.get('offset', 0))
     formato = args.get('formato', 'json')
 
@@ -399,14 +399,13 @@ def listar_datos_estructurados():
     # Filtrar los argumentos relevantes
     filtered_args = {key: value.split(',') for key, value in args_dict.items() if key not in not_primary_keys}
 
-    # Construir la cláusula WHERE con OR y AND
     where_clauses = []
     params = []
 
     for key, values in filtered_args.items():
         or_conditions = " OR ".join([f"{key}=%s" for _ in values])
         where_clauses.append(f"({or_conditions})")
-        params.extend(values)  # Agregar los valores a los parámetros
+        params.extend(values)
 
     where_clause = ' AND '.join(where_clauses)
     where_clause = f"WHERE {where_clause}" if where_clause else ""
@@ -418,52 +417,37 @@ def listar_datos_estructurados():
         conn = mysql.connector.connect(**config)
         cursor = conn.cursor()
 
-
-        #sql_query = f"SELECT * FROM {tabla} {where_clause}"
-        sql_query = f"""SELECT
-                        d.fecha,
-                        d.id_sesion,
-                        d.valor,
-                        CONCAT(v.descripcion,' (',v.unidad,')') AS unidad_medida,
-                        s.descripcion AS sesion_descripcion,
-                        s.fecha_inicio,
-                        s.ubicacion,
-                        disp.id_proyecto,
-                        disp.codigo_interno,
-                        disp.descripcion AS dispositivo_descripcion
-                    FROM
-                        sensores_dev.datos AS d
-                    LEFT JOIN
-                        sensores_dev.variables AS v
-                    ON
-                        d.id_variable = v.id_variable
-                    LEFT JOIN
-                        sensores_dev.sesiones AS s
-                    ON
-                        d.id_sesion = s.id_sesion
-                    LEFT JOIN
-                        sensores_dev.sensores AS sens
-                    ON
-                        d.id_sensor = sens.id_sensor
-                    LEFT JOIN
-                        sensores_dev.sensores_en_dispositivo AS sed
-                    ON
-                        sens.id_sensor = sed.id_sensor
-                    LEFT JOIN
-                        sensores_dev.dispositivos AS disp
-                    ON
-                        sed.id_dispositivo = disp.id_dispositivo
-                    {where_clause}
-                    """
-        
-        if limit is not None:
-            sql_query += " LIMIT %s OFFSET %s"
-            params.extend([int(limit), offset])
+        sql_query = f"""
+            SELECT
+                d.fecha,
+                d.id_sesion,
+                d.valor,
+                CONCAT(v.descripcion, ' (', v.unidad, ')') AS unidad_medida,
+                s.descripcion AS sesion_descripcion,
+                s.fecha_inicio,
+                s.ubicacion,
+                disp.id_proyecto,
+                disp.codigo_interno,
+                disp.descripcion AS dispositivo_descripcion
+            FROM
+                sensores_dev.datos AS d
+            LEFT JOIN
+                sensores_dev.variables AS v ON d.id_variable = v.id_variable
+            LEFT JOIN
+                sensores_dev.sesiones AS s ON d.id_sesion = s.id_sesion
+            LEFT JOIN
+                sensores_dev.sensores AS sens ON d.id_sensor = sens.id_sensor
+            LEFT JOIN
+                sensores_dev.sensores_en_dispositivo AS sed ON sens.id_sensor = sed.id_sensor
+            LEFT JOIN
+                sensores_dev.dispositivos AS disp ON sed.id_dispositivo = disp.id_dispositivo
+            {where_clause}
+        """
 
         cursor.execute(sql_query, params)
-
         filas = cursor.fetchall()
 
+        # Convertir resultados en DataFrame
         respuesta = []
         for fila in filas:
             datos_dict = {key: value for key, value in zip(cursor.column_names, fila)}
@@ -477,37 +461,31 @@ def listar_datos_estructurados():
         df = pd.DataFrame(respuesta)
         df = df.fillna(value={"id_sesion": "Sin sesión", "sesion_descripcion": "", "fecha_inicio": "", "ubicacion": ""})
         df_pivoted = df.pivot_table(
-            index=["fecha", "id_sesion", "sesion_descripcion","fecha_inicio", "ubicacion", "id_proyecto", "codigo_interno", "dispositivo_descripcion"],
+            index=["fecha", "id_sesion", "sesion_descripcion", "fecha_inicio", "ubicacion", "id_proyecto", "codigo_interno", "dispositivo_descripcion"],
             columns="unidad_medida",
             values="valor",
             aggfunc="first"
         ).reset_index()
 
-        columnas_excluidas = [
-            "fecha", "id_sesion", "sesion_descripcion", "fecha_inicio",
-            "ubicacion", "id_proyecto", "codigo_interno", "dispositivo_descripcion", "unidad_medida"
-            ]
+        # Calcular total_count antes de aplicar limit y offset
+        total_count = len(df_pivoted)
 
-        # Identificar las columnas que se deben convertir a float
-        columnas_a_convertir = [col for col in df_pivoted.columns if col not in columnas_excluidas]
-
-        # Convertir las columnas seleccionadas a float
-        df_pivoted[columnas_a_convertir] = df_pivoted[columnas_a_convertir].astype(float)
-
-        # Opcional: Renombrar las columnas para quitar el índice generado
-        df_pivoted.columns.name = None
+        # Aplicar limit y offset al DataFrame pivotado
+        if limit > 0:
+            df_pivoted = df_pivoted.iloc[offset:offset + limit]
 
         if formato == 'json':
-            json_response  = df_pivoted.to_dict(orient="records")
+            json_response = df_pivoted.to_dict(orient="records")
             json_respuesta = json.dumps({
                 'status': 'success',
                 'data': {
                     'tableData': json_response,
-                    'tabla': tabla
+                    'tabla': tabla,
+                    'totalCount': total_count
                 }
             }, ensure_ascii=False)
             return json_respuesta, 200, {'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*'}
-        elif formato == 'csv':                    
+        elif formato == 'csv':
             return Response(
                 stream_with_context(build_csv(df_pivoted)),
                 mimetype="text/csv",
@@ -531,6 +509,7 @@ def listar_datos_estructurados():
         if conn.is_connected():
             cursor.close()
             conn.close()
+
 
 @app.route('/listarSensores', methods=['GET'])
 def listar_sensores():

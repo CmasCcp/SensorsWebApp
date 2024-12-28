@@ -4,6 +4,7 @@ import { SensoresPage } from "../pages/SensoresPage"
 import { AdministradorPage } from "../pages/AdministradorPage"
 import {RegisterPage} from '../pages/RegisterPage'
 import {DataPage} from '../pages/DataPage'
+import { ProtocolosPage } from "../pages/ProtocolosPage"
 export const AppRoute = () => {
     return (
         <Routes>
@@ -13,6 +14,7 @@ export const AppRoute = () => {
             <Route path="/dashboard" element={<SensoresPage/>}/>
             <Route path="/registrar" element={<RegisterPage/>}/>
             <Route path="/datos" element={<DataPage/>}/>
+            <Route path="/protocolos" element={<ProtocolosPage/>}/>
             <Route path="/administrador" element={<AdministradorPage/>}/>
         </Routes>
     )
