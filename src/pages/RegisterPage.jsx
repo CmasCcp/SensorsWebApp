@@ -3,13 +3,15 @@ import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { useFetch } from '../hooks/useFetch';
 import { Modal } from '../components/Modal';
-import useForeignKeyValidator from '../hooks/useForeignKeyValidator';
 
 export const RegisterPage = () => {
   const { accounts } = useMsal();
   const username = accounts.length > 0;
   const projectsTableName = "proyectos";
   const devicesTableName = "dispositivos";
+  const [selectedHiddenData, setSelectedHiddenData] = useState({});
+  const [selectedTable, setSelectedTable] = useState("");
+  const [selectedAction, setSelectedAction] = useState('');
 
   const [projectOptions, setProjectOptions] = useState([]);
   const [deviceOptions, setDeviceOptions] = useState([]);
@@ -17,7 +19,7 @@ export const RegisterPage = () => {
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [tableData, setTableData] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [deviceKeys, setDeviceKeys] = useState([]);
+  const [formKeys, setFormKeys] = useState([]);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -73,9 +75,23 @@ export const RegisterPage = () => {
   };
 
   const handleOnClickAddDevice = () => {
+    setSelectedTable("dispositivos");
+    setSelectedAction("Agregar");
+    setSelectedHiddenData({ "id_proyecto": selectedProject?.value || '' });
     let excludedKeys = ['id_proyecto', 'id_dispositivo'];
-    let deviceKeys = Object.keys(devicesData?.data?.tableData[0] || {}).filter(key => !excludedKeys.includes(key));
-    setDeviceKeys(deviceKeys);
+    let formKeys = Object.keys(devicesData?.data?.tableData[0] || {}).filter(key => !excludedKeys.includes(key));
+    setFormKeys(formKeys);
+    setShowAddModal(prev => !prev);
+  };
+
+  const handleOnClickAddSensor = () => {
+    //let excludedKeys = ['id_proyecto', 'id_dispositivo'];
+    setSelectedTable("sensores");
+    setSelectedAction("Agregar Sensor");
+    setSelectedHiddenData({'id_dispositivo': selectedDevice?.value || ''});
+    // sensorsData no tiene la misma estructura que la tabla sensores, por eso no puedo utilizar las keys como en devicesData...
+    let formKeys = ['id_sensor_tipo', 'id_estado', 'numero_serial', 'fecha_compra', 'proveedor', 'precio'];
+    setFormKeys(formKeys);
     setShowAddModal(prev => !prev);
   };
 
@@ -140,14 +156,14 @@ export const RegisterPage = () => {
     <>
       <Modal
         type={"warning"}
-        action={"Agregar"}
+        action={selectedAction}
         title={"Agregar fila"}
         id="addModal"
-        properties={deviceKeys}
+        properties={formKeys}
         isOpen={showAddModal}
         onClose={handleCloseModal}
-        tableName={"dispositivos"}
-        hiddenData={{ "id_proyecto": selectedProject?.value || '' }}
+        tableName={selectedTable}
+        hiddenData={selectedHiddenData}
       />
       <div className="container-fluid d-flex justify-content-center align-items-center">
         <div className="card w-100">
@@ -211,7 +227,7 @@ export const RegisterPage = () => {
                           </tbody>
                         </table>
                         <div className="row my-4">
-                          <button className="btn m-1 ml-auto custom-button" onClick={() => { }}>
+                          <button className="btn m-1 ml-auto custom-button" onClick={handleOnClickAddSensor}>
                             <span className="btn-text">Agregar Sensor</span>
                             <i className="fas fa-plus-circle"></i>
                           </button>

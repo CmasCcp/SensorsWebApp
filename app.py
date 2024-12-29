@@ -40,7 +40,7 @@ FOREIGN_KEYS_PROP = {
     "id_persona_responsable_ingreso": {"table": "personas", "columns":["id_persona", "nombre", "apellido"]}, 
     "id_persona_responsable_salida": {"table": "personas", "columns":["id_persona", "nombre", "apellido"]}, 
     "id_sensor": {"table": "sensores", "columns":["id_sensor", "numero_serial"]}, 
-    "id_sensor_tipo": {"table": "sensores_tipo", "columns":["id_sensor_tipo", "marca"]}
+    "id_sensor_tipo": {"table": "sensores_tipo", "columns":["id_sensor_tipo", "marca", "modelo"]}
     }
 
 ALLOWED_TABLES = [table['dataName'] for table in ALLOWED_TABLES_PROP]
@@ -65,6 +65,37 @@ def endovenosa_dummy():
     'lastConnection': "07/10/2024",
     'alertMsg': "Burbuja de aire detectada",
     'alertType': "Danger"}), 200
+
+@app.route('/ultimoValor', methods=['GET'])
+def ultimo_valor():
+    tabla = request.args.get('tabla')
+    columna = request.args.get('columna')
+
+    if not tabla or not columna:
+        return jsonify({'status': 'fail', 'error': 'Debe proporcionar el nombre de la tabla y la columna'}), 400
+
+    try:
+        conn = mysql.connector.connect(**config)
+        cursor = conn.cursor()
+
+        query = f"SELECT {columna} FROM {tabla} ORDER BY {columna} DESC LIMIT 1"
+        cursor.execute(query)
+        resultado = cursor.fetchone()
+
+        if resultado:
+            ultimo_valor = resultado[0]
+            return jsonify({'status': 'success', 'data': ultimo_valor}), 200
+        else:
+            return jsonify({'status': 'fail', 'error': 'No se encontraron resultados'}), 404
+
+    except mysql.connector.Error as e:
+        return jsonify({'status': 'fail', 'error': f'Error en la base de datos: {str(e)}'}), 500
+    except Exception as e:
+        return jsonify({'status': 'fail', 'error': f'Error inesperado: {str(e)}'}), 500
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
 
 @app.route('/generarSesion', methods=['GET'])
 def generar_sesion():
@@ -135,7 +166,7 @@ def columna_foranea():
             transformed_data = [
                 {
                     "value": fila[column],  # El valor de la columna principal
-                    "label": " ".join(str(fila[col]) for col in columns if col != column)  # Concatenar otras columnas
+                    "label": " - ".join(str(fila[col]) for col in columns if col != column)  # Concatenar otras columnas
                 }
                 for fila in filas
             ]
@@ -159,65 +190,6 @@ def columna_foranea():
             cursor.close()
             conn.close()         
 
-@app.route('/clavesForaneas', methods=['GET'])
-def claves_foraneas():
-    tablas_foraneas = [
-        {"sesiones": ["id_sesion", "descripcion"]},
-        {"variables": ["id_variable", "descripcion"]},
-        {"grupos": ["id_grupo", "nombre"]},
-        {"estados": ["id_estado", "nombre"]},
-        {"proyectos": ["id_proyecto", "nombre"]},
-        {"personas": ["id_persona", "nombre", "apellido"]},
-        {"Id_persona_responsable_ingreso": ["id_persona", "nombre", "apellido"]},  # "personas"
-        {"Id_persona_responsable_salida": ["id_persona", "nombre", "apellido"]},  # "personas"
-        {"Id_persona_responsable": ["id_persona", "nombre", "apellido"]},  # "personas"
-        {"sensores": ["id_sensor", "numero_serial"]},
-        {"sensores_tipo": ["id_sensor_tipo", "marca"]},
-    ]
-
-    try:
-        conn = mysql.connector.connect(**config)
-        cursor = conn.cursor(dictionary=True)
-
-        resultado = []
-        for tabla in tablas_foraneas:
-            for nombre_tabla, columnas in tabla.items():
-                if nombre_tabla in ["Id_persona_responsable_ingreso", "Id_persona_responsable_salida", "Id_persona_responsable"]:
-                    # Estas tablas corresponden a "personas"
-                    nombre_tabla_real = "personas"
-                else:
-                    nombre_tabla_real = nombre_tabla
-
-                # Construir la consulta SQL
-                columnas_str = ", ".join(columnas)
-                query = f"SELECT {columnas_str} FROM {nombre_tabla_real}"
-
-                # Ejecutar la consulta y obtener los datos
-                cursor.execute(query)
-                filas = cursor.fetchall()
-
-                # Formatear cada tabla como un objeto dentro del array de resultados
-                # [{sesiones: [{id_sesion: id_sesion_1, descripcion: descripcion_1}]}]
-                resultado.append({
-                    nombre_tabla: filas 
-                })
-
-        return jsonify({"status": "success", "data": resultado}), 200
-
-    except mysql.connector.Error as e:
-        mensaje_error = f"Error al conectarse a la base de datos: {e}"
-        print(mensaje_error)
-        return jsonify({"status": "fail", "error": mensaje_error}), 500
-
-    except Exception as e:
-        mensaje_error = f"Error desconocido: {e}"
-        print(mensaje_error)
-        return jsonify({"status": "fail", "error": mensaje_error}), 500
-
-    finally:
-        if conn.is_connected():
-            cursor.close()
-            conn.close()            
 
 @app.route('/insertarMedicion', methods=['GET'])
 def insertar_medicion():

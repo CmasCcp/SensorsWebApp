@@ -5,7 +5,7 @@ import { useFetch } from '../../hooks/useFetch';
 import { Modal } from '../Modal';
 import { Probando } from './Probando';
 
-export const DataTableGraphic = ({ tableName, title, reloadFlag, clavesForaneas }) => {
+export const DataTableGraphic = ({ tableName, title, reloadFlag }) => {
 
     const { data: schemaData} = useFetch(`${import.meta.env.VITE_API_URL}/schema?tabla=${tableName}`);
     const { data, hasError, isLoading } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}`, reloadFlag);

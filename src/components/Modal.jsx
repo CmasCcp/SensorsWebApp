@@ -63,13 +63,13 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
         }
     };
 
-    const handleAdd = async () => {
+    const handleAdd = async (assignedTableName, assignedFormData) => {
         if (!validateForm()) return;
 
         try {
             const payload = {
-                tableName: tableName,
-                formData: {...formData, ...hiddenData}//+hiddenData  // Los datos del formulario
+                tableName: assignedTableName,
+                formData: assignedFormData // Los datos del formulario
             };
             console.log("payload", JSON.stringify(payload));
 
@@ -86,6 +86,27 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
             } else {
                 console.error('Error al actualizar el dispositivo');
             }
+        } catch (error) {
+            console.error('Error al hacer la solicitud:', error);
+        }
+    };
+
+    const handleAddSensor = async () => {
+        handleAdd(tableName, formData);
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/ultimoValor?tabla=${tableName}&columna=id_sensor`,{
+            headers:{
+                accept: 'application/json',
+                'User-agent': 'learning app',
+            }
+            });
+            const responseData = await response.json();
+
+            if(responseData.status === 'success'){
+                handleAdd('sensores_en_dispositivo', { ...hiddenData,'id_sensor': responseData.data});
+            }
+
         } catch (error) {
             console.error('Error al hacer la solicitud:', error);
         }
@@ -144,18 +165,13 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
                             </button>
                         </div>
                         <div className="modal-body">
-                            {action === "Editar" && 
+                            {action !== "Eliminar" && 
                               <Form 
                                 properties={properties} 
                                 data={formData} 
                                 onChange={handleFormChange}  // Pasar la función para actualizar el formulario
                                 />}
-                            {action === "Agregar" && 
-                              <Form 
-                                properties={properties}
-                                data={formData} 
-                                onChange={handleFormChange}  // Pasar la función para actualizar el formulario
-                              />}
+
                             {action === "Eliminar" && <p className='text-center'>¿Estás seguro de eliminar la fila {JSON.stringify(data.id)}?</p>}
                         </div>
                         <div className="modal-footer">
@@ -169,7 +185,9 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
                                    } else if(action==="Eliminar"){
                                         handleRemove();
                                    } else if(action==="Agregar"){
-                                        handleAdd();
+                                        handleAdd(tableName, {...formData, ...hiddenData});
+                                   } else if(action==="Agregar Sensor"){
+                                        handleAddSensor();
                                    }
                                   onClose();
                               }}>
