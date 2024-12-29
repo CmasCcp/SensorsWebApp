@@ -4,7 +4,7 @@ import { Form } from './Form';
 export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkValue, tableName, hiddenData}) => {
     const modalRef = useRef(null);
     const [formData, setFormData] = useState();
-    const [errors, setErrors] = useState({});
+    const [_, setErrors] = useState({});
 
     useEffect(() => {
         setFormData(data);
@@ -92,7 +92,7 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
     };
 
     const handleAddSensor = async () => {
-        handleAdd(tableName, formData);
+        await handleAdd(tableName, formData);
 
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/ultimoValor?tabla=${tableName}&columna=id_sensor`,{
@@ -104,7 +104,7 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
             const responseData = await response.json();
 
             if(responseData.status === 'success'){
-                handleAdd('sensores_en_dispositivo', { ...hiddenData,'id_sensor': responseData.data});
+                await handleAdd('sensores_en_dispositivo', { ...hiddenData,'id_sensor': responseData.data});
             }
 
         } catch (error) {

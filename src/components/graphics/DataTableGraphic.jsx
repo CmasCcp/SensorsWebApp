@@ -3,7 +3,6 @@ import { DataTable } from 'simple-datatables';
 import 'simple-datatables/dist/style.css';
 import { useFetch } from '../../hooks/useFetch';
 import { Modal } from '../Modal';
-import { Probando } from './Probando';
 
 export const DataTableGraphic = ({ tableName, title, reloadFlag }) => {
 

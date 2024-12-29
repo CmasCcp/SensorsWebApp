@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 
 from flask import Flask, jsonify, request, Response, stream_with_context
 from flask_cors import CORS
+from flasgger import Swagger
 
 import mysql.connector
 import pandas as pd
@@ -10,7 +11,51 @@ from datetime import datetime, date
 
 load_dotenv()
 app = Flask(__name__)
+app.config['SWAGGER'] = {
+    'title': 'API Docs - Sensores',
+    'description': 'Esta es la documentación interactiva para la API. Incluye detalles sobre los endpoints disponibles, sus parámetros, y ejemplos de uso.',
+    'uiversion': 3,
+    'favicon': 'https://example.com/favicon.ico',  # URL de tu favicon personalizado
+    'specs': [
+        {
+            'endpoint': 'apispec_1',
+            'route': '/apispec_1.json',
+            'rule_filter': lambda rule: True,  # Todos los endpoints están documentados
+            'model_filter': lambda tag: True,  # Todos los modelos están incluidos
+        }
+    ],
+    'static_url_path': '/flasgger_static',
+    'swagger_ui': True,
+    'specs_route': '/apidocs/',  # URL de acceso a la documentación
+    'contact': {
+        'name': 'Soporte API',
+        'url': 'https://example.com/soporte',
+        'email': 'soporte@example.com'
+    },
+    'license': {
+        'name': 'MIT License',
+        'url': 'https://opensource.org/licenses/MIT'
+    },
+    'servers': [
+        {
+            'url': 'http://localhost:8084',
+            'description': 'Servidor local de desarrollo'
+        },
+        {
+            'url': 'https://api.example.com',
+            'description': 'Servidor de producción'
+        }
+    ],
+    'tags': [
+        {'name': 'Datos', 'description': 'Endpoints relacionados con la manipulación de datos.'},
+        {'name': 'Sensores', 'description': 'Endpoints relacionados con la gestión de sensores.'},
+        {'name': 'Tablas', 'description': 'Endpoints para operaciones sobre tablas.'},
+        {'name': 'Esquemas', 'description': 'Endpoints para obtener esquemas de tablas.'}
+    ]
+}
+
 CORS(app)
+swagger = Swagger(app)
 
 ALLOWED_TABLES_PROP = [
 {'displayName':'Datos','dataName':'datos'},
@@ -56,18 +101,100 @@ print(config)
  
 @app.route('/endovenosaDummy', methods=['GET'])
 def endovenosa_dummy():
+    """
+    Devuelve datos simulados de un dispositivo.
+    ---
+    tags:
+      - Simulaciones
+    responses:
+      200:
+        description: Datos del dispositivo
+        examples:
+          application/json: {
+            "name": "Dispositivo 1",
+            "license": "JLZJ41",
+            "password": "3508239",
+            "firmwareVersion": "v10.3",
+            "status": "Transmitting",
+            "lastConnection": "07/10/2024",
+            "alertMsg": "Burbuja de aire detectada",
+            "alertType": "Danger"
+          }
+    """
     return jsonify({
-    'name': "Dispositivo 1",
-    'license': "JLZJ41",
-    'password': "3508239",
-    'firmwareVersion': "v10.3",
-    'status': "Transmitting",
-    'lastConnection': "07/10/2024",
-    'alertMsg': "Burbuja de aire detectada",
-    'alertType': "Danger"}), 200
+        'name': "Dispositivo 1",
+        'license': "JLZJ41",
+        'password': "3508239",
+        'firmwareVersion': "v10.3",
+        'status': "Transmitting",
+        'lastConnection': "07/10/2024",
+        'alertMsg': "Burbuja de aire detectada",
+        'alertType': "Danger"}), 200
 
 @app.route('/ultimoValor', methods=['GET'])
 def ultimo_valor():
+    """
+    Obtiene el último valor de una columna específica de una tabla.
+    ---
+    tags:
+      - Consultas
+    parameters:
+      - name: tabla
+        in: query
+        type: string
+        required: true
+        description: Nombre de la tabla desde la que se desea obtener el valor.
+      - name: columna
+        in: query
+        type: string
+        required: true
+        description: Nombre de la columna de la que se desea obtener el último valor.
+    responses:
+      200:
+        description: Último valor obtenido con éxito.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: success
+            data:
+              type: string
+              example: "123.45"
+      400:
+        description: Faltan parámetros requeridos (tabla o columna).
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: "Debe proporcionar el nombre de la tabla y la columna"
+      404:
+        description: No se encontraron resultados en la tabla.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: "No se encontraron resultados"
+      500:
+        description: Error interno en la base de datos o inesperado.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: "Error en la base de datos: Error específico"
+    """
     tabla = request.args.get('tabla')
     columna = request.args.get('columna')
 
@@ -99,6 +226,81 @@ def ultimo_valor():
 
 @app.route('/generarSesion', methods=['GET'])
 def generar_sesion():
+    """
+    Crea una nueva sesión en la base de datos.
+    ---
+    tags:
+      - Sesiones
+    parameters:
+      - name: id_proyecto
+        in: query
+        type: integer
+        required: true
+        description: ID del proyecto al que pertenece la sesión.
+      - name: id_persona_responsable
+        in: query
+        type: integer
+        required: false
+        description: ID de la persona responsable de la sesión. Opcional.
+      - name: descripcion
+        in: query
+        type: string
+        required: false
+        description: Descripción de la sesión. Predeterminado a una cadena vacía.
+      - name: fecha_inicio
+        in: query
+        type: string
+        format: datetime
+        required: false
+        description: Fecha de inicio de la sesión en formato "YYYY-MM-DD HH:MM:SS". Predeterminado a la fecha actual.
+      - name: version
+        in: query
+        type: string
+        required: false
+        description: Versión de la sesión. Predeterminado a "1.0".
+      - name: ubicacion
+        in: query
+        type: string
+        required: false
+        description: Ubicación de la sesión. Predeterminado a una cadena vacía.
+    responses:
+      201:
+        description: Sesión creada correctamente.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: success
+            message:
+              type: string
+              example: Sesión creada correctamente
+            generated_id:
+              type: integer
+              example: 123
+      400:
+        description: Parámetro obligatorio "id_proyecto" no proporcionado.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: El parámetro id_proyecto es obligatorio
+      500:
+        description: Error interno en el servidor o base de datos.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: Error interno
+    """
     id_proyecto = request.args.get('id_proyecto')  # Obligatorio
     id_persona_responsable = request.args.get('id_persona_responsable')  # Opcional
     descripcion = request.args.get('descripcion', '')  # Predeterminado a cadena vacía
@@ -147,6 +349,60 @@ def generar_sesion():
 
 @app.route('/columnaForanea', methods=['GET'])
 def columna_foranea():
+    """
+    Obtiene los valores relacionados con una columna foránea específica.
+    ---
+    tags:
+      - Relaciones
+    parameters:
+      - name: columna
+        in: query
+        type: string
+        required: true
+        description: Nombre de la columna foránea para obtener los datos relacionados.
+    responses:
+      200:
+        description: Datos obtenidos con éxito.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: success
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  value:
+                    type: string
+                    example: "1"
+                  label:
+                    type: string
+                    example: "Nombre - Apellido"
+      400:
+        description: No se encontraron datos relacionados con la columna proporcionada.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: No se han obtenido los datos
+      500:
+        description: Error en la base de datos o error interno del servidor.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: Error al conectarse a la base de datos <detalle del error>
+    """
     args = request.args
     column = args.get('columna')
     try:
@@ -176,7 +432,7 @@ def columna_foranea():
         return jsonify({"status": "fail", "error": "No se han obtenido los datos"}), 400
     
     except mysql.connector.Error as e:
-        mensaje_error = f"Error al conectarse a la base de datos: {e}"
+        mensaje_error = f"Error al conectarse a la base de datos {e}"
         print(mensaje_error)
         return jsonify({"status": "fail", "error": mensaje_error}), 500
 
@@ -193,6 +449,73 @@ def columna_foranea():
 
 @app.route('/insertarMedicion', methods=['GET'])
 def insertar_medicion():
+    """
+    Inserta mediciones asociadas a sensores, variables y sesiones.
+    ---
+    tags:
+      - Datos
+    parameters:
+      - name: times
+        in: query
+        type: string
+        required: false
+        description: Tiempos de las mediciones en formato de timestamp, separados por comas. Si no se especifica, se utilizará el tiempo actual.
+      - name: idsSesiones
+        in: query
+        type: string
+        required: false
+        description: IDs de las sesiones asociadas a las mediciones, separados por comas. Si no se especifica, se utilizará NULL.
+      - name: idsSensores
+        in: query
+        type: string
+        required: true
+        description: IDs de los sensores, separados por comas.
+      - name: idsVariables
+        in: query
+        type: string
+        required: true
+        description: IDs de las variables, separados por comas.
+      - name: valores
+        in: query
+        type: string
+        required: true
+        description: Valores de las mediciones, separados por comas.
+    responses:
+      201:
+        description: Mediciones insertadas correctamente.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: success
+            message:
+              type: string
+              example: Registro insertado correctamente
+      400:
+        description: Las longitudes de los parámetros no coinciden.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: Las longitudes de los parámetros no coinciden
+      500:
+        description: Error en la base de datos o error interno.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: Error al conectarse a la base de datos <detalle del error>
+    """
+
     timestamps = request.args.get('times', '').split(',')
     sesiones_ids = request.args.get('idsSesiones', '').split(',')
     sensor_ids = request.args.get('idsSensores', '').split(',')
@@ -251,7 +574,7 @@ def insertar_medicion():
         return jsonify({'status': 'success', 'message': 'Registro insertado correctamente'}), 201, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
 
     except mysql.connector.Error as e:
-        mensaje_error = f"Error al conectarse a la base de datos: {e}"
+        mensaje_error = f"Error al conectarse a la base de datos {e}"
         print(mensaje_error)
         return jsonify({'status': 'fail', 'error': mensaje_error}), 500
 
@@ -265,14 +588,129 @@ def insertar_medicion():
             cursor.close()
             conn.close()
 
-
-
 @app.route('/listarTablas', methods=['GET'])
 def listar_tablas():
+    """
+    Lista las tablas permitidas en la base de datos.
+    ---
+    tags:
+      - Tablas
+    responses:
+      200:
+        description: Lista de tablas obtenida con éxito.
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              displayName:
+                type: string
+                example: "Datos"
+              dataName:
+                type: string
+                example: "datos"
+      500:
+        description: Error interno en el servidor.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: Error interno del servidor
+    """
     return jsonify(ALLOWED_TABLES_PROP)
 
 @app.route('/listarDatos', methods=['GET'])
 def listar_datos():
+    """
+    Lista los datos de una tabla permitida con filtros opcionales.
+    ---
+    tags:
+      - Tablas
+    parameters:
+      - name: tabla
+        in: query
+        type: string
+        required: true
+        description: Nombre de la tabla desde donde se obtendrán los datos.
+      - name: limite
+        in: query
+        type: integer
+        required: false
+        description: Número máximo de registros a retornar. Sin límite si no se especifica.
+      - name: offset
+        in: query
+        type: integer
+        required: false
+        description: Desplazamiento inicial para la consulta. Predeterminado a 0.
+      - name: formato
+        in: query
+        type: string
+        required: false
+        description: Formato de salida 'json' o 'csv'. Predeterminado a 'json'.
+      - name: filtros
+        in: query
+        type: string
+        required: false
+        description: Filtros opcionales para columnas específicas en la forma 'columna=valor1,valor2'.
+    responses:
+      200:
+        description: Datos obtenidos con éxito.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: success
+            data:
+              type: object
+              properties:
+                tableData:
+                  type: array
+                  items:
+                    type: object
+                    example: { "columna1": "valor1", "columna2": "valor2" }
+                tabla:
+                  type: string
+                  example: datos
+      403:
+        description: La tabla solicitada no está permitida.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: Tabla no permitida
+      400:
+        description: Formato no soportado o error en los filtros.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: Formato 'xml' no soportado. Use 'json' o 'csv'.
+      500:
+        description: Error interno en la base de datos o error inesperado.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: Error al conectarse a la base de datos <detalle del error>
+    """
+
     args = request.args
     tabla = args.get('tabla')
     limit = args.get('limite')
@@ -343,7 +781,7 @@ def listar_datos():
             return jsonify({'status': 'fail', 'error': mensaje_error}), 400
 
     except mysql.connector.Error as e:
-        mensaje_error = f"Error al conectarse a la base de datos: {e}"
+        mensaje_error = f"Error al conectarse a la base de datos {e}"
         print(mensaje_error)
         return jsonify({'status': 'fail', 'error': mensaje_error}), 500
 
@@ -359,6 +797,102 @@ def listar_datos():
 
 @app.route('/listarDatosEstructurados', methods=['GET'])
 def listar_datos_estructurados():
+    """
+    Lista los datos estructurados de la tabla "datos" con filtros opcionales.
+    ---
+    tags:
+      - Tablas
+    parameters:
+      - name: limite
+        in: query
+        type: integer
+        required: false
+        description: Número máximo de registros a retornar. Sin límite si no se especifica.
+      - name: offset
+        in: query
+        type: integer
+        required: false
+        description: Desplazamiento inicial para la consulta. Predeterminado a 0.
+      - name: formato
+        in: query
+        type: string
+        required: false
+        description: Formato de salida 'json' o 'csv'. Predeterminado a 'json'.
+      - name: fecha_inicio
+        in: query
+        type: string
+        format: date
+        required: false
+        description: Fecha de inicio para filtrar los datos en formato "YYYY-MM-DD".
+      - name: fecha_fin
+        in: query
+        type: string
+        format: date
+        required: false
+        description: Fecha de fin para filtrar los datos en formato "YYYY-MM-DD".
+      - name: filtros
+        in: query
+        type: string
+        required: false
+        description: Filtros opcionales para columnas específicas en la forma 'columna=valor1,valor2'.
+    responses:
+      200:
+        description: Datos estructurados obtenidos con éxito.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: success
+            data:
+              type: object
+              properties:
+                tableData:
+                  type: array
+                  items:
+                    type: object
+                    example: { "fecha": "2024-01-01", "id_sesion": 123, "valor": 45.6, "unidad_medida": "Temperatura (°C)" }
+                tabla:
+                  type: string
+                  example: datos
+                totalCount:
+                  type: integer
+                  example: 100
+      400:
+        description: No se encontraron registros para los filtros solicitados o error en el formato.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: No hay registros para los filtros solicitados
+      403:
+        description: La tabla solicitada no está permitida.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: Tabla no permitida
+      500:
+        description: Error interno en la base de datos o error inesperado.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: Error al conectarse a la base de datos <detalle del error>
+    """
+
     args = request.args
     tabla = "datos"  # args.get('tabla')  # Nombre de la tabla como parámetro
     limit = int(args.get('limite', 0))
@@ -481,7 +1015,7 @@ def listar_datos_estructurados():
             return jsonify({'status': 'fail', 'error': mensaje_error}), 400
 
     except mysql.connector.Error as e:
-        mensaje_error = f"Error al conectarse a la base de datos: {e}"
+        mensaje_error = f"Error al conectarse a la base de datos {e}"
         print(mensaje_error)
         return jsonify({'status': 'fail', 'error': mensaje_error}), 500
 
@@ -498,6 +1032,68 @@ def listar_datos_estructurados():
 
 @app.route('/listarSensores', methods=['GET'])
 def listar_sensores():
+    """
+    Lista los sensores junto con información detallada de su tipo y dispositivo asociado.
+    ---
+    tags:
+      - Sensores
+    parameters:
+      - name: limite
+        in: query
+        type: integer
+        required: false
+        description: Número máximo de registros a retornar. Predeterminado a 100.
+      - name: offset
+        in: query
+        type: integer
+        required: false
+        description: Desplazamiento inicial para la consulta. Predeterminado a 0.
+      - name: id_dispositivo
+        in: query
+        type: integer
+        required: false
+        description: ID del dispositivo para filtrar los sensores relacionados.
+    responses:
+      200:
+        description: Sensores listados con éxito.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: success
+            data:
+              type: object
+              properties:
+                tableData:
+                  type: array
+                  items:
+                    type: object
+                    example: {
+                      "Id Sensor": 1,
+                      "Id Sensor Tipo": 10,
+                      "N° de Serie": "SN123456",
+                      "Código Interno": "C123",
+                      "Marca": "MarcaX",
+                      "Modelo": "ModeloY",
+                      "Descripcion": "Sensor de temperatura"
+                    }
+                tabla:
+                  type: string
+                  example: sensores_combinados
+      500:
+        description: Error interno en la base de datos o error inesperado.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: Error al conectarse a la base de datos <detalle del error>
+    """
+
     args = request.args
     limit = int(args.get('limite', 100))
     offset = int(args.get('offset', 0))
@@ -561,7 +1157,7 @@ def listar_sensores():
 
 
     except mysql.connector.Error as e:
-        mensaje_error = f"Error al conectarse a la base de datos: {e}"
+        mensaje_error = f"Error al conectarse a la base de datos {e}"
         print(mensaje_error)
         return jsonify({'status': 'fail', 'error': mensaje_error}), 500
 
@@ -575,9 +1171,66 @@ def listar_sensores():
             cursor.close()
             conn.close()
 
-
 @app.route('/schema', methods=['GET'])
 def get_table_schema():
+    """
+    Obtiene el esquema de una tabla específica en la base de datos.
+    ---
+    tags:
+      - Tablas
+    parameters:
+      - name: tabla
+        in: query
+        type: string
+        required: true
+        description: Nombre de la tabla para la cual se solicita el esquema.
+    responses:
+      200:
+        description: Esquema de la tabla obtenido con éxito.
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              Field:
+                type: string
+                example: "id_sensor"
+              Type:
+                type: string
+                example: "int(11)"
+              Null:
+                type: string
+                example: "NO"
+              Key:
+                type: string
+                example: "PRI"
+              Default:
+                type: string
+                example: null
+              Extra:
+                type: string
+                example: "auto_increment"
+              Count:
+                type: integer
+                example: 100
+      400:
+        description: Error al obtener el esquema de la tabla.
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Error al obtener esquema: tabla no existe"
+      500:
+        description: Error interno o de conexión a la base de datos.
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Error de conexión a la base de datos"
+    """
+
     args = request.args
     tabla = args.get('tabla')
 
@@ -625,6 +1278,78 @@ def get_table_schema():
 
 @app.route('/modificarDatos', methods=['PUT'])
 def modificar_datos():
+    """
+    Modifica registros en una tabla específica de la base de datos.
+    ---
+    tags:
+      - Datos
+    parameters:
+      - name: body
+        in: body
+        required: true
+        description: Datos necesarios para modificar un registro.
+        schema:
+          type: object
+          properties:
+            tableName:
+              type: string
+              example: "sensores"
+              description: Nombre de la tabla donde se realizará la modificación.
+            primaryKeys:
+              type: object
+              description: Claves primarias del registro a modificar.
+              example: { "id_sensor": 1 }
+            formData:
+              type: object
+              description: Datos que se actualizarán en el registro.
+              example: { "descripcion": "Nuevo valor", "estado": "Activo" }
+    responses:
+      200:
+        description: Registro actualizado correctamente.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: success
+            message:
+              type: string
+              example: "1 registro(s) actualizado(s) correctamente"
+      403:
+        description: La tabla especificada no está permitida.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: "Tabla no permitida"
+      404:
+        description: El registro no fue encontrado o no se realizaron cambios.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: "Registro no encontrado o sin cambios"
+      500:
+        description: Error interno en la base de datos o error inesperado.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: "Error al conectarse a la base de datos <detalle del error>"
+    """
+
     data = request.get_json()
     table_name = data.get('tableName')  # Las valores del formulario SIN las primary keys
     primary_keys = data.get('primaryKeys')  
@@ -661,7 +1386,7 @@ def modificar_datos():
         return jsonify({'status': 'success', 'message': f'{cursor.rowcount} registro(s) actualizado(s) correctamente'}), 200, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
 
     except mysql.connector.Error as e:
-        mensaje_error = f"Error al conectarse a la base de datos: {e}"
+        mensaje_error = f"Error al conectarse a la base de datos {e}"
         print(mensaje_error)
         return jsonify({'status': 'fail', 'error': mensaje_error}), 500
 
@@ -677,6 +1402,69 @@ def modificar_datos():
 
 @app.route('/eliminarDatos', methods=['GET'])
 def eliminar_datos():
+    """
+    Elimina registros de una tabla específica en la base de datos.
+    ---
+    tags:
+      - Datos
+    parameters:
+      - name: tabla
+        in: query
+        type: string
+        required: true
+        description: Nombre de la tabla desde donde se eliminarán los registros.
+      - name: filtros
+        in: query
+        type: string
+        required: true
+        description: Filtros para identificar los registros a eliminar en la forma 'columna=valor'.
+    responses:
+      200:
+        description: Registro(s) eliminado(s) correctamente.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: success
+            message:
+              type: string
+              example: "1 registro(s) eliminado(s) correctamente"
+      403:
+        description: Faltan parámetros requeridos o la tabla no está permitida.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: "'Se requiere un ID' o 'Tabla no permitida'"
+      404:
+        description: Registro no encontrado o no se realizaron cambios.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: "Registro no encontrado o sin cambios"
+      500:
+        description: Error interno en la base de datos o error inesperado.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: "Error al conectarse a la base de datos <detalle del error>"
+    """
+
     args = request.args
     tabla = args.get('tabla')  # El nombre de la tabla viene como un parámetro
 
@@ -708,7 +1496,7 @@ def eliminar_datos():
         return jsonify({'status': 'success', 'message': f'{cursor.rowcount} registro(s) actualizado(s) correctamente'}), 200
 
     except mysql.connector.Error as e:
-        mensaje_error = f"Error al conectarse a la base de datos: {e}"
+        mensaje_error = f"Error al conectarse a la base de datos {e}"
 
         if(e.errno == 1451):
             mensaje_error = f"Error: No es posible eliminar el registro pues existe una referencia a este en otra tabla\n{e}"
@@ -728,6 +1516,63 @@ def eliminar_datos():
 
 @app.route('/agregarDatos', methods=['POST'])
 def agregar_datos():
+    """
+    Agrega un nuevo registro a una tabla específica en la base de datos.
+    ---
+    tags:
+      - Datos
+    parameters:
+      - name: body
+        in: body
+        required: true
+        description: Datos necesarios para insertar un nuevo registro.
+        schema:
+          type: object
+          properties:
+            tableName:
+              type: string
+              example: "sensores"
+              description: Nombre de la tabla donde se insertará el registro.
+            formData:
+              type: object
+              description: Datos que se insertarán en el registro.
+              example: { "descripcion": "Sensor de temperatura", "estado": "Activo" }
+    responses:
+      201:
+        description: Registro insertado correctamente.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: success
+            message:
+              type: string
+              example: "Registro insertado correctamente"
+      403:
+        description: La tabla especificada no está permitida.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: "Tabla no permitida"
+      500:
+        description: Error interno en la base de datos o error inesperado.
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: fail
+            error:
+              type: string
+              example: "Error al conectarse a la base de datos <detalle del error>"
+    """
+
     data = request.get_json()
     table_name = data.get('tableName')  # El nombre de la tabla
     form_data = data.get('formData')  # Los valores del formulario
@@ -756,7 +1601,7 @@ def agregar_datos():
         return jsonify({'status': 'success', 'message': 'Registro insertado correctamente'}), 201, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
 
     except mysql.connector.Error as e:
-        mensaje_error = f"Error al conectarse a la base de datos: {e}"
+        mensaje_error = f"Error al conectarse a la base de datos {e}"
         print(mensaje_error)
         return jsonify({'status': 'fail', 'error': mensaje_error}), 500
 
@@ -791,5 +1636,6 @@ def build_csv(df_pivoted):
     output.close()
 
 
+
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8084)
+    app.run(host='0.0.0.0', port=8084, debug=True)

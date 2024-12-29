@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import useForeignKeyValidator from '../hooks/useForeignKeyValidator';
-import { useFetch } from '../hooks/useFetch';
 
 export const Form = ({ properties, data, onChange }) => {
   const { isPrimaryKey, getTableNameSingular, isForeignKey } = useForeignKeyValidator();
@@ -65,7 +64,7 @@ export const Form = ({ properties, data, onChange }) => {
                   name={prop}
                   value={data?.[prop] || ""}
                   onChange={handleChange}
-                  disabled={isPrimaryKey(prop) ? true : false} />
+                  disabled={!!isPrimaryKey(prop)} />
               }
 
             </div>

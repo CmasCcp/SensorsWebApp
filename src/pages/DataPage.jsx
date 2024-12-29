@@ -21,11 +21,11 @@ export const DataPage = () => {
 
   const rowsPerPage = 25; // Número máximo de filas por página
 
-  const { data: projectsData, hasError: projectsHasError } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${projectsTableName}`);
-  const { data: devicesData, hasError: devicesHasError, setUrl: devicesSetUrl } = useFetch('');
-  const { data: sensorsData, hasError: sensorsHasError, setUrl: sensorsSetUrl, url: sensorsUrl } = useFetch('');
+  const { data: projectsData } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${projectsTableName}`);
+  const { data: devicesData, setUrl: devicesSetUrl } = useFetch('');
+  const { data: sensorsData, setUrl: sensorsSetUrl, url: sensorsUrl } = useFetch('');
 
-  // Actualiza la URL para dispositivos y sensores en base a los proyectos seleccionados
+  // Actualiza la URL para dispositivos y sensores con base en los proyectos seleccionados
   useEffect(() => {
     if (selectedProjects.length > 0) {
       console.log(sensorsUrl);

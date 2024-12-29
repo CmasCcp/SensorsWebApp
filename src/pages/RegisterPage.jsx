@@ -25,9 +25,9 @@ export const RegisterPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const { data: projectsData, hasError: projectsHasError } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${projectsTableName}`);
-  const { data: devicesData, hasError: devicesHasError, setUrl: devicesSetUrl } = useFetch('');
-  const { data: sensorsData, hasError: sensorsHasError, setUrl: sensorsSetUrl } = useFetch('');
+  const { data: projectsData } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${projectsTableName}`);
+  const { data: devicesData, setUrl: devicesSetUrl } = useFetch('');
+  const { data: sensorsData, setUrl: sensorsSetUrl } = useFetch('');
 
   useEffect(() => {
     devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject?.value || ''}`);

@@ -16,7 +16,7 @@ const useForeignKeyValidator = () => {
     "id_persona_responsable",
   ];
 
-  // Mapeo de IDs a nombres de tablas
+  // Mapeo de ID a nombres de tablas
   const idTabla = {
     "id_sesion": "sesiones",
     "id_variable": "variables",
@@ -80,7 +80,7 @@ const useForeignKeyValidator = () => {
   
 
   /**
-   * Valida todas las propiedades de un formulario
+   * Válida todas las propiedades de un formulario
    * @param {object} formData - Objeto con las propiedades del formulario
    */
   const validateForm = useCallback(
