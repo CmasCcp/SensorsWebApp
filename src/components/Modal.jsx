@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Form } from './Form';
 
-export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkValue, tableName}) => {
+export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkValue, tableName, hiddenData}) => {
     const modalRef = useRef(null);
     const [formData, setFormData] = useState();
+    const [_, setErrors] = useState({});
 
     useEffect(() => {
         setFormData(data);
@@ -17,13 +18,31 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
         }
     }, [isOpen]);
 
+    const validateForm = () => {
+        const newErrors = {};
+        let isValid = true;
+
+        for (const prop of properties) {
+            const value = formData[prop];
+            if (!value || value === "noValueSelected") { // Verifica inputs vacíos o selects en opción por defecto
+                isValid = false;
+                newErrors[prop] = "Este campo es obligatorio.";
+            }
+        }
+
+        setErrors(newErrors); // Almacena los errores en el estado
+        return isValid;
+    };
+
     // Manejar el cambio en los datos del formulario
     const handleSend = async () => {
+        if (!validateForm()) return;
+
         try {
             const payload = {
                 tableName: tableName,
                 primaryKeys: pkValue,
-                formData: formData  // Los datos del formulario
+                formData: { ...formData, ...hiddenData }  // Los datos del formulario
             };
 
             const response = await fetch(`${import.meta.env.VITE_API_URL}/modificarDatos`, {
@@ -44,13 +63,15 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
         }
     };
 
-    const handleAdd = async () => {
+    const handleAdd = async (assignedTableName, assignedFormData) => {
+        if (!validateForm()) return;
+
         try {
             const payload = {
-                tableName: tableName,
-                formData: formData  // Los datos del formulario
+                tableName: assignedTableName,
+                formData: assignedFormData // Los datos del formulario
             };
-            console.log("payload", payload);
+            console.log("payload", JSON.stringify(payload));
 
             const response = await fetch(`${import.meta.env.VITE_API_URL}/agregarDatos`, {
                 method: 'POST',
@@ -65,6 +86,27 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
             } else {
                 console.error('Error al actualizar el dispositivo');
             }
+        } catch (error) {
+            console.error('Error al hacer la solicitud:', error);
+        }
+    };
+
+    const handleAddSensor = async () => {
+        await handleAdd(tableName, formData);
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/ultimoValor?tabla=${tableName}&columna=id_sensor`,{
+            headers:{
+                accept: 'application/json',
+                'User-agent': 'learning app',
+            }
+            });
+            const responseData = await response.json();
+
+            if(responseData.status === 'success'){
+                await handleAdd('sensores_en_dispositivo', { ...hiddenData,'id_sensor': responseData.data});
+            }
+
         } catch (error) {
             console.error('Error al hacer la solicitud:', error);
         }
@@ -112,7 +154,7 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
                 <div className="modal-dialog" role="document">
                     <div className="modal-content">
                         <div className="modal-header text-center">
-                            <h5 className="modal-title" id="exampleModalLabel">{title}</h5>
+                            <h2 className="modal-title" id="exampleModalLabel">{title}</h2>
                             <button
                                 type="button"
                                 className="close"
@@ -123,18 +165,13 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
                             </button>
                         </div>
                         <div className="modal-body">
-                            {action === "Editar" && 
+                            {action !== "Eliminar" && 
                               <Form 
                                 properties={properties} 
                                 data={formData} 
                                 onChange={handleFormChange}  // Pasar la función para actualizar el formulario
                                 />}
-                            {action === "Agregar" && 
-                              <Form 
-                                properties={properties}
-                                data={formData} 
-                                onChange={handleFormChange}  // Pasar la función para actualizar el formulario
-                              />}
+
                             {action === "Eliminar" && <p className='text-center'>¿Estás seguro de eliminar la fila {JSON.stringify(data.id)}?</p>}
                         </div>
                         <div className="modal-footer">
@@ -148,7 +185,9 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
                                    } else if(action==="Eliminar"){
                                         handleRemove();
                                    } else if(action==="Agregar"){
-                                        handleAdd();
+                                        handleAdd(tableName, {...formData, ...hiddenData});
+                                   } else if(action==="Agregar Sensor"){
+                                        handleAddSensor();
                                    }
                                   onClose();
                               }}>

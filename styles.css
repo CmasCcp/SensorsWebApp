@@ -100,14 +100,6 @@ body{
 
 }
 
-
-.overflow-hidden{
-
-    overflow: hidden !important;
-
-}
-
-
 .box-shadow{
 
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -119,4 +111,34 @@ body{
     p,h5{
         text-align: center;
     }
+}
+
+.file-list {
+  margin-top: 20px;
+}
+
+.file-item {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.file-item h4 {
+  margin-bottom: 5px;
+}
+
+.file-item p {
+  margin-bottom: 10px;
+}
+
+.file-item .btn {
+  display: inline-block;
+}
+
+.list-group-item.active {
+  border-color: var(--customdark);
+  background-color: var(--customdark); /* Color de fondo */
+  color: white; /* Color del texto */
 }

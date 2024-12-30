@@ -16,7 +16,7 @@ const useForeignKeyValidator = () => {
     "id_persona_responsable",
   ];
 
-  // Mapeo de IDs a nombres de tablas
+  // Mapeo de ID a nombres de tablas
   const idTabla = {
     "id_sesion": "sesiones",
     "id_variable": "variables",
@@ -64,23 +64,23 @@ const useForeignKeyValidator = () => {
   );
 
   const getTableNameSingular = useCallback(
-    (prop) =>{
-        let table_name = getTableName(prop);
-
-        if (table_name.endsWith("s")) {
-          // Quitamos la última letra
-          table_name = table_name.slice(0, -1);
-        }
-
-        // return table_name;
-        return table_name.charAt(0).toUpperCase() + table_name.slice(1);
-       
-      },
-      [idTabla, isForeignKey]
+    (prop) => {
+      let table_name = getTableName(prop);
+  
+      if (table_name.endsWith("s")) {
+        table_name = table_name.slice(0, -1);
+      }
+  
+      table_name = table_name.replace(/_/g, " ");
+  
+      return table_name.charAt(0).toUpperCase() + table_name.slice(1);
+    },
+    [idTabla, isForeignKey]
   );
+  
 
   /**
-   * Valida todas las propiedades de un formulario
+   * Válida todas las propiedades de un formulario
    * @param {object} formData - Objeto con las propiedades del formulario
    */
   const validateForm = useCallback(
@@ -125,12 +125,10 @@ const useForeignKeyValidator = () => {
         let valueObj = {...fila};
         delete valueObj[id_table];
         const value = Object.values(valueObj).join(" "); // Concatenamos los valores con espacios
-        return {id:id, value:value};
+        return {value:`${id}`, label:value};
       });
     }
     
-    // console.log("value", value);
-
 
     return value; // Retorna null si no se encuentra el ID
   }, []);
@@ -143,7 +141,7 @@ const useForeignKeyValidator = () => {
     getTableNameSingular,
     validateForm,
     foreignKeys,
-    getValue
+    getValue,
   };
 };
 
