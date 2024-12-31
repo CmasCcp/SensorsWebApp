@@ -1031,6 +1031,145 @@ def listar_datos_estructurados():
             cursor.close()
             conn.close()
 
+# @app.route('/listarDatosEstructurados', methods=['GET'])
+# def listar_datos_estructurados():
+#     args = request.args
+#     tabla = "datos"  # args.get('tabla')  # Nombre de la tabla como parámetro
+#     limit = int(args.get('limite', 0))
+#     offset = int(args.get('offset', 0))
+#     formato = args.get('formato', 'json')
+
+#     fecha_inicio = args.get('fecha_inicio')
+#     fecha_fin = args.get('fecha_fin')
+
+#     args_dict = request.args.to_dict()
+#     not_primary_keys = ['tabla', 'limite', 'offset', 'formato', 'fecha_inicio', 'fecha_fin']
+
+#     # Filtrar los argumentos relevantes
+#     filtered_args = {key: value.split(',') for key, value in args_dict.items() if key not in not_primary_keys}
+
+#     where_clauses = []
+#     params = []
+
+#     # Rango de fechas
+#     if fecha_inicio:
+#         where_clauses.append("(d.fecha >= %s)")
+#         params.append(fecha_inicio)
+#     if fecha_fin:
+#         where_clauses.append("(d.fecha <= %s)")
+#         params.append(fecha_fin)
+
+#     for key, values in filtered_args.items():
+#         or_conditions = " OR ".join([f"{key}=%s" for _ in values])
+#         where_clauses.append(f"({or_conditions})")
+#         params.extend(values)
+
+#     where_clause = ' AND '.join(where_clauses)
+#     where_clause = f"WHERE {where_clause}" if where_clause else ""
+
+#     if tabla not in ALLOWED_TABLES:
+#         return jsonify({'status': 'fail', 'error': 'Tabla no permitida'}), 403
+
+#     try:
+#         conn = mysql.connector.connect(**config)
+#         cursor = conn.cursor()
+
+#         # Agregar LIMIT y OFFSET antes del pivotado
+#         sql_query = f"""
+#             SELECT
+#                 d.fecha,
+#                 d.id_sesion,
+#                 d.valor,
+#                 CONCAT(v.descripcion, ' (', v.unidad, ')') AS unidad_medida,
+#                 s.descripcion AS sesion_descripcion,
+#                 s.fecha_inicio,
+#                 s.ubicacion,
+#                 disp.id_proyecto,
+#                 disp.codigo_interno,
+#                 disp.descripcion AS dispositivo_descripcion
+#             FROM
+#                 sensores_dev.datos AS d
+#             LEFT JOIN
+#                 sensores_dev.variables AS v ON d.id_variable = v.id_variable
+#             LEFT JOIN
+#                 sensores_dev.sesiones AS s ON d.id_sesion = s.id_sesion
+#             LEFT JOIN
+#                 sensores_dev.sensores AS sens ON d.id_sensor = sens.id_sensor
+#             LEFT JOIN
+#                 sensores_dev.sensores_en_dispositivo AS sed ON sens.id_sensor = sed.id_sensor
+#             LEFT JOIN
+#                 sensores_dev.dispositivos AS disp ON sed.id_dispositivo = disp.id_dispositivo
+#             {where_clause}
+#             LIMIT %s OFFSET %s
+#         """
+#         params.extend([limit, offset])
+
+#         cursor.execute(sql_query, params)
+#         filas = cursor.fetchall()
+#         if len(filas) == 0:
+#             mensaje_error = f"No hay registros para los filtros solicitados"
+#             return jsonify({'status': 'fail', 'error': mensaje_error}), 400
+
+#         # Convertir resultados en DataFrame
+#         respuesta = []
+#         for fila in filas:
+#             datos_dict = {key: value for key, value in zip(cursor.column_names, fila)}
+#             for key, value in datos_dict.items():
+#                 if isinstance(value, decimal.Decimal):
+#                     datos_dict[key] = float(value)
+#                 elif isinstance(value, (datetime, date)):
+#                     datos_dict[key] = value.isoformat()
+#             respuesta.append(datos_dict)
+
+#         df = pd.DataFrame(respuesta)
+#         df = df.fillna(value={"id_sesion": "Sin sesión", "sesion_descripcion": "", "fecha_inicio": "", "ubicacion": ""})
+
+#         # Pivotear después de limitar los datos
+#         df_pivoted = df.pivot_table(
+#             index=["fecha", "id_sesion", "sesion_descripcion", "fecha_inicio", "ubicacion", "id_proyecto", "codigo_interno", "dispositivo_descripcion"],
+#             columns="unidad_medida",
+#             values="valor",
+#             aggfunc="first"
+#         ).reset_index()
+
+#         total_count = len(filas)  # Basado en los datos consultados
+
+#         if formato == 'json':
+#             json_response = df_pivoted.to_dict(orient="records")
+#             json_respuesta = json.dumps({
+#                 'status': 'success',
+#                 'data': {
+#                     'tableData': json_response,
+#                     'tabla': tabla,
+#                     'totalCount': total_count
+#                 }
+#             }, ensure_ascii=False)
+#             return json_respuesta, 200, {'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*'}
+#         elif formato == 'csv':
+#             return Response(
+#                 stream_with_context(build_csv(df_pivoted)),
+#                 mimetype="text/csv",
+#                 headers={"Content-Disposition": "attachment;filename=output.csv"}
+#             )
+#         else:
+#             mensaje_error = f"Formato '{formato}' no soportado. Use 'json' o 'csv'."
+#             return jsonify({'status': 'fail', 'error': mensaje_error}), 400
+
+#     except mysql.connector.Error as e:
+#         mensaje_error = f"Error al conectarse a la base de datos {e}"
+#         print(mensaje_error)
+#         return jsonify({'status': 'fail', 'error': mensaje_error}), 500
+
+#     except Exception as e:
+#         mensaje_error = f"Error desconocido: {e}"
+#         print(mensaje_error)
+#         return jsonify({'status': 'fail', 'error': mensaje_error}), 500
+
+#     finally:
+#         if conn.is_connected():
+#             cursor.close()
+#             conn.close()
+
 
 @app.route('/listarSensores', methods=['GET'])
 def listar_sensores():
@@ -1640,4 +1779,4 @@ def build_csv(df_pivoted):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8084, debug=True)
+    app.run(host='0.0.0.0', port=8084)
