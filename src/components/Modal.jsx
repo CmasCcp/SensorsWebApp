@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Form } from './Form';
 
 export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkValue, tableName}) => {
+    console.log(properties);
+    
     const modalRef = useRef(null);
     const [formData, setFormData] = useState();
 

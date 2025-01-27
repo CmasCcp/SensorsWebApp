@@ -26,10 +26,6 @@ export const Form = ({ properties, data, onChange }) => {
       <h2>Formulario</h2>
       <form>
         {properties.map(prop => {
-          let options = getValue(clavesForaneas?.data, prop);
-          // console.log(prop, options);
-          // console.log(prop, formData?.[prop]);
-
           return (
             <div className="mb-3" key={prop}>
               <label htmlFor={prop} className="form-label">{getTableNameSingular(prop)}</label>
@@ -41,7 +37,6 @@ export const Form = ({ properties, data, onChange }) => {
                       className="form-control"
                       id={data?.[prop] || ""}
                       name={prop}
-                      placeholder="Seleccione"
                       value={data?.[prop] || ""} // Utiliza `value` en lugar de `defaultValue` para reflejar el valor seleccionado
                       onChange={handleChange}
                     >
