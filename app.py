@@ -981,12 +981,22 @@ def listar_datos_estructurados():
 
         df = pd.DataFrame(respuesta)
         df = df.fillna(value={"id_sesion": "Sin sesión", "sesion_descripcion": "", "fecha_inicio": "", "ubicacion": ""})
+        # df_pivoted = df.pivot_table(
+        #     index=["fecha", "id_sesion", "sesion_descripcion", "fecha_inicio", "ubicacion", "id_proyecto", "codigo_interno", "dispositivo_descripcion"],
+        #     columns="unidad_medida",
+        #     values="valor",
+        #     aggfunc="first"
+        # ).reset_index()
+
         df_pivoted = df.pivot_table(
             index=["fecha", "id_sesion", "sesion_descripcion", "fecha_inicio", "ubicacion", "id_proyecto", "codigo_interno", "dispositivo_descripcion"],
             columns="unidad_medida",
             values="valor",
-            aggfunc="first"
+            aggfunc=list
         ).reset_index()
+
+        # Convertir las listas a cadenas separadas por comas
+        df_pivoted = df_pivoted.applymap(lambda x: ', '.join(map(str, x)) if isinstance(x, list) else x)
 
         # Calcular total_count antes de aplicar limit y offset
         total_count = len(df_pivoted)
