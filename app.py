@@ -525,6 +525,7 @@ def insertar_medicion():
     values = request.args.get('valores', '').split(',')
 
     # Si timestamps tiene un solo valor
+    # se entrega un UNIXTIME  
     if len(timestamps) == 1 and timestamps[0]:  # Un solo valor
         timestamps = [timestamps[0]] * len(sensor_ids)
 
