@@ -934,6 +934,8 @@ def listar_datos_estructurados():
     if tabla not in ALLOWED_TABLES:
         return jsonify({'status': 'fail', 'error': 'Tabla no permitida'}), 403
 
+
+    #TODO: Optimizar
     try:
         conn = mysql.connector.connect(**config)
         cursor = conn.cursor()
@@ -964,6 +966,8 @@ def listar_datos_estructurados():
                 sensores_dev.sensores_en_dispositivo AS sed ON sens.id_sensor = sed.id_sensor
             LEFT JOIN
                 sensores_dev.dispositivos AS disp ON sed.id_dispositivo = disp.id_dispositivo
+            LIMIT {limit}
+            OFFSET {offset}
             {where_clause}
         """
 
