@@ -972,7 +972,7 @@ def listar_datos_estructurados():
         """
 
         cursor.execute(sql_query, params)
-        filas = cursor.fetchall()
+        filas = cursor.fetchmany(limit)
         if len(filas) == 0:
             mensaje_error = f"No hay registros para los filtros solicitados"
             return jsonify({'status': 'fail', 'error': mensaje_error}), 400
