@@ -35,9 +35,9 @@ export const AdministradorPage = () => {
           {options !== null && username && options.map((opt) => (
             option === opt.displayName && (
               <DataTableGraphic
-              key={opt.dataName}
-              title={opt.displayName}
-              tableName={opt.dataName}
+                key={opt.dataName}
+                title={opt.displayName}
+                tableName={opt.dataName}
               />
             )
           ))}

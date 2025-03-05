@@ -9,6 +9,7 @@ import pandas as pd
 import csv, decimal, io, os, json
 from datetime import datetime, date
 
+
 load_dotenv()
 app = Flask(__name__)
 app.config['SWAGGER'] = {
@@ -745,7 +746,6 @@ def listar_datos():
         conn = mysql.connector.connect(**config)
         cursor = conn.cursor()
 
-
         sql_query = f"SELECT * FROM {tabla} {where_clause}"
         if limit is not None:
             sql_query += " LIMIT %s OFFSET %s"
@@ -972,7 +972,7 @@ def listar_datos_estructurados():
         """
 
         cursor.execute(sql_query, params)
-        filas = cursor.fetchmany(limit)
+        filas = cursor.fetchall()
         if len(filas) == 0:
             mensaje_error = f"No hay registros para los filtros solicitados"
             return jsonify({'status': 'fail', 'error': mensaje_error}), 400
@@ -1648,6 +1648,31 @@ def build_csv(df_pivoted):
     for line in output:
         yield line    
     output.close()
+
+def json_serial(obj):
+    """Función para convertir datetime en JSON"""
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    raise TypeError("Tipo no serializable")
+
+@app.route('/obtenerDatos', methods=['GET'])
+def obtener_datos():
+    #conn = MySQLdb.connect(host="localhost", user="root", passwd="password", db="mi_db")
+    conn = mysql.connector.connect(**config)
+    if not conn:
+        return jsonify({"error": "Error de conexión a la base de datos"}), 500
+    
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT id_dato FROM datos ORDER BY id_dato LIMIT 10000")  # Ajusta el límite según necesidad
+
+    def stream():
+        for row in cursor:
+            yield json.dumps(row, default=json_serial) + "\n"  # Enviar línea por línea
+        cursor.close()
+        conn.close()
+
+    return Response(stream_with_context(stream()), content_type="application/json")
 
 
 
