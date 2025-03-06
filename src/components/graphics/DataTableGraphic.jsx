@@ -4,10 +4,11 @@ import 'simple-datatables/dist/style.css';
 import { useFetch } from '../../hooks/useFetch';
 import { Modal } from '../Modal';
 
-export const DataTableGraphic = ({ tableName, title, reloadFlag }) => {
+export const DataTableGraphic = ({ tableName, title, reloadFlag, limit, offset }) => {
 
     const { data: schemaData} = useFetch(`${import.meta.env.VITE_API_URL}/schema?tabla=${tableName}`);
-    const { data, hasError, isLoading } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}`, reloadFlag);
+    const { data, hasError, isLoading } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}${!!limit ? "&limite="+limit+"&offset="+offset : ""}`, reloadFlag);
+    // const { data, hasError, isLoading } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}`, reloadFlag);
 
     // Función para cargar los datos desde la API
     const [dataProperties, setDataProperties] = useState([]);

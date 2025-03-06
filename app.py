@@ -898,8 +898,8 @@ def listar_datos_estructurados():
 
     args = request.args
     tabla = "datos"  # args.get('tabla')  # Nombre de la tabla como parámetro
-    limit = int(args.get('limite', 0))
-    offset = int(args.get('offset', 0))
+    limit = int(args.get('limite'))
+    offset = int(args.get('offset'))
     formato = args.get('formato', 'json')
 
     fecha_inicio = args.get('fecha_inicio')
@@ -966,9 +966,9 @@ def listar_datos_estructurados():
                 sensores_dev.sensores_en_dispositivo AS sed ON sens.id_sensor = sed.id_sensor
             LEFT JOIN
                 sensores_dev.dispositivos AS disp ON sed.id_dispositivo = disp.id_dispositivo
+            {where_clause}
             LIMIT {limit}
             OFFSET {offset}
-            {where_clause}
         """
 
         cursor.execute(sql_query, params)
