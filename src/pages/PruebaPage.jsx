@@ -6,21 +6,15 @@ export const PruebaPage = () => {
     const rowsPerPage = 25; // Número máximo de filas por página
     const tableName = "datos";
     const [currentPage, setCurrentPage] = useState(1); // Página actual
-    const [totalPages, setTotalPages] = useState(0);
-    const { data: tableData = [] } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`);
+    const [totalPages, setTotalPages] = useState(2);
+    const { data, isLoading, hasError } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`);
     const { accounts } = useMsal();
     const username = accounts.length > 0;
 
+
     //   const [tableData, setTableData] = useState([]);
 
-    console.log("data", tableData);
-
-    // Cada vez que cambie current page se haga la peticion de los datos
-    //   useEffect(() => {
-    //   setTableData(sensorsData.data.tableData);
-    //   const totalCount = sensorsData.data.totalCount || 0;
-    //   setTotalPages(Math.ceil(totalCount / rowsPerPage));
-    //   }, [currentPage]);
+    !isLoading && console.log("data", data.data.tableData);
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -32,21 +26,21 @@ export const PruebaPage = () => {
                 <div className="card w-100">
                     <h2 className="card-title">Datos</h2>
                     <div className="card-content">
-                        {username && (
+                        {username &&(
                             <div>
                                 <div className="row d-flex justify-content-around my-4">
-                                    {tableData.length > 0 ? (
+                                    {!isLoading ? (
                                         <div style={{ overflowX: 'auto' }}>
                                             <table className="table table-bordered">
                                                 <thead>
                                                     <tr>
-                                                        {Object.keys(tableData[0]).map((key, index) => (
+                                                        {Object.keys(data.data.tableData[0]).map((key, index) => (
                                                             <th key={index}>{key}</th>
                                                         ))}
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {tableData.map((row, rowIndex) => (
+                                                    {data.data.tableData.map((row, rowIndex) => (
                                                         <tr key={rowIndex}>
                                                             {Object.values(row).map((value, colIndex) => (
                                                                 <td key={colIndex}>{value}</td>
@@ -62,7 +56,7 @@ export const PruebaPage = () => {
                                     )}
                                 </div>
 
-                                {tableData.length > 0 && (<div className="pagination">
+                                {!isLoading && (<div className="pagination">
                                     {Array.from({ length: totalPages }, (_, index) => {
                                         const pageNumber = index + 1;
 
