@@ -9,7 +9,6 @@ import pandas as pd
 import csv, decimal, io, os, json
 from datetime import datetime, date
 
-
 load_dotenv()
 app = Flask(__name__)
 app.config['SWAGGER'] = {
@@ -746,6 +745,7 @@ def listar_datos():
         conn = mysql.connector.connect(**config)
         cursor = conn.cursor()
 
+
         sql_query = f"SELECT * FROM {tabla} {where_clause}"
         if limit is not None:
             sql_query += " LIMIT %s OFFSET %s"
@@ -898,8 +898,8 @@ def listar_datos_estructurados():
 
     args = request.args
     tabla = "datos"  # args.get('tabla')  # Nombre de la tabla como parámetro
-    limit = int(args.get('limite'))
-    offset = int(args.get('offset'))
+    limit = int(args.get('limite', 0))
+    offset = int(args.get('offset', 0))
     formato = args.get('formato', 'json')
 
     fecha_inicio = args.get('fecha_inicio')
@@ -934,8 +934,6 @@ def listar_datos_estructurados():
     if tabla not in ALLOWED_TABLES:
         return jsonify({'status': 'fail', 'error': 'Tabla no permitida'}), 403
 
-
-    #TODO: Optimizar
     try:
         conn = mysql.connector.connect(**config)
         cursor = conn.cursor()
@@ -967,8 +965,6 @@ def listar_datos_estructurados():
             LEFT JOIN
                 sensores_dev.dispositivos AS disp ON sed.id_dispositivo = disp.id_dispositivo
             {where_clause}
-            LIMIT {limit}
-            OFFSET {offset}
         """
 
         cursor.execute(sql_query, params)
@@ -1648,31 +1644,6 @@ def build_csv(df_pivoted):
     for line in output:
         yield line    
     output.close()
-
-def json_serial(obj):
-    """Función para convertir datetime en JSON"""
-    if isinstance(obj, datetime):
-        return obj.isoformat()
-    raise TypeError("Tipo no serializable")
-
-@app.route('/obtenerDatos', methods=['GET'])
-def obtener_datos():
-    #conn = MySQLdb.connect(host="localhost", user="root", passwd="password", db="mi_db")
-    conn = mysql.connector.connect(**config)
-    if not conn:
-        return jsonify({"error": "Error de conexión a la base de datos"}), 500
-    
-    cursor = conn.cursor(dictionary=True)
-
-    cursor.execute("SELECT id_dato FROM datos ORDER BY id_dato LIMIT 10000")  # Ajusta el límite según necesidad
-
-    def stream():
-        for row in cursor:
-            yield json.dumps(row, default=json_serial) + "\n"  # Enviar línea por línea
-        cursor.close()
-        conn.close()
-
-    return Response(stream_with_context(stream()), content_type="application/json")
 
 
 

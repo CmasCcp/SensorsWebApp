@@ -36,7 +36,7 @@ export const DataPage = () => {
 
       if (startDate) url += `&fecha_inicio=${startDate}`;
       if (endDate) url += `&fecha_fin=${endDate}`;
-      if (selectedDevices.length > 0) url += `&codigo_interno=${deviceIds}`;
+      if (selectedDevices.length > 0) url += `&disp.codigo_interno=${deviceIds}`;
 
       devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${projectIds}`);
       sensorsSetUrl(url);
@@ -67,11 +67,12 @@ export const DataPage = () => {
 
   // Procesa datos de sensores
   useEffect(() => {
+    console.log('sensorsData', sensorsData);
     if (sensorsData && sensorsData.status === 'success') {
       setTableData(sensorsData.data.tableData);
       const totalCount = sensorsData.data.totalCount || 0;
       setTotalPages(Math.ceil(totalCount / rowsPerPage));
-    } else {
+    } else{
       setTableData([]);
       setTotalPages(0);
     }
@@ -116,11 +117,11 @@ export const DataPage = () => {
       backgroundColor: state.isSelected
         ? 'rgb(44, 44, 44)' // Color de la opción seleccionada
         : state.isFocused
-          ? 'rgba(44, 44, 44, 0.1)' // Color al pasar el mouse sobre una opción
-          : 'white',
+        ? 'rgba(44, 44, 44, 0.1)' // Color al pasar el mouse sobre una opción
+        : 'white',      
       color: state.isSelected
-        ? 'white'
-        : 'black', // Color del texto de las opciones
+      ? 'white'
+      : 'black', // Color del texto de las opciones
     }),
     placeholder: (provided) => ({
       ...provided,
@@ -165,26 +166,26 @@ export const DataPage = () => {
               <div>
                 <p>Utilice esta página para visualizar y descargar sus datos.</p>
                 <div className="row d-flex justify-content-around my-2 py-4">
-                  <div className="col-3">
-                    <label htmlFor="start-date">Fecha de inicio</label>
-                    <input
-                      type="date"
-                      id="start-date"
-                      value={startDate}
-                      onChange={handleStartDateChange}
-                      className="form-control"
-                    />
-                  </div>
-                  <div className="col-3">
-                    <label htmlFor="end-date">Fecha de fin</label>
-                    <input
-                      type="date"
-                      id="end-date"
-                      value={endDate}
-                      onChange={handleEndDateChange}
-                      className="form-control"
-                    />
-                  </div>
+                <div className="col-3">
+                  <label htmlFor="start-date">Fecha de inicio</label>
+                  <input
+                    type="date"
+                    id="start-date"
+                    value={startDate}
+                    onChange={handleStartDateChange}
+                    className="form-control"
+                  />
+                </div>
+                <div className="col-3">
+                  <label htmlFor="end-date">Fecha de fin</label>
+                  <input
+                    type="date"
+                    id="end-date"
+                    value={endDate}
+                    onChange={handleEndDateChange}
+                    className="form-control"
+                  />
+                </div>
                 </div>
                 <div className="row d-flex justify-content-around my-2 py-4">
                   <div className="dropdown mb-4 col-3">
@@ -212,17 +213,17 @@ export const DataPage = () => {
                       styles={customStyles}
                       isMulti
                     />
-                  </div>
+                  </div>                
                 </div>
                 <div className='row d-flex justify-content-around my-2'>
-                  {selectedProjects.length > 0 && tableData.length > 0 && (
+                {selectedProjects.length > 0 && tableData.length > 0 && (
                     <div>
-                      <button className="btn m-1 ml-auto custom-button" onClick={downloadFile}>
-                        <span className="btn-text">Descargar CSV</span>
-                        <i className="fas fa-plus-circle"></i>
-                      </button>
-                    </div>
-                  )}
+                    <button className="btn m-1 ml-auto custom-button" onClick={downloadFile}>
+                      <span className="btn-text">Descargar CSV</span>
+                      <i className="fas fa-plus-circle"></i>
+                    </button>
+                  </div>
+                )}
 
                 </div>
                 <div className="row d-flex justify-content-around my-4">
@@ -247,14 +248,14 @@ export const DataPage = () => {
                         </tbody>
                       </table>
                     </div>
-
+                    
                   ) : (
                     <p>Seleccione proyectos para ver los datos.</p>
                   )}
                 </div>
-
+                                
                 {selectedProjects.length > 0 && tableData.length > 0 && (<div className="pagination">
-                  {Array.from({ length: totalPages }, (_, index) => {
+                  { Array.from({ length: totalPages }, (_, index) => {
                     const pageNumber = index + 1;
 
                     // Siempre muestra la primera página
@@ -285,8 +286,8 @@ export const DataPage = () => {
 
                     if (
                       (pageNumber >= currentPage - 4 && // Desde 4 páginas antes de la actual
-                        pageNumber <= currentPage + 4) ||
-                      (currentPage < 7 && pageNumber < 10)
+                      pageNumber <= currentPage + 4) ||
+                      (currentPage<7 && pageNumber<10)
                     ) {
                       return (
                         <button
@@ -301,8 +302,8 @@ export const DataPage = () => {
 
                     // Mostrar puntos suspensivos cuando haya saltos entre páginas
                     if (
-                      (pageNumber === 2 && currentPage > 6) ||
-                      (pageNumber === totalPages - 1 && currentPage < totalPages - 5)
+                      (pageNumber === 2 && currentPage > 6) || 
+                      (pageNumber === totalPages - 1 && currentPage < totalPages - 5) 
                     ) {
                       return (
                         <span key={index} className="btn disabled m-1">
@@ -310,7 +311,7 @@ export const DataPage = () => {
                         </span>
                       );
                     }
-                    return null;
+                    return null; 
                   })}
                 </div>)}
               </div>
