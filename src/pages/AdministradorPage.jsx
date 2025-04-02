@@ -11,23 +11,29 @@ export const AdministradorPage = () => {
   const rowsPerPage = 25; // Número máximo de filas por página
   const { data: options } = useFetch(`${import.meta.env.VITE_API_URL}/listarTablas`);
   const { data: tableData, setUrl: tableDataSetUrl } = useFetch('');
+  const { data: tableDataSchema, setUrl: tableDataSchemaSetUrl } = useFetch('');
   const username = accounts.length > 0;
 
   const handleClick = (tableName) => {
     setTableName(tableName);
-    console.log(tableData);
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   useEffect(() => {
     if (tableName !== "" && tableDataSetUrl) {
       let url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
       tableDataSetUrl(url);
-      const totalCount = tableData.data.totalCount || 0;
-      console.log("totalCount", tableData.data.tableData.length);
+      let urlSchema = `${import.meta.env.VITE_API_URL}/schema?tabla=${tableName}`;
+      tableDataSchemaSetUrl(urlSchema);
+      const totalCount = tableDataSchema?.[0].Count || 0;
+      console.log("totalCount", totalCount);
       setTotalPages(Math.ceil(totalCount / rowsPerPage));
 
     }
-  }, [tableName,tableData, tableDataSetUrl]);
+  }, [tableName,tableData,currentPage, tableDataSetUrl,tableDataSchemaSetUrl]);
 
   return (
     <div className="container-fluid d-flex justify-content-center align-items-center">
@@ -51,7 +57,7 @@ export const AdministradorPage = () => {
             )
           ))}
 
-          {totalPages > 0 && console.log("mostrar paginacion") && (<div className="pagination">
+          {totalPages > 0 && (<div className="pagination">
             {Array.from({ length: totalPages }, (_, index) => {
               const pageNumber = index + 1;
 

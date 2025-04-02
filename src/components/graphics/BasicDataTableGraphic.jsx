@@ -17,14 +17,18 @@ export const BasicDataTableGraphic = ({ tableData = [], tableTitle= "" }) => {
             {Object.keys(tableData[0]).map((key, index) => (
               <th key={index}>{key}</th>
             ))}
+            <th >Editar</th>
+            <th >Eliminar</th>
           </tr>
         </thead>
         <tbody>
           {tableData.map((row, rowIndex) => (
-            <tr key={rowIndex}>
+              <tr key={rowIndex}>
               {Object.values(row).map((value, colIndex) => (
-                <td key={colIndex}>{value}</td>
-              ))}
+                  <td key={colIndex}>{value}</td>
+                ))}
+                <th ><button className='btn text-primary' onClick={()=>console.log("editar")}>Editar</button></th>
+                <th ><button className='btn text-danger' onClick={()=>console.log("eliminar")}>Eliminar</button></th>
             </tr>
           ))}
         </tbody>
