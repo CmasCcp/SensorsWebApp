@@ -2,7 +2,7 @@ import React from 'react';
 
 export const BasicDataTableGraphic = ({ tableData = [], tableTitle= "" }) => {
 
-    console.log(tableData);
+    // console.log(tableData);
   // Verificar si tableData es un arreglo
   if (!Array.isArray(tableData) || tableData.length === 0) {
     return <p>No hay datos disponibles para mostrar.</p>;

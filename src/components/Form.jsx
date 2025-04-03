@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 export const Form = ({ properties=[], data, onChange }) => {
-
+  console.log(properties)
 
 // formato necesario de properties
 // [
@@ -27,16 +27,18 @@ export const Form = ({ properties=[], data, onChange }) => {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/columnaForanea?columna=${prop.Field}`);
             console.log(response);
             const result = await response.json();
-            results[prop] = result['data']; // Almacena los datos de la columna en el estado
+            results[prop.Field] = result['data']; // Almacena los datos de la columna en el estado
           }
         } catch (error) {
           console.error(`Error fetching data for ${prop}:`, error);
         }
       }
+      console.log(results);
       setForeignData(results); // Actualiza el estado con todos los resultados
     };
 
     fetchForeignData();
+    console.log(foreignData);
   
   }, [properties]);
 
@@ -69,11 +71,14 @@ export const Form = ({ properties=[], data, onChange }) => {
                   <option value={"noValueSelected"}>
                     Seleccione un valor
                   </option>
-                  {options.map((option, index) => (
+                  {options.map((option, index) => {
+                      console.log(option);
+                    
+                    return(
                     <option key={index} value={option.value}>
-                      {option.label}
+                      {/* {option.label} */}
                     </option>
-                  ))}
+                  )})}
                 </select>
                 ) : 
                 
