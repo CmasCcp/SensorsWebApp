@@ -1,8 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import useForeignKeyValidator from '../hooks/useForeignKeyValidator';
 
-export const Form = ({ properties, data, onChange }) => {
-  const { isPrimaryKey, getTableNameSingular, isForeignKey } = useForeignKeyValidator();
+export const Form = ({ properties=[], data, onChange }) => {
+
+
+// formato necesario de properties
+// [
+//   {
+//     "Count": 1322846,
+//     "Default": null,
+//     "Extra": "auto_increment",
+//     "Field": "id_dato",
+//     "Key": "PRI",
+//     "Null": "NO",
+//     "Type": "int(11)"
+//   }
+// ] 
+  // const { isPrimaryKey, getTableNameSingular, isForeignKey } = useForeignKeyValidator();
   const [foreignData, setForeignData] = useState({});
 
   useEffect(() => {
@@ -10,8 +23,9 @@ export const Form = ({ properties, data, onChange }) => {
       const results = {};
       for (const prop of properties) {
         try {
-          if (isForeignKey(prop)){
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/columnaForanea?columna=${prop}`);
+          if (prop.Key === "MUL"){
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/columnaForanea?columna=${prop.Field}`);
+            console.log(response);
             const result = await response.json();
             results[prop] = result['data']; // Almacena los datos de la columna en el estado
           }
@@ -21,7 +35,9 @@ export const Form = ({ properties, data, onChange }) => {
       }
       setForeignData(results); // Actualiza el estado con todos los resultados
     };
+
     fetchForeignData();
+  
   }, [properties]);
 
   const handleChange = (e) => {
@@ -32,14 +48,16 @@ export const Form = ({ properties, data, onChange }) => {
   return (
     <div className="container">
       <form>
-        {properties.map(prop => {
+        {properties?.map(prop => {
           const options = foreignData[prop] || [];
 
           return (
             <div className="mb-3" key={prop}>
-              <label htmlFor={prop} className="form-label">{getTableNameSingular(prop)}</label>
+              <label htmlFor={prop.Field} className="form-label">{prop.Field.toUpperCase()}</label>
               {
-                isForeignKey(prop) && Array.isArray(options) ? (
+                prop.Key === "MUL" && Array.isArray(options) 
+                
+                ? (
                 <select
                   className="form-control"
                   id={data?.[prop] || ""}
@@ -58,13 +76,14 @@ export const Form = ({ properties, data, onChange }) => {
                   ))}
                 </select>
                 ) : 
+                
                 <input 
                   className="form-control" 
                   id={data?.[prop] || ""} 
                   name={prop}
                   value={data?.[prop] || ""}
                   onChange={handleChange}
-                  disabled={!!isPrimaryKey(prop)} />
+                  disabled={prop.Key== "PRI" ? true : false} />
               }
 
             </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BasicDataTableGraphic } from '../components/graphics/BasicDataTableGraphic';
 import { useFetch } from '../hooks/useFetch';
 import { useMsal } from '@azure/msal-react';
+import { Modal } from '../components/Modal';
 
 export const AdministradorPage = () => {
   const { accounts } = useMsal();
@@ -14,28 +15,57 @@ export const AdministradorPage = () => {
   const { data: tableDataSchema, setUrl: tableDataSchemaSetUrl } = useFetch('');
   const username = accounts.length > 0;
 
+  // MODALS
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [properties, setProperties] = useState([]);
+
+
   const handleClick = (tableName) => {
     setTableName(tableName);
+    setCurrentPage(1); // Resetear la página al seleccionar una nueva tabla
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
+  const handleOnClickAdd = () => {
+    let properties = Object.keys(tableData.data.tableData[0]);
+    setProperties(properties);
+    setShowAddModal(prev => !prev);
+  };
 
   useEffect(() => {
     if (tableName !== "" && tableDataSetUrl) {
+      // Actualiza la URL con los parámetros de paginación
       let url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
       tableDataSetUrl(url);
+
+      // Obtener el esquema de la tabla
       let urlSchema = `${import.meta.env.VITE_API_URL}/schema?tabla=${tableName}`;
       tableDataSchemaSetUrl(urlSchema);
-      const totalCount = tableDataSchema?.[0].Count || 0;
-      console.log("totalCount", totalCount);
-      setTotalPages(Math.ceil(totalCount / rowsPerPage));
-
     }
-  }, [tableName,tableData,currentPage, tableDataSetUrl,tableDataSchemaSetUrl]);
+  }, [tableName, currentPage, tableDataSetUrl, tableDataSchemaSetUrl]);
+
+  // Establecer el total de páginas en función del esquema de la tabla
+  useEffect(() => {
+    if (tableDataSchema && tableDataSchema[0]?.Count) {
+      const totalCount = tableDataSchema[0].Count;
+      setTotalPages(Math.ceil(totalCount / rowsPerPage)); // Actualizar total de páginas
+    }
+  }, [tableDataSchema]);
 
   return (
+    <>
+      <Modal
+        type={"warning"}
+        action={"Agregar"}
+        title={"Agregar fila"}
+        id="addModal"
+        properties={tableDataSchema}
+        isOpen={showAddModal}
+        // onClose={handleCloseModal}
+        tableName={tableName}
+      />
     <div className="container-fluid d-flex justify-content-center align-items-center">
       <div className="card">
         <h2 className="card-title">Administrador</h2>
@@ -56,6 +86,12 @@ export const AdministradorPage = () => {
               <BasicDataTableGraphic tableTitle={opt.displayName} tableData={tableData.data.tableData} />
             )
           ))}
+          {tableName !== "" && (<div className="row my-4">
+            <button className="btn m-1 ml-auto custom-button" onClick={() => handleOnClickAdd()}>
+              <span className="btn-text">Agregar {tableName}</span>
+              <i className="fas fa-plus-circle"></i>
+            </button>
+          </div>)}
 
           {totalPages > 0 && (<div className="pagination">
             {Array.from({ length: totalPages }, (_, index) => {
@@ -126,7 +162,8 @@ export const AdministradorPage = () => {
             </>
           )}
         </div>
+
       </div>
-    </div>
+    </div></>
   );
 };

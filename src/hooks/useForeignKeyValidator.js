@@ -67,9 +67,11 @@ const useForeignKeyValidator = () => {
     (prop) => {
       let table_name = getTableName(prop);
   
-      if (table_name.endsWith("s")) {
-        table_name = table_name.slice(0, -1);
-      }
+      // if (table_name.endsWith("es")) {
+      //   table_name = table_name.slice(0, -2);
+      // }else if(table_name.endsWith("s")){
+      //   table_name = table_name.slice(0, -1);
+      // }
   
       table_name = table_name.replace(/_/g, " ");
   
