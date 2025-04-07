@@ -1,21 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
-export const Form = ({ properties=[], data, onChange }) => {
-  console.log(properties)
+// TODO: las tablas que tienen claves primarias cruzadas ( muchas a muchas) tienen que tener 
+// habilitados los campos para seleccionar las claves primarias como si fueran foraneas
 
-// formato necesario de properties
-// [
-//   {
-//     "Count": 1322846,
-//     "Default": null,
-//     "Extra": "auto_increment",
-//     "Field": "id_dato",
-//     "Key": "PRI",
-//     "Null": "NO",
-//     "Type": "int(11)"
-//   }
-// ] 
-  // const { isPrimaryKey, getTableNameSingular, isForeignKey } = useForeignKeyValidator();
+export const Form = ({ properties = [], data, onChange }) => {
+  console.log(properties);
+
+  // Estado para almacenar los datos de las columnas foráneas
   const [foreignData, setForeignData] = useState({});
 
   useEffect(() => {
@@ -23,14 +14,14 @@ export const Form = ({ properties=[], data, onChange }) => {
       const results = {};
       for (const prop of properties) {
         try {
-          if (prop.Key === "MUL"){
+          if (prop.Key === "MUL") {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/columnaForanea?columna=${prop.Field}`);
             console.log(response);
             const result = await response.json();
             results[prop.Field] = result['data']; // Almacena los datos de la columna en el estado
           }
         } catch (error) {
-          console.error(`Error fetching data for ${prop}:`, error);
+          console.error(`Error fetching data for ${prop.Field}:`, error);
         }
       }
       console.log(results);
@@ -38,8 +29,6 @@ export const Form = ({ properties=[], data, onChange }) => {
     };
 
     fetchForeignData();
-    console.log(foreignData);
-  
   }, [properties]);
 
   const handleChange = (e) => {
@@ -51,46 +40,40 @@ export const Form = ({ properties=[], data, onChange }) => {
     <div className="container">
       <form>
         {properties?.map(prop => {
-          const options = foreignData[prop] || [];
+          const options = foreignData[prop.Field] || []; // Acceso correcto a la propiedad en foreignData
 
           return (
-            <div className="mb-3" key={prop}>
+            <div className="mb-3" key={prop.Field}> {/* Usa prop.Field para clave única */}
               <label htmlFor={prop.Field} className="form-label">{prop.Field.toUpperCase()}</label>
+              
               {
-                prop.Key === "MUL" && Array.isArray(options) 
-                
-                ? (
-                <select
-                  className="form-control"
-                  id={data?.[prop] || ""}
-                  name={prop}
-                  placeholder="Seleccione"
-                  value={data?.[prop] || ""} // Utiliza `value` en lugar de `defaultValue` para reflejar el valor seleccionado
-                  onChange={handleChange}>
-                      
-                  <option value={"noValueSelected"}>
-                    Seleccione un valor
-                  </option>
-                  {options.map((option, index) => {
-                      console.log(option);
-                    
-                    return(
-                    <option key={index} value={option.value}>
-                      {/* {option.label} */}
-                    </option>
-                  )})}
-                </select>
-                ) : 
-                
-                <input 
-                  className="form-control" 
-                  id={data?.[prop] || ""} 
-                  name={prop}
-                  value={data?.[prop] || ""}
-                  onChange={handleChange}
-                  disabled={prop.Key== "PRI" ? true : false} />
+                prop.Key === "MUL" && Array.isArray(options) // Verifica si hay opciones disponibles para el select
+                  ? (
+                    <select
+                      className="form-control"
+                      id={prop.Field} // Utiliza prop.Field como id
+                      name={prop.Field}
+                      value={data?.[prop.Field] || ""}
+                      onChange={handleChange}
+                    >
+                      <option value="noValueSelected">Seleccione un valor</option>
+                      {options.map((option, index) => (
+                        <option key={index} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      className={`form-control ${prop.Key === "PRI" && "primary-key"}`} 
+                      id={prop.Field}
+                      name={prop.Field}
+                      value={data?.[prop.Field] || ""}
+                      onChange={handleChange}
+                      disabled={prop.Key === "PRI"} // Deshabilita si la propiedad es clave primaria
+                    />
+                  )
               }
-
             </div>
           )
         })}

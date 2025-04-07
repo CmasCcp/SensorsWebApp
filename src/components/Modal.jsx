@@ -18,15 +18,18 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
         }
     }, [isOpen]);
 
-    const validateForm = () => {
+    const validateForm = (formData) => {
         const newErrors = {};
         let isValid = true;
 
-        for (const prop of properties) {
-            const value = formData[prop];
+        for (const prop of formData) {
+            const value = formData[prop.Field];
+            console.log(value);
             if (!value || value === "noValueSelected") { // Verifica inputs vacíos o selects en opción por defecto
                 isValid = false;
                 newErrors[prop] = "Este campo es obligatorio.";
+
+                console.log("falta este camppo", prop.Field);
             }
         }
 
@@ -45,27 +48,27 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
                 formData: { ...formData, ...hiddenData }  // Los datos del formulario
             };
 
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/modificarDatos`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),  // Enviar los datos del formulario como JSON
-            });
+            // const response = await fetch(`${import.meta.env.VITE_API_URL}/modificarDatos`, {
+            //     method: 'PUT',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify(payload),  // Enviar los datos del formulario como JSON
+            // });
 
-            if (response.ok) {
-                console.log('Dispositivo actualizado correctamente');
-            } else {
-                console.error('Error al actualizar el dispositivo');
-            }
+            // if (response.ok) {
+            //     console.log('Dispositivo actualizado correctamente');
+            // } else {
+            //     console.error('Error al actualizar el dispositivo');
+            // }
         } catch (error) {
             console.error('Error al hacer la solicitud:', error);
         }
     };
 
     const handleAdd = async (assignedTableName, assignedFormData) => {
+        console.log(assignedFormData);
         if (!validateForm()) return;
-
         try {
             const payload = {
                 tableName: assignedTableName,
@@ -138,6 +141,7 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
     // Actualizar el estado del formulario cuando cambia
     const handleFormChange = (newData) => {
         setFormData(newData);
+        console.log("formData", formData)
     };
 
     return (
@@ -189,7 +193,7 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
                                    } else if(action==="Agregar Sensor"){
                                         handleAddSensor();
                                    }
-                                  onClose();
+                                //   onClose();
                               }}>
                               {action}
                             </button>
