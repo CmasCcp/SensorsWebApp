@@ -15,10 +15,10 @@ export const BasicDataTableGraphic = ({ tableData = [], tableTitle= "" }) => {
         <thead>
           <tr>
             {Object.keys(tableData[0]).map((key, index) => (
-              <th key={index}>{key}</th>
+              <th key={index}>{key.toUpperCase()}</th>
             ))}
-            <th >Editar</th>
-            <th >Eliminar</th>
+            <th >EDITAR</th>
+            <th >ELIMINAR</th>
           </tr>
         </thead>
         <tbody>

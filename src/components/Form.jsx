@@ -59,12 +59,13 @@ export const Form = ({ properties = [], data, onChange }) => {
                       <option value="noValueSelected">Seleccione un valor</option>
                       {options.map((option, index) => (
                         <option key={index} value={option.value}>
-                          {option.label}
+                          {option.value} - {option.label}
                         </option>
                       ))}
                     </select>
                   ) : (
                     <input
+                      type={(prop.Type === "datetime") ? "datetime-local" : (prop.Type === "date") ? "date" : "text"}
                       className={`form-control ${prop.Key === "PRI" && "primary-key"}`} 
                       id={prop.Field}
                       name={prop.Field}

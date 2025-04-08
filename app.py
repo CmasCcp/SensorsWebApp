@@ -82,6 +82,7 @@ FOREIGN_KEYS_PROP = {
     "id_estado": {"table": "estados", "columns":["id_estado", "nombre"]}, 
     "id_proyecto": {"table": "proyectos", "columns":["id_proyecto", "nombre"]}, 
     "id_persona": {"table": "personas", "columns":["id_persona", "nombre", "apellido"]}, 
+    "id_persona_responsable": {"table": "personas", "columns":["id_persona", "nombre", "apellido"]}, 
     "id_persona_responsable_ingreso": {"table": "personas", "columns":["id_persona", "nombre", "apellido"]}, 
     "id_persona_responsable_salida": {"table": "personas", "columns":["id_persona", "nombre", "apellido"]}, 
     "id_sensor": {"table": "sensores", "columns":["id_sensor", "numero_serial"]}, 
@@ -412,18 +413,21 @@ def columna_foranea():
         cursor = conn.cursor(dictionary=True)
 
         if column in FOREIGN_KEYS_PROP.keys():
+            # print(FOREIGN_KEYS_PROP.keys())
             table_name = FOREIGN_KEYS_PROP[column]["table"]
             columns = FOREIGN_KEYS_PROP[column]["columns"]
 
             columnas_str = ", ".join(columns)
             query = f"SELECT {columnas_str} FROM {table_name}"
+            # print(query)
 
             cursor.execute(query)
             filas = cursor.fetchall()
+            # print(filas)
 
             transformed_data = [
                 {
-                    "value": fila[column],  # El valor de la columna principal
+                    "value": fila[columns[0]],  # El valor de la columna principal
                     "label": " - ".join(str(fila[col]) for col in columns if col != column)  # Concatenar otras columnas
                 }
                 for fila in filas
@@ -1257,7 +1261,7 @@ def get_table_schema():
         # Ejecutar una consulta para obtener la información del esquema de la tabla
         cursor.execute(f"DESCRIBE {tabla}")
         schema = cursor.fetchall()
-        
+        print(schema)
         # Transformar el resultado en un formato más legible
         columns = []
         for column in schema:

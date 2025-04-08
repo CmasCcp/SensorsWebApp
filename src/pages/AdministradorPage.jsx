@@ -34,6 +34,8 @@ export const AdministradorPage = () => {
     setShowAddModal(prev => !prev);
   };
 
+  const handleCloseModal = () =>{ setShowAddModal(false)}
+
   useEffect(() => {
     if (tableName !== "" && tableDataSetUrl) {
       // Actualiza la URL con los parámetros de paginación
@@ -63,7 +65,7 @@ export const AdministradorPage = () => {
         id="addModal"
         properties={tableDataSchema}
         isOpen={showAddModal}
-        // onClose={handleCloseModal}
+        onClose={handleCloseModal}
         tableName={tableName}
       />
     <div className="container-fluid d-flex justify-content-center align-items-center">

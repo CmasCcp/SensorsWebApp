@@ -21,8 +21,10 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
     const validateForm = (formData) => {
         const newErrors = {};
         let isValid = true;
+        console.log("formData", formData);
 
         for (const prop of formData) {
+            console.log("prop", prop);
             const value = formData[prop.Field];
             console.log(value);
             if (!value || value === "noValueSelected") { // Verifica inputs vacíos o selects en opción por defecto
@@ -39,7 +41,7 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
 
     // Manejar el cambio en los datos del formulario
     const handleSend = async () => {
-        if (!validateForm()) return;
+        if (!validateForm(formData)) return;
 
         try {
             const payload = {
@@ -67,8 +69,9 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
     };
 
     const handleAdd = async (assignedTableName, assignedFormData) => {
+        console.log(assignedTableName);
         console.log(assignedFormData);
-        if (!validateForm()) return;
+        // if (!validateForm(formData)) return;
         try {
             const payload = {
                 tableName: assignedTableName,
@@ -86,6 +89,8 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
 
             if (response.ok) {
                 console.log('Dispositivo actualizado correctamente');
+                onClose();
+                setFormData({});
             } else {
                 console.error('Error al actualizar el dispositivo');
             }
