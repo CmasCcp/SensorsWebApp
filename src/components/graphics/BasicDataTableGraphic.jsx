@@ -10,15 +10,15 @@ export const BasicDataTableGraphic = ({ tableData = [], tableTitle= "" }) => {
 
   return (
     <div style={{ overflowX: 'auto' }}>
-        <h3>{tableTitle}</h3>
+        <h3 style={{ fontSize: '1.5rem' }} >{tableTitle}</h3>
       <table className="table table-bordered">
-        <thead>
+        <thead style={{ fontSize: '1.25rem' }}>
           <tr>
             {Object.keys(tableData[0]).map((key, index) => (
-              <th key={index}>{key.toUpperCase()}</th>
+              <th key={index}>{key}</th>
             ))}
-            <th >EDITAR</th>
-            <th >ELIMINAR</th>
+            <th >editar</th>
+            <th >eliminar</th>
           </tr>
         </thead>
         <tbody>

@@ -71,8 +71,9 @@ export const AdministradorPage = () => {
     <div className="container-fluid d-flex justify-content-center align-items-center">
       <div className="card">
         <h2 className="card-title">Administrador</h2>
-        <div className="card-content">
-          <div className="row">
+        <hr/>
+        <div className="card-content mt-2 shadow">
+          <div className="row mb-2">
             {options && options.length > 0 && username && options.map((opt, index) => (
               <button
                 key={index}
@@ -83,6 +84,7 @@ export const AdministradorPage = () => {
               </button>
             ))}
           </div>
+          <hr/>
           {options && tableName && username && tableData && options.map((opt) => (
             tableName === opt.dataName && (
               <BasicDataTableGraphic tableTitle={opt.displayName} tableData={tableData.data.tableData} />

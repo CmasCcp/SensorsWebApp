@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { useFetch } from '../hooks/useFetch';
 import { Modal } from '../components/Modal';
+import { materialPointSize } from 'three/tsl';
 
 export const RegisterPage = () => {
   const { accounts } = useMsal();
@@ -28,6 +29,7 @@ export const RegisterPage = () => {
   const { data: projectsData } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${projectsTableName}`);
   const { data: devicesData, setUrl: devicesSetUrl } = useFetch('');
   const { data: sensorsData, setUrl: sensorsSetUrl } = useFetch('');
+  const { data: tableDataSchema, setUrl: tableDataSchemaSetUrl } = useFetch('');
 
   useEffect(() => {
     devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject?.value || ''}`);
@@ -46,6 +48,15 @@ export const RegisterPage = () => {
       setProjectOptions(options);
     }
   }, [projectsData]);
+
+
+    useEffect(() => {
+      // if (tableName !== "" && tableDataSetUrl) {  
+        // Obtener el esquema de la tabla
+        let urlSchema = `${import.meta.env.VITE_API_URL}/schema?tabla=${devicesTableName}`;
+        tableDataSchemaSetUrl(urlSchema);
+      // }
+    }, []);
 
   useEffect(() => {
     if (devicesData && devicesData.status === 'success') {
@@ -159,7 +170,7 @@ export const RegisterPage = () => {
         action={selectedAction}
         title={"Agregar fila"}
         id="addModal"
-        properties={formKeys}
+        properties={tableDataSchema}
         isOpen={showAddModal}
         onClose={handleCloseModal}
         tableName={selectedTable}
@@ -172,75 +183,25 @@ export const RegisterPage = () => {
             {username && (
               <div>
                 <p>Utilice esta página para gestionar sus sensores y dispositivos.</p>
-                <div className="dropdown mb-4">
+                <div className="dropdown row mb-4 col-3 align-items-start">
                   <Select
                     id="project-select"
                     options={projectOptions}
                     onChange={handleProjectChange}
                     value={selectedProject}
                     placeholder="Seleccione un proyecto"
-                    className="mt-2"
+                    className="mt-2 w-100"
                     styles={customStyles}
                   />
                 </div>
                 <div className="row">
                   {/* Left Column: Filters */}
-                  <div className="col-2">
+                  <div className="col-3">
                     <h5>Dispositivos</h5>
-                    <ul className="list-group">
-                      {paginatedOptions.map((device) => (
-                        <li
-                          key={device.value}
-                          className={`list-group-item ${device === selectedDevice ? 'active' : ''}`}
-                          onClick={() => handleFilterClick(device)}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          {device.label}
-                        </li>
-                      ))}
-                      {selectedProject && (
-                        <li className='list-group-item' onClick={handleOnClickAddDevice} style={{ cursor: 'pointer' }}>Agregar Dispositivo</li>
-                      )}
-                    </ul>
-                  </div>
-                  {/* Right Column: Data Table */}
-                  <div className="col-10">
-                    <h5>Sensores</h5>
-                    {selectedDevice && tableData.length > 0 ? (
-                      <div style={{ overflowX: 'auto' }}>
-                        <table className="table table-bordered">
-                          <thead>
-                            <tr>
-                              {tableData[0].map((header, index) => (
-                                <th key={index}>{header}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {tableData.slice(1).map((row, rowIndex) => (
-                              <tr key={rowIndex}>
-                                {row.map((value, colIndex) => (
-                                  <td key={colIndex}>{value}</td>
-                                ))}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                        <div className="row my-4">
-                          <button className="btn m-1 ml-auto custom-button" onClick={handleOnClickAddSensor}>
-                            <span className="btn-text">Agregar Sensor</span>
-                            <i className="fas fa-plus-circle"></i>
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <p>Seleccione un filtro para ver los datos.</p>
-                    )}
-                  </div>
-                  {/* Pagination Controls */}
+                    {/* Pagination Controls */}
                   {deviceOptions.length > 10 && (
-                    <div className="row w-100 d-flex justify-content-center align-items-center">
-                      <div className="pagination mt-3">
+                    <div className="row d-flex justify-content-center align-items-center">
+                      <div className="pagination my-3">
                         <button 
                           className="btn btn-outline-dark mx-1" 
                           onClick={() => goToPage(1)} 
@@ -275,6 +236,57 @@ export const RegisterPage = () => {
                       </div>
                       </div>
                     )}
+                    <ul className="list-group">
+                      {paginatedOptions.map((device) => (
+                        <li
+                          key={device.value}
+                          className={`list-group-item mx-0 ${device === selectedDevice ? 'active' : ''}`}
+                          onClick={() => handleFilterClick(device)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {device.label}
+                        </li>
+                      ))}
+                      {selectedProject && (
+                        <li className='list-group-item' onClick={handleOnClickAddDevice} style={{ cursor: 'pointer' }}>Agregar Dispositivo</li>
+                      )}
+                    </ul>
+                  </div>
+                  {/* Right Column: Data Table */}
+                  <div className="col-9">
+                    <h5>Sensores</h5>
+                    {selectedDevice && tableData.length > 0 ? (
+                      <div style={{ overflowX: 'auto' }}>
+                        <table className="table table-bordered">
+                          <thead>
+                            <tr>
+                              {tableData[0].map((header, index) => (
+                                <th key={index}>{header}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {tableData.slice(1).map((row, rowIndex) => (
+                              <tr key={rowIndex}>
+                                {row.map((value, colIndex) => (
+                                  <td key={colIndex}>{value}</td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        <div className="row my-4">
+                          <button className="btn m-1 ml-auto custom-button" onClick={handleOnClickAddSensor}>
+                            <span className="btn-text">Agregar Sensor</span>
+                            <i className="fas fa-plus-circle"></i>
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p>Seleccione un filtro para ver los datos.</p>
+                    )}
+                  </div>
+                  
                 </div>
               </div>
             )}
