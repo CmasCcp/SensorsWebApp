@@ -143,11 +143,38 @@ export const DataPage = () => {
     }),
   };
 
+  // const downloadFile = async () => {
+  //   try {
+  //     const link = document.createElement('a');
+  //     link.href = `${import.meta.env.VITE_API_URL}/listarDatosEstructurados?tabla=datos&disp.id_proyecto=${projectIds}&formato=csv`;
+
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //   } catch (error) {
+  //     console.error('Error al descargar el archivo:', error);
+  //   }
+  // };
+
   const downloadFile = async () => {
     try {
+      // Obtén los IDs de los proyectos y dispositivos seleccionados
+      const projectIds = selectedProjects.map((project) => project.value).join(',');
+      const deviceIds = selectedDevices.map((device) => device.label).join(',');
+  
+      // Construye la URL sin los límites de filas ni el offset (esto descarga todos los datos)
+      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructurados?tabla=datos&disp.id_proyecto=${projectIds}&formato=csv`;
+  
+      // Añadir los filtros de fechas si se han especificado
+      if (startDate) url += `&fecha_inicio=${startDate}`;
+      if (endDate) url += `&fecha_fin=${endDate}`;
+      if (selectedDevices.length > 0) url += `&disp.codigo_interno=${deviceIds}`;
+  
+      // Crear el enlace para la descarga
       const link = document.createElement('a');
-      link.href = `${sensorsUrl}&formato=csv`//URL.createObjectURL(blob);
-
+      link.href = url;
+  
+      // Descargar el archivo CSV
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

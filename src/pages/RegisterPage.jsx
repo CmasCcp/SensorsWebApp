@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { useFetch } from '../hooks/useFetch';
 import { Modal } from '../components/Modal';
-import { materialPointSize } from 'three/tsl';
 
 export const RegisterPage = () => {
   const { accounts } = useMsal();
@@ -55,6 +54,7 @@ export const RegisterPage = () => {
         // Obtener el esquema de la tabla
         let urlSchema = `${import.meta.env.VITE_API_URL}/schema?tabla=${devicesTableName}`;
         tableDataSchemaSetUrl(urlSchema);
+        // setFormKeys(tableDataSchema);
       // }
     }, []);
 
