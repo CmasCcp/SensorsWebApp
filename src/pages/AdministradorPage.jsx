@@ -19,6 +19,14 @@ export const AdministradorPage = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [properties, setProperties] = useState([]);
 
+  // Estado para almacenar el tipo de orden
+  const [sortOrder, setSortOrder] = useState('asc'); // Ascendente por defecto
+
+  // Función para manejar el cambio de orden
+  const handleSortChange = (e) => {
+    const order = e.target.value;
+    setSortOrder(order); // Actualizamos el estado del orden
+  };
 
   const handleClick = (tableName) => {
     setTableName(tableName);
@@ -28,25 +36,27 @@ export const AdministradorPage = () => {
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
+
   const handleOnClickAdd = () => {
     let properties = Object.keys(tableData.data.tableData[0]);
     setProperties(properties);
     setShowAddModal(prev => !prev);
   };
 
-  const handleCloseModal = () =>{ setShowAddModal(false)}
+  const handleCloseModal = () =>{ setShowAddModal(false) }
 
   useEffect(() => {
     if (tableName !== "" && tableDataSetUrl) {
-      // Actualiza la URL con los parámetros de paginación
-      let url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
+      // Actualiza la URL con los parámetros de paginación y orden
+      let url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}&orden=${sortOrder}`;
+
       tableDataSetUrl(url);
 
       // Obtener el esquema de la tabla
       let urlSchema = `${import.meta.env.VITE_API_URL}/schema?tabla=${tableName}`;
       tableDataSchemaSetUrl(urlSchema);
     }
-  }, [tableName, currentPage, tableDataSetUrl, tableDataSchemaSetUrl]);
+  }, [tableName, currentPage, tableDataSetUrl, tableDataSchemaSetUrl, sortOrder]); // Ahora dependemos de sortOrder
 
   // Establecer el total de páginas en función del esquema de la tabla
   useEffect(() => {
@@ -68,106 +78,117 @@ export const AdministradorPage = () => {
         onClose={handleCloseModal}
         tableName={tableName}
       />
-    <div className="container-fluid d-flex justify-content-center align-items-center">
-      <div className="card">
-        <h2 className="card-title">Administrador</h2>
-        <hr/>
-        <div className="card-content mt-2 shadow">
-          <div className="row mb-2">
-            {options && options.length > 0 && username && options.map((opt, index) => (
-              <button
-                key={index}
-                className='btn m-1'
-                onClick={() => handleClick(opt.dataName)}
+      <div className="container-fluid d-flex justify-content-center align-items-center">
+        <div className="card">
+          <h2 className="card-title">Administrador</h2>
+          <hr />
+          <div className="card-content mt-2 shadow">
+            <div className="row mb-2">
+              {options && options.length > 0 && username && options.map((opt, index) => (
+                <button
+                  key={index}
+                  className='btn m-1'
+                  onClick={() => handleClick(opt.dataName)}
+                >
+                  {opt.displayName}
+                </button>
+              ))}
+            </div>
+            <hr />
+
+            {/* Selección de ordenación */}
+            <div className="mb-3">
+              <label htmlFor="sortOrder" className="form-label">Ordenar por fecha:</label>
+              <select
+                id="sortOrder"
+                className="form-select"
+                value={sortOrder}
+                onChange={handleSortChange}
               >
-                {opt.displayName}
-              </button>
+                <option value="asc">Fecha Ascendente</option>
+                <option value="desc">Fecha Descendente</option>
+              </select>
+            </div>
+
+            {options && tableName && username && tableData && options.map((opt) => (
+              tableName === opt.dataName && (
+                <BasicDataTableGraphic tableTitle={opt.displayName} tableData={tableData.data.tableData} sortTable={sortTable} />
+              )
             ))}
+
+            {tableName !== "" && (<div className="row my-4">
+              <button className="btn m-1 ml-auto custom-button" onClick={() => handleOnClickAdd()}>
+                <span className="btn-text">Agregar {tableName}</span>
+                <i className="fas fa-plus-circle"></i>
+              </button>
+            </div>)}
+
+            {totalPages > 0 && (<div className="pagination">
+              {Array.from({ length: totalPages }, (_, index) => {
+                const pageNumber = index + 1;
+
+                if (pageNumber === 1) {
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => handlePageChange(pageNumber)}
+                      className={`btn ${currentPage === pageNumber ? 'btn-primary' : 'btn-secondary'} m-1`}
+                    >
+                      {pageNumber}
+                    </button>
+                  );
+                }
+
+                if (pageNumber === totalPages) {
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => handlePageChange(pageNumber)}
+                      className={`btn ${currentPage === pageNumber ? 'btn-primary' : 'btn-secondary'} m-1`}
+                    >
+                      {pageNumber}
+                    </button>
+                  );
+                }
+
+                if (
+                  (pageNumber >= currentPage - 4 && pageNumber <= currentPage + 4) ||
+                  (currentPage < 7 && pageNumber < 10)
+                ) {
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => handlePageChange(pageNumber)}
+                      className={`btn ${currentPage === pageNumber ? 'btn-primary' : 'btn-secondary'} m-1`}
+                    >
+                      {pageNumber}
+                    </button>
+                  );
+                }
+
+                if (
+                  (pageNumber === 2 && currentPage > 6) ||
+                  (pageNumber === totalPages - 1 && currentPage < totalPages - 5)
+                ) {
+                  return (
+                    <span key={index} className="btn disabled m-1">
+                      ...
+                    </span>
+                  );
+                }
+                return null;
+              })}
+            </div>)}
+
+            {!username && (
+              <>
+                <h2>Acceso Restringido</h2>
+                <p>Para ver este contenido, es necesario que inicies sesión.</p>
+              </>
+            )}
           </div>
-          <hr/>
-          {options && tableName && username && tableData && options.map((opt) => (
-            tableName === opt.dataName && (
-              <BasicDataTableGraphic tableTitle={opt.displayName} tableData={tableData.data.tableData} />
-            )
-          ))}
-          {tableName !== "" && (<div className="row my-4">
-            <button className="btn m-1 ml-auto custom-button" onClick={() => handleOnClickAdd()}>
-              <span className="btn-text">Agregar {tableName}</span>
-              <i className="fas fa-plus-circle"></i>
-            </button>
-          </div>)}
-
-          {totalPages > 0 && (<div className="pagination">
-            {Array.from({ length: totalPages }, (_, index) => {
-              const pageNumber = index + 1;
-
-              // Siempre muestra la primera página
-              if (pageNumber === 1) {
-                return (
-                  <button
-                    key={index}
-                    onClick={() => handlePageChange(pageNumber)}
-                    className={`btn ${currentPage === pageNumber ? 'btn-primary' : 'btn-secondary'} m-1`}
-                  >
-                    {pageNumber}
-                  </button>
-                );
-              }
-
-              // Siempre muestra la última página
-              if (pageNumber === totalPages) {
-                return (
-                  <button
-                    key={index}
-                    onClick={() => handlePageChange(pageNumber)}
-                    className={`btn ${currentPage === pageNumber ? 'btn-primary' : 'btn-secondary'} m-1`}
-                  >
-                    {pageNumber}
-                  </button>
-                );
-              }
-
-              if (
-                (pageNumber >= currentPage - 4 && // Desde 4 páginas antes de la actual
-                  pageNumber <= currentPage + 4) ||
-                (currentPage < 7 && pageNumber < 10)
-              ) {
-                return (
-                  <button
-                    key={index}
-                    onClick={() => handlePageChange(pageNumber)}
-                    className={`btn ${currentPage === pageNumber ? 'btn-primary' : 'btn-secondary'} m-1`}
-                  >
-                    {pageNumber}
-                  </button>
-                );
-              }
-
-              // Mostrar puntos suspensivos cuando haya saltos entre páginas
-              if (
-                (pageNumber === 2 && currentPage > 6) ||
-                (pageNumber === totalPages - 1 && currentPage < totalPages - 5)
-              ) {
-                return (
-                  <span key={index} className="btn disabled m-1">
-                    ...
-                  </span>
-                );
-              }
-              return null;
-            })}
-          </div>)}
-
-
-          {!username && (
-            <>
-              <h2>Acceso Restringido</h2>
-              <p>Para ver este contenido, es necesario que inicies sesión.</p>
-            </>
-          )}
         </div>
-
       </div>
-    </div></>
+    </>
   );
 };
