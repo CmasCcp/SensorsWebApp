@@ -14,19 +14,13 @@ export const AdministradorPage = () => {
   const { data: tableData, setUrl: tableDataSetUrl } = useFetch('');
   const { data: tableDataSchema, setUrl: tableDataSchemaSetUrl } = useFetch('');
   const username = accounts.length > 0;
+  const [primaryKey, setPrimaryKey] = useState(null);
+
 
   // MODALS
   const [showAddModal, setShowAddModal] = useState(false);
   const [properties, setProperties] = useState([]);
 
-  // Estado para almacenar el tipo de orden
-  const [sortOrder, setSortOrder] = useState('asc'); // Ascendente por defecto
-
-  // Función para manejar el cambio de orden
-  const handleSortChange = (e) => {
-    const order = e.target.value;
-    setSortOrder(order); // Actualizamos el estado del orden
-  };
 
   const handleClick = (tableName) => {
     setTableName(tableName);
@@ -36,28 +30,40 @@ export const AdministradorPage = () => {
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
-
   const handleOnClickAdd = () => {
     let properties = Object.keys(tableData.data.tableData[0]);
     setProperties(properties);
     setShowAddModal(prev => !prev);
   };
 
-  const handleCloseModal = () =>{ setShowAddModal(false) }
+  const handleCloseModal = () => { setShowAddModal(false) }
 
   useEffect(() => {
-    if (tableName !== "" && tableDataSetUrl) {
-      // Actualiza la URL con los parámetros de paginación y orden
-      let url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}&orden=${sortOrder}`;
-
-      tableDataSetUrl(url);
-
-      // Obtener el esquema de la tabla
-      let urlSchema = `${import.meta.env.VITE_API_URL}/schema?tabla=${tableName}`;
+    if (tableName !== "") {
+      const urlSchema = `${import.meta.env.VITE_API_URL}/schema?tabla=${tableName}`;
       tableDataSchemaSetUrl(urlSchema);
     }
-  }, [tableName, currentPage, tableDataSetUrl, tableDataSchemaSetUrl, sortOrder]); // Ahora dependemos de sortOrder
+  }, [tableName]);
 
+  useEffect(() => {
+    if (
+      tableName !== "" &&
+      Array.isArray(tableDataSchema) &&
+      tableDataSchema.length > 0
+    ) {
+      const keys = tableDataSchema.filter(x => x.Key === "PRI").map(x => x.Field);
+      setPrimaryKey(keys[0] || null); // puede ser null si no hay clave primaria
+    }
+  }, [tableDataSchema]);
+
+  useEffect(() => {
+    if (tableName !== "" && primaryKey !== null) {
+      const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}&primarykey=${primaryKey}`;
+      tableDataSetUrl(url);
+    }
+  }, [tableName, currentPage, primaryKey]);
+  
+ 
   // Establecer el total de páginas en función del esquema de la tabla
   useEffect(() => {
     if (tableDataSchema && tableDataSchema[0]?.Count) {
@@ -95,27 +101,24 @@ export const AdministradorPage = () => {
               ))}
             </div>
             <hr />
-
             {/* Selección de ordenación */}
             <div className="mb-3">
               <label htmlFor="sortOrder" className="form-label">Ordenar por fecha:</label>
               <select
                 id="sortOrder"
                 className="form-select"
-                value={sortOrder}
-                onChange={handleSortChange}
+                value={"sortOrder"}
+                onChange={() => console.log(handleSortChange)}
               >
                 <option value="asc">Fecha Ascendente</option>
                 <option value="desc">Fecha Descendente</option>
               </select>
             </div>
-
             {options && tableName && username && tableData && options.map((opt) => (
               tableName === opt.dataName && (
-                <BasicDataTableGraphic tableTitle={opt.displayName} tableData={tableData.data.tableData} sortTable={sortTable} />
+                <BasicDataTableGraphic tableTitle={opt.displayName} tableData={tableData.data.tableData} />
               )
             ))}
-
             {tableName !== "" && (<div className="row my-4">
               <button className="btn m-1 ml-auto custom-button" onClick={() => handleOnClickAdd()}>
                 <span className="btn-text">Agregar {tableName}</span>
@@ -127,6 +130,7 @@ export const AdministradorPage = () => {
               {Array.from({ length: totalPages }, (_, index) => {
                 const pageNumber = index + 1;
 
+                // Siempre muestra la primera página
                 if (pageNumber === 1) {
                   return (
                     <button
@@ -139,6 +143,7 @@ export const AdministradorPage = () => {
                   );
                 }
 
+                // Siempre muestra la última página
                 if (pageNumber === totalPages) {
                   return (
                     <button
@@ -152,7 +157,8 @@ export const AdministradorPage = () => {
                 }
 
                 if (
-                  (pageNumber >= currentPage - 4 && pageNumber <= currentPage + 4) ||
+                  (pageNumber >= currentPage - 4 && // Desde 4 páginas antes de la actual
+                    pageNumber <= currentPage + 4) ||
                   (currentPage < 7 && pageNumber < 10)
                 ) {
                   return (
@@ -166,6 +172,7 @@ export const AdministradorPage = () => {
                   );
                 }
 
+                // Mostrar puntos suspensivos cuando haya saltos entre páginas
                 if (
                   (pageNumber === 2 && currentPage > 6) ||
                   (pageNumber === totalPages - 1 && currentPage < totalPages - 5)
@@ -180,6 +187,7 @@ export const AdministradorPage = () => {
               })}
             </div>)}
 
+
             {!username && (
               <>
                 <h2>Acceso Restringido</h2>
@@ -187,8 +195,8 @@ export const AdministradorPage = () => {
               </>
             )}
           </div>
+
         </div>
-      </div>
-    </>
+      </div></>
   );
 };

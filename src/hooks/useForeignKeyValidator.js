@@ -31,6 +31,7 @@ const useForeignKeyValidator = () => {
     "id_persona_responsable": "personas",
   };
 
+
   // Estado para almacenar validaciones
   const [foreignKeys, setForeignKeys] = useState({});
 
