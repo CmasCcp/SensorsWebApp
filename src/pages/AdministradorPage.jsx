@@ -57,6 +57,12 @@ export const AdministradorPage = () => {
   }, [tableDataSchema]);
 
   useEffect(() => {
+    if (primaryKey !== null) {
+      console.log("Nuevo primaryKey:", primaryKey);
+    }
+  }, [primaryKey]);
+
+  useEffect(() => {
     if (tableName !== "" && primaryKey !== null) {
       const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}&primarykey=${primaryKey}`;
       tableDataSetUrl(url);
@@ -71,6 +77,30 @@ export const AdministradorPage = () => {
       setTotalPages(Math.ceil(totalCount / rowsPerPage)); // Actualizar total de páginas
     }
   }, [tableDataSchema]);
+
+  const handleDelete = async (id) => {
+    if (!tableName || !primaryKey) return;
+  
+    const confirmed = window.confirm("¿Estás seguro que quieres eliminar este registro?");
+    if (!confirmed) return;
+  
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/eliminarDatos?tabla=${tableName}&${primaryKey}=${id}`);
+  
+      if (!response.ok) {
+        throw new Error("Error al eliminar el dato");
+      }
+  
+      // Actualizar la tabla luego de eliminar
+      const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}&primarykey=${primaryKey}`;
+      tableDataSetUrl(url);
+    } catch (error) {
+      console.error("Error eliminando dato:", error);
+      alert("Ocurrió un error al intentar eliminar el dato.");
+    }
+  };
+  
+
 
   return (
     <>
@@ -103,7 +133,8 @@ export const AdministradorPage = () => {
             <hr />
             {/* Selección de ordenación */}
             <div className="mb-3">
-              <label htmlFor="sortOrder" className="form-label">Ordenar por fecha:</label>
+              <label htmlFor="sortOrder" className="form-label"><small>(En desarrollo)</small> Ordenar por fecha:</label>
+              
               <select
                 id="sortOrder"
                 className="form-select"
@@ -113,10 +144,11 @@ export const AdministradorPage = () => {
                 <option value="asc">Fecha Ascendente</option>
                 <option value="desc">Fecha Descendente</option>
               </select>
+              
             </div>
             {options && tableName && username && tableData && options.map((opt) => (
               tableName === opt.dataName && (
-                <BasicDataTableGraphic tableTitle={opt.displayName} tableData={tableData.data.tableData} />
+                <BasicDataTableGraphic tableTitle={opt.displayName} tableData={tableData.data.tableData} tablePrimaryKey={primaryKey} onDelete={handleDelete}/>
               )
             ))}
             {tableName !== "" && (<div className="row my-4">

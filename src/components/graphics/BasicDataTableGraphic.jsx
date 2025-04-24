@@ -1,12 +1,14 @@
 import React from 'react';
 
-export const BasicDataTableGraphic = ({ tableData = [], tableTitle= "" }) => {
+export const BasicDataTableGraphic = ({ tableData = [], tableTitle= "", tablePrimaryKey=null,onDelete = () => {} }) => {
 
     // console.log(tableData);
   // Verificar si tableData es un arreglo
   if (!Array.isArray(tableData) || tableData.length === 0) {
     return <p>No hay datos disponibles para mostrar.</p>;
   }
+
+
 
   return (
     <div style={{ overflowX: 'auto' }}>
@@ -28,7 +30,7 @@ export const BasicDataTableGraphic = ({ tableData = [], tableTitle= "" }) => {
                   <td key={colIndex}>{value}</td>
                 ))}
                 <th ><button className='btn text-primary' onClick={()=>console.log("editar")}>Editar</button></th>
-                <th ><button className='btn text-danger' onClick={()=>console.log("eliminar")}>Eliminar</button></th>
+                <th ><button className='btn text-danger' onClick={() => onDelete(row[tablePrimaryKey])}>Eliminar</button></th>
             </tr>
           ))}
         </tbody>
