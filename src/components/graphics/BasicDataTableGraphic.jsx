@@ -4,7 +4,9 @@ export const BasicDataTableGraphic = ({
   tableData = [],
   tableTitle = "",
   tablePrimaryKey = null,
-  onDelete = () => {}
+  onDelete = () => {},
+  onEdit = () => {},
+  handleOnClickEdit = () => {},
 }) => {
 
   const [selectedRows, setSelectedRows] = useState([]);
@@ -67,7 +69,7 @@ export const BasicDataTableGraphic = ({
                   <td key={colIndex}>{value}</td>
                 ))}
                 <td>
-                  <button className="btn text-primary" onClick={() => console.log("editar", rowId)}>
+                  <button className="btn text-primary" onClick={() => handleOnClickEdit([1,{id:1, title:"titulo"}])}>
                     Editar
                   </button>
                 </td>
@@ -84,8 +86,8 @@ export const BasicDataTableGraphic = ({
 
       {selectedRows.length > 0 && (
         <div className="mt-3">
-          <p><strong>Filas seleccionadas:</strong> {selectedRows.join(", ")}</p>
-          <button onClick={()=>console.log("eliminar ", selectedRows.toString())} className='btn btn-danger'>Eliminar filas seleccionadas</button>
+          <p><strong>Filas seleccionadas:</strong> {selectedRows.join(",")}</p>
+          <button onClick={()=>onDelete(selectedRows.join(","))} className='btn btn-danger'>Eliminar filas seleccionadas</button>
         </div>
       )}
     </div>

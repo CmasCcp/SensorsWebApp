@@ -19,6 +19,7 @@ export const AdministradorPage = () => {
 
   // MODALS
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [properties, setProperties] = useState([]);
 
 
@@ -30,13 +31,23 @@ export const AdministradorPage = () => {
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
+
   const handleOnClickAdd = () => {
     let properties = Object.keys(tableData.data.tableData[0]);
     setProperties(properties);
     setShowAddModal(prev => !prev);
   };
 
-  const handleCloseModal = () => { setShowAddModal(false) }
+  const handleOnClickEdit = () => {
+    let properties = Object.keys(tableData.data.tableData[0]);
+    setProperties(properties);
+    setShowEditModal(prev => !prev);
+  };
+
+  const handleCloseModal = () => { 
+    setShowAddModal(false); 
+    setShowEditModal(false);
+  }
 
   useEffect(() => {
     if (tableName !== "") {
@@ -94,12 +105,46 @@ export const AdministradorPage = () => {
       // Actualizar la tabla luego de eliminar
       const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}&primarykey=${primaryKey}`;
       tableDataSetUrl(url);
+      alert(`Fila(s) no. ${id} eliminadas. Se recargará la página para actualizar los datos.`);
+      window.location.reload(); // 🚀 Esto recarga toda la página después de eliminar
     } catch (error) {
       console.error("Error eliminando dato:", error);
       alert("Ocurrió un error al intentar eliminar el dato.");
     }
   };
+
+  const handleEdit = async (id, newData) => {
+    if (!tableName || !primaryKey) return;
   
+    const confirmed = window.confirm("¿Estás seguro que quieres editar este registro?");
+    if (!confirmed) return;
+  
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/modificarDatos`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tableName: tableName,
+          primaryKeys: {
+            [primaryKey]: id
+          },
+          formData: newData
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Error al editar el dato");
+      }
+  
+      alert(`Fila no. ${id} editada correctamente.`);
+      window.location.reload(); // 🚀 Recargar la página para ver los cambios
+    } catch (error) {
+      console.error("Error editando dato:", error);
+      alert("Ocurrió un error al intentar editar el dato.");
+    }
+  };
 
 
   return (
@@ -111,6 +156,16 @@ export const AdministradorPage = () => {
         id="addModal"
         properties={tableDataSchema}
         isOpen={showAddModal}
+        onClose={handleCloseModal}
+        tableName={tableName}
+      />
+      <Modal
+        type={"warning"}
+        action={"Editar"}
+        title={"Editar fila"}
+        id="editModal"
+        properties={tableDataSchema}
+        isOpen={showEditModal}
         onClose={handleCloseModal}
         tableName={tableName}
       />
@@ -148,7 +203,7 @@ export const AdministradorPage = () => {
             </div>
             {options && tableName && username && tableData && options.map((opt) => (
               tableName === opt.dataName && (
-                <BasicDataTableGraphic tableTitle={opt.displayName} tableData={tableData.data.tableData} tablePrimaryKey={primaryKey} onDelete={handleDelete}/>
+                <BasicDataTableGraphic tableTitle={opt.displayName} tableData={tableData.data.tableData} tablePrimaryKey={primaryKey} onDelete={handleDelete} handleOnClickEdit={handleOnClickEdit} onEdit={handleEdit}/>
               )
             ))}
             {tableName !== "" && (<div className="row my-4">
