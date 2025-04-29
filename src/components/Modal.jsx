@@ -52,6 +52,8 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
                 formData: { ...formData, ...hiddenData }  // Los datos del formulario
             };
 
+            console.log(payload);
+
             const response = await fetch(`${import.meta.env.VITE_API_URL}/modificarDatos`, {
                 method: 'PUT',
                 headers: {
