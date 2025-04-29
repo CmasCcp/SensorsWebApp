@@ -1480,42 +1480,51 @@ def eliminar_datos():
     """
 
     args = request.args
-    tabla = args.get('tabla')  # El nombre de la tabla viene como un parámetro
+    tabla = args.get('tabla')
 
-    args_dict = request.args.to_dict()
-    not_primary_keys = ['tabla']
-
-    filtered_args = {key: value for key, value in args_dict.items() if key not in not_primary_keys}
-    concatenated_filter = ' AND'.join([f"{key}={value}" for key, value in filtered_args.items()])
-    if concatenated_filter != '':
-        concatenated_filter = 'WHERE '+concatenated_filter
-
-    if concatenated_filter == '':
-        return jsonify({'status': 'fail', 'error': 'Se requiere un ID'}), 403
+    if not tabla:
+        return jsonify({'status': 'fail', 'error': 'Se requiere el nombre de la tabla'}), 403
 
     if tabla not in ALLOWED_TABLES:
         return jsonify({'status': 'fail', 'error': 'Tabla no permitida'}), 403
-    
+
+    id_param = None
+    for key in request.args:
+        if key != 'tabla':
+            id_param = key
+            break
+
+    if not id_param:
+        return jsonify({'status': 'fail', 'error': 'Se requiere un ID'}), 403
+
+    ids = request.args.get(id_param)
+
     try:
+        # Permitir múltiples ids separados por comas
+        id_list = [id.strip() for id in ids.split(",") if id.strip().isdigit()]
+        if not id_list:
+            return jsonify({'status': 'fail', 'error': 'IDs inválidos'}), 403
+
         conn = mysql.connector.connect(**config)
         cursor = conn.cursor()
 
-        sql_query = f"DELETE FROM {tabla} {concatenated_filter}"
-        cursor.execute(sql_query)
+        placeholders = ','.join(['%s'] * len(id_list))
+        sql_query = f"DELETE FROM {tabla} WHERE {id_param} IN ({placeholders})"
+        cursor.execute(sql_query, id_list)
         conn.commit()
 
         if cursor.rowcount == 0:
             return jsonify({'status': 'fail', 'error': 'Registro no encontrado o sin cambios'}), 404
 
-        return jsonify({'status': 'success', 'message': f'{cursor.rowcount} registro(s) actualizado(s) correctamente'}), 200
+        return jsonify({'status': 'success', 'message': f'{cursor.rowcount} registro(s) eliminado(s) correctamente'}), 200
 
     except mysql.connector.Error as e:
         mensaje_error = f"Error al conectarse a la base de datos {e}"
 
-        if(e.errno == 1451):
+        if e.errno == 1451:
             mensaje_error = f"Error: No es posible eliminar el registro pues existe una referencia a este en otra tabla\n{e}"
-            
-        print(mensaje_error)        
+
+        print(mensaje_error)
         return jsonify({'status': 'fail', 'error': mensaje_error}), 500
 
     except Exception as e:

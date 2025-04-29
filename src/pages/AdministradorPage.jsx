@@ -19,7 +19,9 @@ export const AdministradorPage = () => {
 
   // MODALS
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [properties, setProperties] = useState([]);
+  const [editData, setEditData] = useState([]);
 
 
   const handleClick = (tableName) => {
@@ -31,13 +33,25 @@ export const AdministradorPage = () => {
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
+
   const handleOnClickAdd = () => {
     let properties = Object.keys(tableData.data.tableData[0]);
     setProperties(properties);
     setShowAddModal(prev => !prev);
   };
 
-  const handleCloseModal = () => { setShowAddModal(false) }
+  const handleOnClickEdit = (prop) => {
+    console.log(prop)
+    let properties = Object.keys(tableData.data.tableData[0]);
+    setEditData(prop);
+    setProperties(properties);
+    setShowEditModal(prev => !prev);
+  };
+
+  const handleCloseModal = () => { 
+    setShowAddModal(false); 
+    setShowEditModal(false);
+  }
 
   useEffect(() => {
     if (tableName !== "") {
@@ -67,12 +81,76 @@ export const AdministradorPage = () => {
   }, [tableDataSchema]);
 
   useEffect(() => {
+    if (primaryKey !== null) {
+      console.log("Nuevo primaryKey:", primaryKey);
+    }
+  }, [primaryKey]);
+
+  useEffect(() => {
     if (tableName !== "" && primaryKey !== null) {
       console.log("Disparando fetch para:", tableName, "con clave primaria:", primaryKey);
       const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}&primarykey=${primaryKey}`;
       tableDataSetUrl(url);
     }
   }, [tableName, currentPage, primaryKey]);
+
+
+  const handleDelete = async (id) => {
+    if (!tableName || !primaryKey) return;
+  
+    const confirmed = window.confirm("¿Estás seguro que quieres eliminar este registro?");
+    if (!confirmed) return;
+  
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/eliminarDatos?tabla=${tableName}&${primaryKey}=${id}`);
+  
+      if (!response.ok) {
+        throw new Error("Error al eliminar el dato");
+      }
+  
+      // Actualizar la tabla luego de eliminar
+      const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}&primarykey=${primaryKey}`;
+      tableDataSetUrl(url);
+      alert(`Fila(s) no. ${id} eliminadas. Se recargará la página para actualizar los datos.`);
+      window.location.reload(); // 🚀 Esto recarga toda la página después de eliminar
+    } catch (error) {
+      console.error("Error eliminando dato:", error);
+      alert("Ocurrió un error al intentar eliminar el dato.");
+    }
+  };
+
+  const handleEdit = async (id, newData) => {
+    if (!tableName || !primaryKey) return;
+  
+    const confirmed = window.confirm("¿Estás seguro que quieres editar este registro?");
+    if (!confirmed) return;
+  
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/modificarDatos`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tableName: tableName,
+          primaryKeys: {
+            [primaryKey]: id
+          },
+          formData: newData
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Error al editar el dato");
+      }
+  
+      alert(`Fila no. ${id} editada correctamente.`);
+      window.location.reload(); // 🚀 Recargar la página para ver los cambios
+    } catch (error) {
+      console.error("Error editando dato:", error);
+      alert("Ocurrió un error al intentar editar el dato.");
+    }
+  };
 
 
   return (
@@ -86,6 +164,18 @@ export const AdministradorPage = () => {
         isOpen={showAddModal}
         onClose={handleCloseModal}
         tableName={tableName}
+        />
+      <Modal
+        type={"warning"}
+        action={"Editar"}
+        title={"Editar fila"}
+        id="editModal"
+        properties={tableDataSchema}
+        isOpen={showEditModal}
+        onClose={handleCloseModal}
+        tableName={tableName}
+        data={editData[1]}
+        pkValue={editData[0]}
       />
       <div className="container-fluid d-flex justify-content-center align-items-center">
         <div className="card">
@@ -106,7 +196,8 @@ export const AdministradorPage = () => {
             <hr />
             {/* Selección de ordenación */}
             <div className="mb-3">
-              <label htmlFor="sortOrder" className="form-label">Ordenar por fecha:</label>
+              <label htmlFor="sortOrder" className="form-label"><small>(En desarrollo)</small> Ordenar por fecha:</label>
+              
               <select
                 id="sortOrder"
                 className="form-select"
@@ -116,10 +207,11 @@ export const AdministradorPage = () => {
                 <option value="asc">Fecha Ascendente</option>
                 <option value="desc">Fecha Descendente</option>
               </select>
+              
             </div>
             {options && tableName && username && tableData && options.map((opt) => (
               tableName === opt.dataName && (
-                <BasicDataTableGraphic tableTitle={opt.displayName} tableData={tableData.data.tableData} />
+                <BasicDataTableGraphic tableTitle={opt.displayName} tableData={tableData.data.tableData} tablePrimaryKey={primaryKey} onDelete={handleDelete} handleOnClickEdit={handleOnClickEdit} onEdit={handleEdit}/>
               )
             ))}
             {tableName !== "" && (<div className="row my-4">
