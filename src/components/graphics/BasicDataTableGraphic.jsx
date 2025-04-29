@@ -69,7 +69,7 @@ export const BasicDataTableGraphic = ({
                   <td key={colIndex}>{value}</td>
                 ))}
                 <td>
-                  <button className="btn text-primary" onClick={() => handleOnClickEdit([1,{id:1, title:"titulo"}])}>
+                  <button className="btn text-primary" onClick={() => handleOnClickEdit([rowId,row])}>
                     Editar
                   </button>
                 </td>

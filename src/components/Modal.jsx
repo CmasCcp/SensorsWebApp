@@ -19,11 +19,13 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
     }, [isOpen]);
 
     const validateForm = (formData) => {
+
+        const formDataArray = Object.values(formData);
         const newErrors = {};
         let isValid = true;
-        console.log("formData", formData);
+        console.log("formDataArray", formDataArray);
 
-        for (const prop of formData) {
+        for (const prop of formDataArray) {
             console.log("prop", prop);
             const value = formData[prop.Field];
             console.log(value);
@@ -31,7 +33,7 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
                 isValid = false;
                 newErrors[prop] = "Este campo es obligatorio.";
 
-                console.log("falta este camppo", prop.Field);
+                console.log("falta este campo", prop.Field);
             }
         }
 
@@ -41,7 +43,7 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
 
     // Manejar el cambio en los datos del formulario
     const handleSend = async () => {
-        if (!validateForm(formData)) return;
+        // if (!validateForm(formData)) return;
 
         try {
             const payload = {
@@ -50,19 +52,19 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
                 formData: { ...formData, ...hiddenData }  // Los datos del formulario
             };
 
-            // const response = await fetch(`${import.meta.env.VITE_API_URL}/modificarDatos`, {
-            //     method: 'PUT',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify(payload),  // Enviar los datos del formulario como JSON
-            // });
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/modificarDatos`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),  // Enviar los datos del formulario como JSON
+            });
 
-            // if (response.ok) {
-            //     console.log('Dispositivo actualizado correctamente');
-            // } else {
-            //     console.error('Error al actualizar el dispositivo');
-            // }
+            if (response.ok) {
+                console.log('Dispositivo actualizado correctamente');
+            } else {
+                console.error('Error al actualizar el dispositivo');
+            }
         } catch (error) {
             console.error('Error al hacer la solicitud:', error);
         }

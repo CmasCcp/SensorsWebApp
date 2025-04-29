@@ -21,6 +21,7 @@ export const AdministradorPage = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [properties, setProperties] = useState([]);
+  const [editData, setEditData] = useState([]);
 
 
   const handleClick = (tableName) => {
@@ -38,8 +39,10 @@ export const AdministradorPage = () => {
     setShowAddModal(prev => !prev);
   };
 
-  const handleOnClickEdit = () => {
+  const handleOnClickEdit = (prop) => {
+    console.log(prop)
     let properties = Object.keys(tableData.data.tableData[0]);
+    setEditData(prop);
     setProperties(properties);
     setShowEditModal(prev => !prev);
   };
@@ -158,7 +161,7 @@ export const AdministradorPage = () => {
         isOpen={showAddModal}
         onClose={handleCloseModal}
         tableName={tableName}
-      />
+        />
       <Modal
         type={"warning"}
         action={"Editar"}
@@ -168,6 +171,8 @@ export const AdministradorPage = () => {
         isOpen={showEditModal}
         onClose={handleCloseModal}
         tableName={tableName}
+        data={editData[1]}
+        pkValue={editData[0]}
       />
       <div className="container-fluid d-flex justify-content-center align-items-center">
         <div className="card">
