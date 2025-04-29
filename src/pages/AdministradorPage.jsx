@@ -24,6 +24,7 @@ export const AdministradorPage = () => {
 
   const handleClick = (tableName) => {
     setTableName(tableName);
+    setPrimaryKey(null); // ← Forzar que no dispare el fetch antes de tiempo
     setCurrentPage(1); // Resetear la página al seleccionar una nueva tabla
   };
 
@@ -45,6 +46,7 @@ export const AdministradorPage = () => {
     }
   }, [tableName]);
 
+  // Calcular primaryKey cuando llega el schema
   useEffect(() => {
     if (
       tableName !== "" &&
@@ -52,25 +54,26 @@ export const AdministradorPage = () => {
       tableDataSchema.length > 0
     ) {
       const keys = tableDataSchema.filter(x => x.Key === "PRI").map(x => x.Field);
-      setPrimaryKey(keys[0] || null); // puede ser null si no hay clave primaria
+      setPrimaryKey(keys[0] || null);
+    }
+  }, [tableDataSchema]);
+
+  // Calcular total de páginas
+  useEffect(() => {
+    if (tableDataSchema && tableDataSchema[0]?.Count) {
+      const totalCount = tableDataSchema[0].Count;
+      setTotalPages(Math.ceil(totalCount / rowsPerPage));
     }
   }, [tableDataSchema]);
 
   useEffect(() => {
     if (tableName !== "" && primaryKey !== null) {
+      console.log("Disparando fetch para:", tableName, "con clave primaria:", primaryKey);
       const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}&primarykey=${primaryKey}`;
       tableDataSetUrl(url);
     }
   }, [tableName, currentPage, primaryKey]);
-  
- 
-  // Establecer el total de páginas en función del esquema de la tabla
-  useEffect(() => {
-    if (tableDataSchema && tableDataSchema[0]?.Count) {
-      const totalCount = tableDataSchema[0].Count;
-      setTotalPages(Math.ceil(totalCount / rowsPerPage)); // Actualizar total de páginas
-    }
-  }, [tableDataSchema]);
+
 
   return (
     <>
