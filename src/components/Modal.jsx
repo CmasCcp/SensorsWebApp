@@ -195,14 +195,19 @@ export const Modal = ({title, id, action, properties, data, isOpen, onClose, pkV
                               onClick={() => {
                                    if(action==="Editar"){
                                         handleSend();  // Llamar a la función para enviar los datos
-                                   } else if(action==="Eliminar"){
+                                        onClose();
+                                        alert("Fila actualizada correctamente. Presiona aceptar para recargar la página.");
+                                        window.location.reload(); // 🚀 Esto recarga toda la página después de eliminar
+                                    } else if(action==="Eliminar"){
                                         handleRemove();
-                                   } else if(action==="Agregar"){
+                                    } else if(action==="Agregar"){
                                         handleAdd(tableName, {...formData, ...hiddenData});
+                                        onClose();
+                                        alert("Agregados correctamente. Presiona aceptar para recargar la página.");
+                                        window.location.reload(); // 🚀 Esto recarga toda la página después de eliminar
                                    } else if(action==="Agregar Sensor"){
                                         handleAddSensor();
                                    }
-                                //   onClose();
                               }}>
                               {action}
                             </button>
