@@ -232,16 +232,21 @@ export const Modal = ({ title, id, action, properties, data, isOpen, onClose, pk
                                 onClick={() => {
                                     if (action === "Editar") {
                                         handleSend();  // Llamar a la función para enviar los datos
-                                    } else if (action === "Eliminar") {
+                                        onClose();
+                                        alert("Fila actualizada correctamente. Presiona aceptar para recargar la página.");
+                                        window.location.reload(); // 🚀 Esto recarga toda la página después de eliminar
+                                    } else if(action==="Eliminar"){
                                         handleRemove();
-                                    } else if (action === "Agregar") {
-                                        handleAdd(tableName, { ...formData, ...hiddenData });
-                                    } else if (action === "Agregar Sensor") {
+                                    } else if(action==="Agregar"){
+                                        handleAdd(tableName, {...formData, ...hiddenData});
+                                        onClose();
+                                        alert("Agregados correctamente. Presiona aceptar para recargar la página.");
+                                        window.location.reload(); // 🚀 Esto recarga toda la página después de eliminar
+                                   } else if(action==="Agregar Sensor"){
                                         handleAddSensor();
-                                    }
-                                    //   onClose();
-                                }}>
-                                {action}
+                                   }
+                              }}>
+                              {action}
                             </button>
                         </div>
                     </div>

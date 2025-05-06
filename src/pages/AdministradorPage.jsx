@@ -175,7 +175,7 @@ export const AdministradorPage = () => {
         onClose={handleCloseModal}
         tableName={tableName}
         data={editData[1]}
-        pkValue={{[primaryKey]:editData[0]}}
+        pkValue={{[primaryKey] : editData[0]}}
       />
       <div className="container-fluid d-flex justify-content-center align-items-center">
         <div className="card">

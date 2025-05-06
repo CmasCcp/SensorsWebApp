@@ -6,4 +6,8 @@ export default defineConfig({
   //base: "/SensorsWebApp",
   base: "/",
   plugins: [react()],
+  build: {
+    chunkSizeWarningLimit: 1000 // sube el límite a 1000 kB, por ejemplo
+  }
 })
+
