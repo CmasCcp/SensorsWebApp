@@ -9,6 +9,7 @@ export const RegisterPage = () => {
   const username = accounts.length > 0;
   const projectsTableName = "proyectos";
   const devicesTableName = "dispositivos";
+  const sensorTableName = "sensores";
   const [selectedHiddenData, setSelectedHiddenData] = useState({});
   const [selectedTable, setSelectedTable] = useState("");
   const [selectedAction, setSelectedAction] = useState('');
@@ -19,6 +20,7 @@ export const RegisterPage = () => {
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [tableData, setTableData] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showAddSensorModal, setShowAddSensorModal] = useState(false);
   const [formKeys, setFormKeys] = useState([]);
 
   // Pagination states
@@ -29,6 +31,8 @@ export const RegisterPage = () => {
   const { data: devicesData, setUrl: devicesSetUrl } = useFetch('');
   const { data: sensorsData, setUrl: sensorsSetUrl } = useFetch('');
   const { data: tableDataSchema, setUrl: tableDataSchemaSetUrl } = useFetch('');
+  const { data: sensorTableSchema, setUrl: sensorTableSchemaSetUrl } = useFetch('');
+  // const sensorDataSchema = [{id_sensor: PRI}]
 
   useEffect(() => {
     devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject?.value || ''}`);
@@ -53,8 +57,12 @@ export const RegisterPage = () => {
       // if (tableName !== "" && tableDataSetUrl) {  
         // Obtener el esquema de la tabla
         let urlSchema = `${import.meta.env.VITE_API_URL}/schema?tabla=${devicesTableName}`;
+        let urlSensorSchema = `${import.meta.env.VITE_API_URL}/schema?tabla=${sensorTableName}`;
         tableDataSchemaSetUrl(urlSchema);
+        sensorTableSchemaSetUrl(urlSensorSchema);
         // setFormKeys(tableDataSchema);
+
+        console.log("tableData", tableData);
       // }
     }, []);
 
@@ -103,11 +111,12 @@ export const RegisterPage = () => {
     // sensorsData no tiene la misma estructura que la tabla sensores, por eso no puedo utilizar las keys como en devicesData...
     let formKeys = ['id_sensor_tipo', 'id_estado', 'numero_serial', 'fecha_compra', 'proveedor', 'precio'];
     setFormKeys(formKeys);
-    setShowAddModal(prev => !prev);
+    setShowAddSensorModal(prev => !prev);
   };
 
   const handleCloseModal = () => {
     setShowAddModal(prev => !prev);
+    setShowAddSensorModal(prev => !prev);
   };
 
   const customStyles = {
@@ -168,12 +177,23 @@ export const RegisterPage = () => {
       <Modal
         type={"warning"}
         action={selectedAction}
-        title={"Agregar fila"}
+        title={"Agregar dispositivo"}
         id="addModal"
         properties={tableDataSchema}
         isOpen={showAddModal}
         onClose={handleCloseModal}
         tableName={selectedTable}
+        hiddenData={selectedHiddenData}
+      />
+      <Modal
+        type={"warning"}
+        action={selectedAction}
+        title={"Agregar sensor"}
+        id="addModal"
+        properties={sensorTableSchema}
+        isOpen={showAddSensorModal}
+        onClose={handleCloseModal}
+        tableName={"sensor"}
         hiddenData={selectedHiddenData}
       />
       <div className="container-fluid d-flex justify-content-center align-items-center">
