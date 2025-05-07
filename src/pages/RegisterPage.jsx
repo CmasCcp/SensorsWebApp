@@ -63,6 +63,7 @@ export const RegisterPage = () => {
         // setFormKeys(tableDataSchema);
 
         console.log("tableData", tableData);
+        console.log("tableData state", sensorTableSchema);
       // }
     }, []);
 
@@ -108,8 +109,9 @@ export const RegisterPage = () => {
     setSelectedTable("sensores");
     setSelectedAction("Agregar Sensor");
     setSelectedHiddenData({'id_dispositivo': selectedDevice?.value || ''});
+    let formKeys = sensorTableSchema.map(x=> x.Field);
     // sensorsData no tiene la misma estructura que la tabla sensores, por eso no puedo utilizar las keys como en devicesData...
-    let formKeys = ['id_sensor_tipo', 'id_estado', 'numero_serial', 'fecha_compra', 'proveedor', 'precio'];
+    // let formKeys = ['id_sensor_tipo', 'id_estado', 'numero_serial', 'fecha_compra', 'proveedor', 'precio'];
     setFormKeys(formKeys);
     setShowAddSensorModal(prev => !prev);
   };

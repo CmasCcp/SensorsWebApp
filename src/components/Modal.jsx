@@ -204,15 +204,15 @@ export const Modal = ({ title, id, action, properties, data, isOpen, onClose, pk
                 <div className="modal-dialog" role="document">
                     <div className="modal-content">
                         <div className="modal-header text-center">
-                            <h2 className="modal-title" id="exampleModalLabel">{title}</h2>
-                            <button
+                            <h4 className="modal-title w-100 text-center" id="exampleModalLabel">{title}</h4>
+                            {/* <button
                                 type="button"
                                 className="close"
                                 aria-label="Close"
                                 onClick={onClose}
                             >
                                 <span aria-hidden="true">&times;</span>
-                            </button>
+                            </button> */}
                         </div>
                         <div className="modal-body">
                             {action !== "Eliminar" &&
