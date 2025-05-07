@@ -229,21 +229,24 @@ export const Modal = ({ title, id, action, properties, data, isOpen, onClose, pk
                             <button
                                 type="button"
                                 className={`btn m-1 custom-button`}
-                                onClick={() => {
+                                onClick={async() => {
                                     if (action === "Editar") {
-                                        handleSend();  // Llamar a la función para enviar los datos
+                                        await handleSend();  // Llamar a la función para enviar los datos
                                         onClose();
                                         alert("Fila actualizada correctamente. Presiona aceptar para recargar la página.");
                                         window.location.reload(); // 🚀 Esto recarga toda la página después de eliminar
                                     } else if(action==="Eliminar"){
-                                        handleRemove();
+                                        await handleRemove();
                                     } else if(action==="Agregar"){
-                                        handleAdd(tableName, {...formData, ...hiddenData});
+                                        await handleAdd(tableName, {...formData, ...hiddenData});
                                         onClose();
-                                        alert("Agregados correctamente. Presiona aceptar para recargar la página.");
+                                        alert("Agregado correctamente. Presiona aceptar para recargar la página.");
                                         window.location.reload(); // 🚀 Esto recarga toda la página después de eliminar
-                                   } else if(action==="Agregar Sensor"){
-                                        handleAddSensor();
+                                    } else if(action==="Agregar Sensor"){
+                                        await handleAddSensor();
+                                        onClose();
+                                        alert("Sensor agregado correctamente. Presiona aceptar para recargar la página.");
+                                        window.location.reload(); // 🚀 Esto recarga toda la página después de eliminar
                                    }
                               }}>
                               {action}
