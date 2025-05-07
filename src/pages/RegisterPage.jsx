@@ -117,8 +117,8 @@ export const RegisterPage = () => {
   };
 
   const handleCloseModal = () => {
-    setShowAddModal(prev => !prev);
-    setShowAddSensorModal(prev => !prev);
+    setShowAddModal(false);
+    setShowAddSensorModal(false);
   };
 
   const customStyles = {
@@ -195,7 +195,7 @@ export const RegisterPage = () => {
         properties={sensorTableSchema}
         isOpen={showAddSensorModal}
         onClose={handleCloseModal}
-        tableName={"sensor"}
+        tableName={"sensores"}
         hiddenData={selectedHiddenData}
       />
       <div className="container-fluid d-flex justify-content-center align-items-center">
