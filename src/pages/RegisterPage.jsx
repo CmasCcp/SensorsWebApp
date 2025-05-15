@@ -34,6 +34,22 @@ export const RegisterPage = () => {
   const { data: sensorTableSchema, setUrl: sensorTableSchemaSetUrl } = useFetch('');
   // const sensorDataSchema = [{id_sensor: PRI}]
 
+
+  useEffect(() => {
+    // if (tableName !== "" && tableDataSetUrl) {  
+    // Obtener el esquema de la tabla
+    let urlSchema = `${import.meta.env.VITE_API_URL}/schema?tabla=${devicesTableName}`;
+    let urlSensorSchema = `${import.meta.env.VITE_API_URL}/schema?tabla=${sensorTableName}`;
+    tableDataSchemaSetUrl(urlSchema);
+    sensorTableSchemaSetUrl(urlSensorSchema);
+    // setFormKeys(tableDataSchema);
+
+    console.log("tableData", tableData);
+    console.log("tableData state", sensorTableSchema);
+    // }
+  }, []);
+
+
   useEffect(() => {
     devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject?.value || ''}`);
   }, [selectedProject])
@@ -53,20 +69,6 @@ export const RegisterPage = () => {
   }, [projectsData]);
 
 
-    useEffect(() => {
-      // if (tableName !== "" && tableDataSetUrl) {  
-        // Obtener el esquema de la tabla
-        let urlSchema = `${import.meta.env.VITE_API_URL}/schema?tabla=${devicesTableName}`;
-        let urlSensorSchema = `${import.meta.env.VITE_API_URL}/schema?tabla=${sensorTableName}`;
-        tableDataSchemaSetUrl(urlSchema);
-        sensorTableSchemaSetUrl(urlSensorSchema);
-        // setFormKeys(tableDataSchema);
-
-        console.log("tableData", tableData);
-        console.log("tableData state", sensorTableSchema);
-      // }
-    }, []);
-
   useEffect(() => {
     if (devicesData && devicesData.status === 'success') {
       const options = devicesData.data.tableData.map((device) => ({
@@ -84,6 +86,13 @@ export const RegisterPage = () => {
       setTableData(options);
     }
   }, [sensorsData]);
+
+  
+  useEffect(() => {
+    console.log(tableData);
+  }, [tableData]);
+
+
 
   const handleProjectChange = (selectedProject) => {
     setSelectedProject(selectedProject);
@@ -108,8 +117,8 @@ export const RegisterPage = () => {
     //let excludedKeys = ['id_proyecto', 'id_dispositivo'];
     setSelectedTable("sensores");
     setSelectedAction("Agregar Sensor");
-    setSelectedHiddenData({'id_dispositivo': selectedDevice?.value || ''});
-    let formKeys = sensorTableSchema.map(x=> x.Field);
+    setSelectedHiddenData({ 'id_dispositivo': selectedDevice?.value || '' });
+    let formKeys = sensorTableSchema.map(x => x.Field);
     // sensorsData no tiene la misma estructura que la tabla sensores, por eso no puedo utilizar las keys como en devicesData...
     // let formKeys = ['id_sensor_tipo', 'id_estado', 'numero_serial', 'fecha_compra', 'proveedor', 'precio'];
     setFormKeys(formKeys);
@@ -135,11 +144,11 @@ export const RegisterPage = () => {
       backgroundColor: state.isSelected
         ? 'rgb(44, 44, 44)' // Color de la opción seleccionada
         : state.isFocused
-        ? 'rgba(44, 44, 44, 0.1)' // Color al pasar el mouse sobre una opción
-        : 'white',      
+          ? 'rgba(44, 44, 44, 0.1)' // Color al pasar el mouse sobre una opción
+          : 'white',
       color: state.isSelected
-      ? 'white'
-      : 'black', // Color del texto de las opciones
+        ? 'white'
+        : 'black', // Color del texto de las opciones
     }),
     placeholder: (provided) => ({
       ...provided,
@@ -221,41 +230,41 @@ export const RegisterPage = () => {
                   <div className="col-3">
                     <h5>Dispositivos</h5>
                     {/* Pagination Controls */}
-                  {deviceOptions.length > 10 && (
-                    <div className="row d-flex justify-content-center align-items-center">
-                      <div className="pagination my-3">
-                        <button 
-                          className="btn btn-outline-dark mx-1" 
-                          onClick={() => goToPage(1)} 
-                          disabled={currentPage === 1}
-                        >
-                          {'<<'}
-                        </button>
-                        <button 
-                          className="btn btn-outline-dark mx-1" 
-                          onClick={() => goToPage(currentPage - 1)} 
-                          disabled={currentPage === 1}
-                        >
-                          {'<'}
-                        </button>
-                        <span className="px-3 d-flex align-items-center">
-                          <strong>{currentPage}</strong>
-                        </span>
-                        <button 
-                          className="btn btn-outline-dark mx-1" 
-                          onClick={() => goToPage(currentPage + 1)} 
-                          disabled={currentPage === totalPages}
-                        >
-                          {'>'}
-                        </button>
-                        <button 
-                          className="btn btn-outline-dark mx-1" 
-                          onClick={() => goToPage(totalPages)} 
-                          disabled={currentPage === totalPages}
-                        >
-                          {'>>'}
-                        </button>
-                      </div>
+                    {deviceOptions.length > 10 && (
+                      <div className="row d-flex justify-content-center align-items-center">
+                        <div className="pagination my-3">
+                          <button
+                            className="btn btn-outline-dark mx-1"
+                            onClick={() => goToPage(1)}
+                            disabled={currentPage === 1}
+                          >
+                            {'<<'}
+                          </button>
+                          <button
+                            className="btn btn-outline-dark mx-1"
+                            onClick={() => goToPage(currentPage - 1)}
+                            disabled={currentPage === 1}
+                          >
+                            {'<'}
+                          </button>
+                          <span className="px-3 d-flex align-items-center">
+                            <strong>{currentPage}</strong>
+                          </span>
+                          <button
+                            className="btn btn-outline-dark mx-1"
+                            onClick={() => goToPage(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                          >
+                            {'>'}
+                          </button>
+                          <button
+                            className="btn btn-outline-dark mx-1"
+                            onClick={() => goToPage(totalPages)}
+                            disabled={currentPage === totalPages}
+                          >
+                            {'>>'}
+                          </button>
+                        </div>
                       </div>
                     )}
                     <ul className="list-group">
@@ -308,7 +317,7 @@ export const RegisterPage = () => {
                       <p>Seleccione un filtro para ver los datos.</p>
                     )}
                   </div>
-                  
+
                 </div>
               </div>
             )}

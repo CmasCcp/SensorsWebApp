@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 // habilitados los campos para seleccionar las claves primarias como si fueran foraneas
 
 export const Form = ({ properties = [], data, onChange }) => {
-  console.log(properties);
+  console.log(data);
 
   // Estado para almacenar los datos de las columnas foráneas
   const [foreignData, setForeignData] = useState({});
