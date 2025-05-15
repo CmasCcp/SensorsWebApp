@@ -5,23 +5,35 @@ import { useFetch } from '../hooks/useFetch';
 import { Modal } from '../components/Modal';
 
 export const RegisterPage = () => {
+  // login
   const { accounts } = useMsal();
   const username = accounts.length > 0;
+
+  // datos estaticos para la pagina
   const projectsTableName = "proyectos";
   const devicesTableName = "dispositivos";
   const sensorTableName = "sensores";
+
+  // Para agregar dispositivo o sensor 
   const [selectedHiddenData, setSelectedHiddenData] = useState({});
   const [selectedTable, setSelectedTable] = useState("");
   const [selectedAction, setSelectedAction] = useState('');
-
+  
+  // Formatos para la UI de las opciones a seleccionar: {value: id, label: }
   const [projectOptions, setProjectOptions] = useState([]);
   const [deviceOptions, setDeviceOptions] = useState([]);
+  
+
   const [selectedProject, setSelectedProject] = useState(null);
   const [selectedDevice, setSelectedDevice] = useState(null);
-  const [tableData, setTableData] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showAddSensorModal, setShowAddSensorModal] = useState(false);
   const [formKeys, setFormKeys] = useState([]);
+
+  // Datos para tabla sensores
+  const [options, setOptions] = useState([]);
+  const { data: tableData, setUrl: tableDataSetUrl } = useFetch('');
+  
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -49,14 +61,16 @@ export const RegisterPage = () => {
     // }
   }, []);
 
-
-  useEffect(() => {
-    devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject?.value || ''}`);
-  }, [selectedProject])
-
-  useEffect(() => {
-    sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
-  }, [selectedDevice])
+    useEffect(() => {
+      devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject?.value || ''}`);
+    }, [selectedProject])
+    
+    useEffect(() => {
+      sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
+      console.log("Disparando fetch para:", tableName, "con clave primaria:", primaryKey);
+      const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=sensores_en_dispositivo&id_dispositivo=${selectedProject?.value}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
+      tableDataSetUrl(url);
+    }, [selectedDevice])
 
   useEffect(() => {
     if (projectsData && projectsData.status === 'success') {
@@ -80,14 +94,6 @@ export const RegisterPage = () => {
     }
   }, [devicesData]);
 
-  useEffect(() => {
-    if (sensorsData && sensorsData.status === 'success') {
-      const options = sensorsData.data.tableData;
-      setTableData(options);
-    }
-  }, [sensorsData]);
-
-  
   useEffect(() => {
     console.log(tableData);
   }, [tableData]);
@@ -285,8 +291,20 @@ export const RegisterPage = () => {
                   </div>
                   {/* Right Column: Data Table */}
                   <div className="col-9">
-                    <h5>Sensores</h5>
-                    {selectedDevice && tableData.length > 0 ? (
+                    {/* <h5>Sensores</h5> */}
+                    { true
+                      // options && 
+                      // tableName && 
+                      // username && 
+                      // tableData ? 
+                       ? (options.map((opt) => (
+                      tableName === opt.dataName && (
+                        <BasicDataTableGraphic tableTitle={"Sensores en el dispositivo"} tableData={tableData.data.tableData} tablePrimaryKey={primaryKey} onDelete={handleDelete} handleOnClickEdit={handleOnClickEdit} onEdit={handleEdit} />
+                      )
+                    ))) : (
+                      <p>Seleccione un filtro para ver los datos.</p>
+                    )}
+                    {/* {selectedDevice && tableData.length > 0 ? (
                       <div style={{ overflowX: 'auto' }}>
                         <table className="table table-bordered">
                           <thead>
@@ -315,7 +333,7 @@ export const RegisterPage = () => {
                       </div>
                     ) : (
                       <p>Seleccione un filtro para ver los datos.</p>
-                    )}
+                    )} */}
                   </div>
 
                 </div>

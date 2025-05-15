@@ -9,13 +9,13 @@ export const AdministradorPage = () => {
   const [tableName, setTableName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+
   const rowsPerPage = 25; // Número máximo de filas por página
   const { data: options } = useFetch(`${import.meta.env.VITE_API_URL}/listarTablas`);
   const { data: tableData, setUrl: tableDataSetUrl } = useFetch('');
   const { data: tableDataSchema, setUrl: tableDataSchemaSetUrl } = useFetch('');
   const username = accounts.length > 0;
   const [primaryKey, setPrimaryKey] = useState(null);
-
 
   // MODALS
   const [showAddModal, setShowAddModal] = useState(false);
