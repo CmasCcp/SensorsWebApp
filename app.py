@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 
-from flask import Flask, jsonify, request, Response, stream_with_context
+from flask import Flask, jsonify, request,send_from_directory, Response, stream_with_context
 from flask_cors import CORS
 from flasgger import Swagger
 
@@ -8,6 +8,9 @@ import mysql.connector
 import pandas as pd
 import csv, decimal, io, os, json
 from datetime import datetime, date
+
+from werkzeug.utils import secure_filename
+
 
 load_dotenv()
 app = Flask(__name__)
@@ -82,7 +85,7 @@ FOREIGN_KEYS_PROP = {
     "id_estado": {"table": "estados", "columns":["id_estado", "nombre"]}, 
     "id_proyecto": {"table": "proyectos", "columns":["id_proyecto", "nombre"]}, 
     "id_persona": {"table": "personas", "columns":["id_persona", "nombre", "apellido"]}, 
-    "id_persona_responsable": {"table": "personas", "columns":["id_persona", "nombre", "apellido"]}, 
+    "id_persona_responsable": {"table": "personas", "columns":["id_persona", "nombre", "apellido"]},
     "id_persona_responsable_ingreso": {"table": "personas", "columns":["id_persona", "nombre", "apellido"]}, 
     "id_persona_responsable_salida": {"table": "personas", "columns":["id_persona", "nombre", "apellido"]}, 
     "id_sensor": {"table": "sensores", "columns":["id_sensor", "numero_serial"]}, 
@@ -413,17 +416,14 @@ def columna_foranea():
         cursor = conn.cursor(dictionary=True)
 
         if column in FOREIGN_KEYS_PROP.keys():
-            # print(FOREIGN_KEYS_PROP.keys())
             table_name = FOREIGN_KEYS_PROP[column]["table"]
             columns = FOREIGN_KEYS_PROP[column]["columns"]
 
             columnas_str = ", ".join(columns)
             query = f"SELECT {columnas_str} FROM {table_name}"
-            # print(query)
 
             cursor.execute(query)
             filas = cursor.fetchall()
-            # print(filas)
 
             transformed_data = [
                 {
@@ -723,9 +723,11 @@ def listar_datos():
     limit = args.get('limite')
     offset = int(args.get('offset', 0))
     formato = args.get('formato', 'json')
+    orden = args.get('orden', 'desc')
+    primarykey = args.get('primarykey', '')
 
     args_dict = request.args.to_dict()
-    not_primary_keys = ['tabla', 'limite', 'offset', 'formato']
+    not_primary_keys = ['tabla', 'limite', 'offset', 'formato','orden', 'primarykey']
 
     # Filtrar los argumentos relevantes
     filtered_args = {key: value.split(',') for key, value in args_dict.items() if key not in not_primary_keys}
@@ -1156,8 +1158,12 @@ def listar_sensores():
         ]
 
         # Construir los diccionarios con el orden deseado
-        respuesta = [columnas]+filas
-
+        # respuesta = [columnas]+filas
+        # Convertir las filas a una lista de diccionarios
+        respuesta = [
+            dict(zip(columnas, fila))
+            for fila in filas
+        ]
 
         # Manejar formato de respuesta
         json_respuesta = jsonify({
@@ -1261,7 +1267,7 @@ def get_table_schema():
         # Ejecutar una consulta para obtener la información del esquema de la tabla
         cursor.execute(f"DESCRIBE {tabla}")
         schema = cursor.fetchall()
-        print(schema)
+        
         # Transformar el resultado en un formato más legible
         columns = []
         for column in schema:
@@ -1413,6 +1419,120 @@ def modificar_datos():
         if conn.is_connected():
             cursor.close()
             conn.close()
+
+# @app.route('/eliminarDatos', methods=['GET'])
+# def eliminar_datos():
+#     """
+#     Elimina registros de una tabla específica en la base de datos.
+#     ---
+#     tags:
+#       - Datos
+#     parameters:
+#       - name: tabla
+#         in: query
+#         type: string
+#         required: true
+#         description: Nombre de la tabla desde donde se eliminarán los registros.
+#       - name: filtros
+#         in: query
+#         type: string
+#         required: true
+#         description: Filtros para identificar los registros a eliminar en la forma 'columna=valor'.
+#     responses:
+#       200:
+#         description: Registro(s) eliminado(s) correctamente.
+#         schema:
+#           type: object
+#           properties:
+#             status:
+#               type: string
+#               example: success
+#             message:
+#               type: string
+#               example: "1 registro(s) eliminado(s) correctamente"
+#       403:
+#         description: Faltan parámetros requeridos o la tabla no está permitida.
+#         schema:
+#           type: object
+#           properties:
+#             status:
+#               type: string
+#               example: fail
+#             error:
+#               type: string
+#               example: "'Se requiere un ID' o 'Tabla no permitida'"
+#       404:
+#         description: Registro no encontrado o no se realizaron cambios.
+#         schema:
+#           type: object
+#           properties:
+#             status:
+#               type: string
+#               example: fail
+#             error:
+#               type: string
+#               example: "Registro no encontrado o sin cambios"
+#       500:
+#         description: Error interno en la base de datos o error inesperado.
+#         schema:
+#           type: object
+#           properties:
+#             status:
+#               type: string
+#               example: fail
+#             error:
+#               type: string
+#               example: "Error al conectarse a la base de datos <detalle del error>"
+#     """
+
+#     args = request.args
+#     tabla = args.get('tabla')  # El nombre de la tabla viene como un parámetro
+
+#     args_dict = request.args.to_dict()
+#     not_primary_keys = ['tabla']
+
+#     filtered_args = {key: value for key, value in args_dict.items() if key not in not_primary_keys}
+#     concatenated_filter = ' AND'.join([f"{key}={value}" for key, value in filtered_args.items()])
+#     if concatenated_filter != '':
+#         concatenated_filter = 'WHERE '+concatenated_filter
+
+#     if concatenated_filter == '':
+#         return jsonify({'status': 'fail', 'error': 'Se requiere un ID'}), 403
+
+#     if tabla not in ALLOWED_TABLES:
+#         return jsonify({'status': 'fail', 'error': 'Tabla no permitida'}), 403
+    
+#     try:
+#         conn = mysql.connector.connect(**config)
+#         cursor = conn.cursor()
+
+#         sql_query = f"DELETE FROM {tabla} {concatenated_filter}"
+#         cursor.execute(sql_query)
+#         conn.commit()
+
+#         if cursor.rowcount == 0:
+#             return jsonify({'status': 'fail', 'error': 'Registro no encontrado o sin cambios'}), 404
+
+#         return jsonify({'status': 'success', 'message': f'{cursor.rowcount} registro(s) actualizado(s) correctamente'}), 200
+
+#     except mysql.connector.Error as e:
+#         mensaje_error = f"Error al conectarse a la base de datos {e}"
+
+#         if(e.errno == 1451):
+#             mensaje_error = f"Error: No es posible eliminar el registro pues existe una referencia a este en otra tabla\n{e}"
+            
+#         print(mensaje_error)        
+#         return jsonify({'status': 'fail', 'error': mensaje_error}), 500
+
+#     except Exception as e:
+#         mensaje_error = f"Error desconocido: {e}"
+#         print(mensaje_error)
+#         return jsonify({'status': 'fail', 'error': mensaje_error}), 500
+
+#     finally:
+#         if conn.is_connected():
+#             cursor.close()
+#             conn.close()
 
 @app.route('/eliminarDatos', methods=['GET'])
 def eliminar_datos():
@@ -1637,6 +1757,79 @@ def agregar_datos():
         if conn.is_connected():
             cursor.close()
             conn.close()
+from flask import Flask, request, jsonify
+from werkzeug.utils import secure_filename
+import os
+
+# app = Flask(__name__)
+
+# Definir el directorio donde se guardarán las imágenes
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Extensiones permitidas para la imagen
+ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png'}
+
+# Función para verificar las extensiones de archivo permitidas
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route('/agregarImagen', methods=['POST'])
+def agregar_imagen():
+    """
+    Recibe una imagen y la guarda en el servidor.
+    """
+
+    # Verificar si la solicitud contiene un archivo
+    if 'image' not in request.files:
+        return jsonify({"error": "No image part"}), 400
+
+    file = request.files['image']
+
+    # Si no se seleccionó un archivo, devolver un error
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    # Si el archivo tiene una extensión permitida
+    if file and allowed_file(file.filename):
+        # Asegurarse de que el nombre del archivo sea seguro
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+        # Guardar el archivo en el directorio
+        file.save(filepath)
+
+        return jsonify({"mensaje": "Imagen recibida y guardada con éxito", "filename": filename}), 201
+
+    return jsonify({"error": "Invalid file format"}), 400
+ 
+
+@app.route('/verImagenes', methods=['GET'])
+def ver_imagenes():
+    """
+    Devuelve una lista de los nombres de las imágenes almacenadas en la carpeta 'uploads'.
+    """
+    try:
+        # Obtener una lista de todos los archivos en la carpeta uploads
+        imagenes = os.listdir(app.config['UPLOAD_FOLDER'])
+        imagenes = [img for img in imagenes]  # Filtrar solo imágenes
+        return jsonify({"imagenes": imagenes}), 200
+    except Exception as e:
+        return jsonify({"error": f"Error al obtener las imágenes: {e}"}), 500
+
+
+@app.route('/verImagen/<filename>', methods=['GET'])
+def ver_imagen(filename):
+    """
+    Sirve una imagen desde el servidor para que pueda ser vista en el navegador.
+    """
+    try:
+        # Enviar el archivo solicitado desde la carpeta uploads
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    except FileNotFoundError:
+        return jsonify({"error": "Imagen no encontrada"}), 404
+
 
 
 def generar_csv(data):
@@ -1659,6 +1852,5 @@ def build_csv(df_pivoted):
     output.close()
 
 
-
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8084)
+    app.run(host='0.0.0.0', port=8084, debug=True)

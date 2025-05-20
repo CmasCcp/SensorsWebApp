@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { useFetch } from '../hooks/useFetch';
 import { Modal } from '../components/Modal';
+import { BasicDataTableGraphic } from "../components/graphics/BasicDataTableGraphic"
 
 export const RegisterPage = () => {
   // login
@@ -37,7 +38,9 @@ export const RegisterPage = () => {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const rowsPerPage = 10;
+  const itemsPerPage = rowsPerPage;
+  const primaryKey = 0;
 
   const { data: projectsData } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${projectsTableName}`);
   const { data: devicesData, setUrl: devicesSetUrl } = useFetch('');
@@ -67,7 +70,7 @@ export const RegisterPage = () => {
     
     useEffect(() => {
       sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
-      console.log("Disparando fetch para:", tableName, "con clave primaria:", primaryKey);
+      // console.log("Disparando fetch para:", !tableName && tableName, "con clave primaria:", primaryKey);
       const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=sensores_en_dispositivo&id_dispositivo=${selectedProject?.value}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
       tableDataSetUrl(url);
     }, [selectedDevice])
@@ -191,28 +194,30 @@ export const RegisterPage = () => {
 
   return (
     <>
-      <Modal
+      {/* <Modal
         type={"warning"}
         action={selectedAction}
         title={"Agregar dispositivo"}
         id="addModal"
-        properties={tableDataSchema}
+        properties={dev}
         isOpen={showAddModal}
         onClose={handleCloseModal}
         tableName={selectedTable}
         hiddenData={selectedHiddenData}
-      />
-      <Modal
+      /> */}
+      {/* <Modal
         type={"warning"}
         action={selectedAction}
         title={"Agregar sensor"}
         id="addModal"
+        // properties={["Hola","sfjslf"]}
+
         properties={sensorTableSchema}
         isOpen={showAddSensorModal}
         onClose={handleCloseModal}
         tableName={"sensores"}
         hiddenData={selectedHiddenData}
-      />
+      /> */}
       <div className="container-fluid d-flex justify-content-center align-items-center">
         <div className="card w-100">
           <h2 className="card-title">Dispositivos</h2>
@@ -292,48 +297,22 @@ export const RegisterPage = () => {
                   {/* Right Column: Data Table */}
                   <div className="col-9">
                     {/* <h5>Sensores</h5> */}
-                    { true
+                    { tableData ?
                       // options && 
                       // tableName && 
                       // username && 
                       // tableData ? 
-                       ? (options.map((opt) => (
-                      tableName === opt.dataName && (
-                        <BasicDataTableGraphic tableTitle={"Sensores en el dispositivo"} tableData={tableData.data.tableData} tablePrimaryKey={primaryKey} onDelete={handleDelete} handleOnClickEdit={handleOnClickEdit} onEdit={handleEdit} />
-                      )
-                    ))) : (
+                      //  ? (options.map((opt) => (
+                      // tableName === opt.dataName && 
+                      (
+                        <BasicDataTableGraphic tableTitle={"Sensores en el dispositivo"}  tableData={tableData.data.tableData} tablePrimaryKey={primaryKey} onDelete={()=>{console.log(handleDelete)}} handleOnClickEdit={()=> console.log(handleOnClickEdit)} onEdit={()=>console.log(handleEdit)} />
+                      // )
+                    // )
+                  // )
+                ) 
+                : (
                       <p>Seleccione un filtro para ver los datos.</p>
                     )}
-                    {/* {selectedDevice && tableData.length > 0 ? (
-                      <div style={{ overflowX: 'auto' }}>
-                        <table className="table table-bordered">
-                          <thead>
-                            <tr>
-                              {tableData[0].map((header, index) => (
-                                <th key={index}>{header}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {tableData.slice(1).map((row, rowIndex) => (
-                              <tr key={rowIndex}>
-                                {row.map((value, colIndex) => (
-                                  <td key={colIndex}>{value}</td>
-                                ))}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                        <div className="row my-4">
-                          <button className="btn m-1 ml-auto custom-button" onClick={handleOnClickAddSensor}>
-                            <span className="btn-text">Agregar Sensor</span>
-                            <i className="fas fa-plus-circle"></i>
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <p>Seleccione un filtro para ver los datos.</p>
-                    )} */}
                   </div>
 
                 </div>
