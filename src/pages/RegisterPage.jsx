@@ -64,16 +64,16 @@ export const RegisterPage = () => {
     // }
   }, []);
 
-    useEffect(() => {
-      devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject?.value || ''}`);
-    }, [selectedProject])
-    
-    useEffect(() => {
-      sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
-      // console.log("Disparando fetch para:", !tableName && tableName, "con clave primaria:", primaryKey);
-      const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=sensores_en_dispositivo&id_dispositivo=${selectedProject?.value}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
-      tableDataSetUrl(url);
-    }, [selectedDevice])
+  useEffect(() => {
+    devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject?.value || ''}`);
+  }, [selectedProject])
+  
+  useEffect(() => {
+    sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
+    // console.log("Disparando fetch para:", !tableName && tableName, "con clave primaria:", primaryKey);
+    const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=sensores_en_dispositivo&id_dispositivo=${selectedProject?.value}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
+    tableDataSetUrl(url);
+  }, [selectedDevice])
 
   useEffect(() => {
     if (projectsData && projectsData.status === 'success') {
@@ -296,19 +296,15 @@ export const RegisterPage = () => {
                   </div>
                   {/* Right Column: Data Table */}
                   <div className="col-9">
-                    {/* <h5>Sensores</h5> */}
-                    { tableData ?
-                      // options && 
+                    { tableData &&
+                      options && 
                       // tableName && 
-                      // username && 
-                      // tableData ? 
+                      username && 
+                      tableData  
                       //  ? (options.map((opt) => (
                       // tableName === opt.dataName && 
-                      (
+                      ?(
                         <BasicDataTableGraphic tableTitle={"Sensores en el dispositivo"}  tableData={tableData.data.tableData} tablePrimaryKey={primaryKey} onDelete={()=>{console.log(handleDelete)}} handleOnClickEdit={()=> console.log(handleOnClickEdit)} onEdit={()=>console.log(handleEdit)} />
-                      // )
-                    // )
-                  // )
                 ) 
                 : (
                       <p>Seleccione un filtro para ver los datos.</p>
