@@ -25,14 +25,14 @@ export const RegisterPage = () => {
   const [deviceOptions, setDeviceOptions] = useState([]);
   
 
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [selectedDevice, setSelectedDevice] = useState(null);
+  const [selectedProject, setSelectedProject] = useState("");
+  const [selectedDevice, setSelectedDevice] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showAddSensorModal, setShowAddSensorModal] = useState(false);
   const [formKeys, setFormKeys] = useState([]);
 
   // Datos para tabla sensores
-  const [options, setOptions] = useState([]);
+  // const [options, setOptions] = useState([]);
   const { data: tableData, setUrl: tableDataSetUrl } = useFetch('');
   
 
@@ -45,7 +45,7 @@ export const RegisterPage = () => {
   const { data: projectsData } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${projectsTableName}`);
   const { data: devicesData, setUrl: devicesSetUrl } = useFetch('');
   const { data: sensorsData, setUrl: sensorsSetUrl } = useFetch('');
-  const { data: tableDataSchema, setUrl: tableDataSchemaSetUrl } = useFetch('');
+  const { data: deviceSchema, setUrl: deviceSchemaSetUrl } = useFetch('');
   const { data: sensorTableSchema, setUrl: sensorTableSchemaSetUrl } = useFetch('');
   // const sensorDataSchema = [{id_sensor: PRI}]
 
@@ -70,9 +70,10 @@ export const RegisterPage = () => {
   
   useEffect(() => {
     sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
-    // console.log("Disparando fetch para:", !tableName && tableName, "con clave primaria:", primaryKey);
+    console.log("Disparando fetch para:");
     const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=sensores_en_dispositivo&id_dispositivo=${selectedProject?.value}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
     tableDataSetUrl(url);
+
   }, [selectedDevice])
 
   useEffect(() => {
@@ -105,7 +106,7 @@ export const RegisterPage = () => {
 
   const handleProjectChange = (selectedProject) => {
     setSelectedProject(selectedProject);
-    setSelectedDevice(null); // Reset filter when project changes
+    setSelectedDevice(""); // Reset filter when project changes
   };
 
   const handleFilterClick = (filter) => {
@@ -194,7 +195,7 @@ export const RegisterPage = () => {
 
   return (
     <>
-      {/* <Modal
+      <Modal
         type={"warning"}
         action={selectedAction}
         title={"Agregar dispositivo"}
@@ -204,7 +205,7 @@ export const RegisterPage = () => {
         onClose={handleCloseModal}
         tableName={selectedTable}
         hiddenData={selectedHiddenData}
-      /> */}
+      />
       {/* <Modal
         type={"warning"}
         action={selectedAction}
@@ -296,19 +297,15 @@ export const RegisterPage = () => {
                   </div>
                   {/* Right Column: Data Table */}
                   <div className="col-9">
-                    { tableData &&
-                      options && 
-                      // tableName && 
-                      username && 
-                      tableData  
-                      //  ? (options.map((opt) => (
-                      // tableName === opt.dataName && 
-                      ?(
-                        <BasicDataTableGraphic tableTitle={"Sensores en el dispositivo"}  tableData={tableData.data.tableData} tablePrimaryKey={primaryKey} onDelete={()=>{console.log(handleDelete)}} handleOnClickEdit={()=> console.log(handleOnClickEdit)} onEdit={()=>console.log(handleEdit)} />
-                ) 
-                : (
-                      <p>Seleccione un filtro para ver los datos.</p>
-                    )}
+                    { tableData ?
+                      (
+                        <BasicDataTableGraphic tableTitle={selectedDevice !== "" ? `Sensores en el dispositivo: ${selectedDevice?.label}` : ( selectedProject !== "" ?  `Sensores en el proyecto: ${selectedProject?.label.substring(3)}` : "Sensores totales")}  tableData={sensorsData?.data?.tableData} tablePrimaryKey={primaryKey} onDelete={()=>{console.log(handleDelete)}} handleOnClickEdit={()=> console.log(handleOnClickEdit)} onEdit={()=>console.log(handleEdit)} />
+                      )
+                      : 
+                      (
+                        <p>Seleccione un filtro para ver los datos.</p>
+                      )
+                    }
                   </div>
 
                 </div>
