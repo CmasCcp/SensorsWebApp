@@ -55,7 +55,7 @@ export const RegisterPage = () => {
     // Obtener el esquema de la tabla
     let urlSchema = `${import.meta.env.VITE_API_URL}/schema?tabla=${devicesTableName}`;
     let urlSensorSchema = `${import.meta.env.VITE_API_URL}/schema?tabla=${sensorTableName}`;
-    tableDataSchemaSetUrl(urlSchema);
+    deviceSchemaSetUrl(urlSchema);
     sensorTableSchemaSetUrl(urlSensorSchema);
     // setFormKeys(tableDataSchema);
 
@@ -200,7 +200,7 @@ export const RegisterPage = () => {
         action={selectedAction}
         title={"Agregar dispositivo"}
         id="addModal"
-        properties={dev}
+        properties={deviceSchema}
         isOpen={showAddModal}
         onClose={handleCloseModal}
         tableName={selectedTable}
