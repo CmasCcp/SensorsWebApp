@@ -304,7 +304,7 @@ export const RegisterPage = () => {
                   <div className="col-9">
                     { sensorsData ?
                       (<>
-                        // TODO cuando selecciono un proyecto sin dispositivos, este renderiza todos los sensores de la base de datos. Hay que revisar el flujo.
+                        {/* TODO cuando selecciono un proyecto sin dispositivos, este renderiza todos los sensores de la base de datos. Hay que revisar el flujo. */}
                         <BasicDataTableGraphic tableTitle={selectedDevice !== "" ? `Sensores en el dispositivo: ${selectedDevice?.label}` : ( selectedProject !== "" ?  `Sensores en el proyecto: ${selectedProject?.label.substring(3)}` : "Sensores totales")}  tableData={sensorsData?.data?.tableData} tablePrimaryKey={primaryKey} onDelete={()=>{console.log(handleDelete)}} handleOnClickEdit={()=> console.log(handleOnClickEdit)} onEdit={()=>console.log(handleEdit)} />
                         <div className="row my-4">
                           <button className="btn m-1 ml-auto custom-button" onClick={handleOnClickAddSensor}>
