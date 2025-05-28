@@ -63,12 +63,22 @@ export const RegisterPage = () => {
     // }
   }, []);
 
+
+
+  // TODO: separar evento cuando cambian las devices
   useEffect(() => {
+
     devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject?.value || ''}`);
-    sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?&id_proyecto=${selectedProject?.value || ''}`);
-    console.log("Disparando fetch para:");
     // const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=sensores_en_dispositivo&id_dispositivo=${selectedProject?.value}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
   }, [selectedProject])
+  
+  useEffect(()=>{
+    let devices_ids = deviceOptions.map(x=>x.value);
+    devices_ids = JSON.stringify(devices_ids)
+    devices_ids = devices_ids.slice(1, -1)
+    sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${devices_ids || ''}`);
+    console.log("devices_ids", deviceOptions);
+  },[deviceOptions])
   
   useEffect(() => {
     sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
@@ -294,6 +304,7 @@ export const RegisterPage = () => {
                   <div className="col-9">
                     { sensorsData ?
                       (<>
+                        // TODO cuando selecciono un proyecto sin dispositivos, este renderiza todos los sensores de la base de datos. Hay que revisar el flujo.
                         <BasicDataTableGraphic tableTitle={selectedDevice !== "" ? `Sensores en el dispositivo: ${selectedDevice?.label}` : ( selectedProject !== "" ?  `Sensores en el proyecto: ${selectedProject?.label.substring(3)}` : "Sensores totales")}  tableData={sensorsData?.data?.tableData} tablePrimaryKey={primaryKey} onDelete={()=>{console.log(handleDelete)}} handleOnClickEdit={()=> console.log(handleOnClickEdit)} onEdit={()=>console.log(handleEdit)} />
                         <div className="row my-4">
                           <button className="btn m-1 ml-auto custom-button" onClick={handleOnClickAddSensor}>
