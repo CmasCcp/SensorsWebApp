@@ -33,7 +33,7 @@ export const RegisterPage = () => {
 
   // Datos para tabla sensores
   // const [options, setOptions] = useState([]);
-  const { data: tableData, setUrl: tableDataSetUrl } = useFetch('');
+  // const { data: tableData, setUrl: tableDataSetUrl } = useFetch('');
   
 
   // Pagination states
@@ -47,7 +47,6 @@ export const RegisterPage = () => {
   const { data: sensorsData, setUrl: sensorsSetUrl } = useFetch('');
   const { data: deviceSchema, setUrl: deviceSchemaSetUrl } = useFetch('');
   const { data: sensorTableSchema, setUrl: sensorTableSchemaSetUrl } = useFetch('');
-  // const sensorDataSchema = [{id_sensor: PRI}]
 
 
   useEffect(() => {
@@ -59,21 +58,23 @@ export const RegisterPage = () => {
     sensorTableSchemaSetUrl(urlSensorSchema);
     // setFormKeys(tableDataSchema);
 
-    console.log("tableData", tableData);
+    // console.log("tableData", tableData);
     console.log("tableData state", sensorTableSchema);
     // }
   }, []);
 
   useEffect(() => {
     devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject?.value || ''}`);
+    sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?&id_proyecto=${selectedProject?.value || ''}`);
+    console.log("Disparando fetch para:");
+    // const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=sensores_en_dispositivo&id_dispositivo=${selectedProject?.value}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
   }, [selectedProject])
   
   useEffect(() => {
     sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
     console.log("Disparando fetch para:");
-    const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=sensores_en_dispositivo&id_dispositivo=${selectedProject?.value}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
-    tableDataSetUrl(url);
-
+    // const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=sensores_en_dispositivo&id_dispositivo=${selectedProject?.value}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
+    // tableDataSetUrl(url);
   }, [selectedDevice])
 
   useEffect(() => {
@@ -97,12 +98,6 @@ export const RegisterPage = () => {
       setCurrentPage(1); // Reset to the first page on data change
     }
   }, [devicesData]);
-
-  useEffect(() => {
-    console.log(tableData);
-  }, [tableData]);
-
-
 
   const handleProjectChange = (selectedProject) => {
     setSelectedProject(selectedProject);
@@ -297,9 +292,16 @@ export const RegisterPage = () => {
                   </div>
                   {/* Right Column: Data Table */}
                   <div className="col-9">
-                    { tableData ?
-                      (
+                    { sensorsData ?
+                      (<>
                         <BasicDataTableGraphic tableTitle={selectedDevice !== "" ? `Sensores en el dispositivo: ${selectedDevice?.label}` : ( selectedProject !== "" ?  `Sensores en el proyecto: ${selectedProject?.label.substring(3)}` : "Sensores totales")}  tableData={sensorsData?.data?.tableData} tablePrimaryKey={primaryKey} onDelete={()=>{console.log(handleDelete)}} handleOnClickEdit={()=> console.log(handleOnClickEdit)} onEdit={()=>console.log(handleEdit)} />
+                        <div className="row my-4">
+                          <button className="btn m-1 ml-auto custom-button" onClick={handleOnClickAddSensor}>
+                            <span className="btn-text">Agregar Sensor</span>
+                            <i className="fas fa-plus-circle"></i>
+                          </button>
+                        </div>
+                      </>
                       )
                       : 
                       (
