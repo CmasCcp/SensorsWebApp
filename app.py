@@ -1046,104 +1046,202 @@ def listar_datos_estructurados():
             conn.close()
 
 
+# @app.route('/listarSensores', methods=['GET'])
+# def listar_sensores():
+#     """
+#     Lista los sensores junto con información detallada de su tipo y dispositivo asociado.
+#     ---
+#     tags:
+#       - Sensores
+#     parameters:
+#       - name: limite
+#         in: query
+#         type: integer
+#         required: false
+#         description: Número máximo de registros a retornar. Predeterminado a 100.
+#       - name: offset
+#         in: query
+#         type: integer
+#         required: false
+#         description: Desplazamiento inicial para la consulta. Predeterminado a 0.
+#       - name: id_dispositivo
+#         in: query
+#         type: integer
+#         required: false
+#         description: ID del dispositivo para filtrar los sensores relacionados.
+#     responses:
+#       200:
+#         description: Sensores listados con éxito.
+#         schema:
+#           type: object
+#           properties:
+#             status:
+#               type: string
+#               example: success
+#             data:
+#               type: object
+#               properties:
+#                 tableData:
+#                   type: array
+#                   items:
+#                     type: object
+#                     example: {
+#                       "Id Sensor": 1,
+#                       "Id Sensor Tipo": 10,
+#                       "N° de Serie": "SN123456",
+#                       "Código Interno": "C123",
+#                       "Marca": "MarcaX",
+#                       "Modelo": "ModeloY",
+#                       "Descripcion": "Sensor de temperatura"
+#                     }
+#                 tabla:
+#                   type: string
+#                   example: sensores_combinados
+#       500:
+#         description: Error interno en la base de datos o error inesperado.
+#         schema:
+#           type: object
+#           properties:
+#             status:
+#               type: string
+#               example: fail
+#             error:
+#               type: string
+#               example: Error al conectarse a la base de datos <detalle del error>
+#     """
+
+#     args = request.args
+#     limit = int(args.get('limite', 100))
+#     offset = int(args.get('offset', 0))
+#     # id_dispositivo = args.get('id_dispositivo')
+#     id_dispositivos = args.get('id_dispositivo', [])
+
+    
+
+#     try:
+#         conn = mysql.connector.connect(**config)
+#         cursor = conn.cursor()
+
+#         # Consulta SQL con uniones
+#         sql_query = """
+#         SELECT 
+#             sensores.id_sensor,	
+#             sensores.id_sensor_tipo,
+#             sensores.numero_serial,
+#             sensores_tipo.codigo_interno,
+#             sensores_tipo.marca,	
+#             sensores_tipo.modelo,
+#             sensores_tipo.descripcion	
+#         FROM sensores
+#         LEFT JOIN sensores_tipo ON sensores.id_sensor_tipo = sensores_tipo.id_sensor_tipo
+#         LEFT JOIN sensores_en_dispositivo ON sensores.id_sensor = sensores_en_dispositivo.id_sensor
+#        """
+#         if id_dispositivos:
+#             sql_query += "WHERE sensores_en_dispositivo.id_dispositivo = %s"
+
+#         if id_dispositivos:
+#             placeholders = ','.join(['%s'] * len(id_dispositivos))
+#             where_clause = f"WHERE sensores_en_dispositivo.id_dispositivo IN ({placeholders})"
+#             params = id_dispositivos
+#         else:
+#             where_clause = ''
+#             params = []
+        
+#         sql_query += "LIMIT %s OFFSET %s"
+
+#         # params = []
+#         if id_dispositivos:
+#             params.append(id_dispositivos)
+#         params.extend([limit, offset])
+
+#         # Ejecutar la consulta
+#         cursor.execute(sql_query, params)
+#         filas = cursor.fetchall()
+
+#         columnas = [
+#             "Id Sensor",
+#             "Id Sensor Tipo",
+#             "N° de Serie",
+#             "Código Interno",
+#             "Marca",
+#             "Modelo",
+#             "Descripcion",
+#         ]
+
+#         # Construir los diccionarios con el orden deseado
+#         # respuesta = [columnas]+filas
+#         # Convertir las filas a una lista de diccionarios
+#         respuesta = [
+#             dict(zip(columnas, fila))
+#             for fila in filas
+#         ]
+
+#         # Manejar formato de respuesta
+#         json_respuesta = jsonify({
+#             'status': 'success',
+#             'data': {
+#                 'tableData': respuesta,
+#                 'tabla': 'sensores_combinados'
+#             }
+#         })
+#         return json_respuesta, 200, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
+
+
+#     except mysql.connector.Error as e:
+#         mensaje_error = f"Error al conectarse a la base de datos {e}"
+#         print(mensaje_error)
+#         return jsonify({'status': 'fail', 'error': mensaje_error}), 500
+
+#     except Exception as e:
+#         mensaje_error = f"Error desconocido: {e}"
+#         print(mensaje_error)
+#         return jsonify({'status': 'fail', 'error': mensaje_error}), 500
+
+#     finally:
+#         if conn.is_connected():
+#             cursor.close()
+#             conn.close()
+
 @app.route('/listarSensores', methods=['GET'])
 def listar_sensores():
-    """
-    Lista los sensores junto con información detallada de su tipo y dispositivo asociado.
-    ---
-    tags:
-      - Sensores
-    parameters:
-      - name: limite
-        in: query
-        type: integer
-        required: false
-        description: Número máximo de registros a retornar. Predeterminado a 100.
-      - name: offset
-        in: query
-        type: integer
-        required: false
-        description: Desplazamiento inicial para la consulta. Predeterminado a 0.
-      - name: id_dispositivo
-        in: query
-        type: integer
-        required: false
-        description: ID del dispositivo para filtrar los sensores relacionados.
-    responses:
-      200:
-        description: Sensores listados con éxito.
-        schema:
-          type: object
-          properties:
-            status:
-              type: string
-              example: success
-            data:
-              type: object
-              properties:
-                tableData:
-                  type: array
-                  items:
-                    type: object
-                    example: {
-                      "Id Sensor": 1,
-                      "Id Sensor Tipo": 10,
-                      "N° de Serie": "SN123456",
-                      "Código Interno": "C123",
-                      "Marca": "MarcaX",
-                      "Modelo": "ModeloY",
-                      "Descripcion": "Sensor de temperatura"
-                    }
-                tabla:
-                  type: string
-                  example: sensores_combinados
-      500:
-        description: Error interno en la base de datos o error inesperado.
-        schema:
-          type: object
-          properties:
-            status:
-              type: string
-              example: fail
-            error:
-              type: string
-              example: Error al conectarse a la base de datos <detalle del error>
-    """
-
     args = request.args
     limit = int(args.get('limite', 100))
     offset = int(args.get('offset', 0))
-    id_dispositivo = args.get('id_dispositivo')
+    id_dispositivos_raw = args.get('id_dispositivo')  # Puede ser '1,2,3' o None
 
     try:
         conn = mysql.connector.connect(**config)
         cursor = conn.cursor()
 
-        # Consulta SQL con uniones
         sql_query = """
         SELECT 
-            sensores.id_sensor,	
+            sensores.id_sensor,    
             sensores.id_sensor_tipo,
             sensores.numero_serial,
             sensores_tipo.codigo_interno,
-            sensores_tipo.marca,	
+            sensores_tipo.marca,    
             sensores_tipo.modelo,
-            sensores_tipo.descripcion	
+            sensores_tipo.descripcion    
         FROM sensores
         LEFT JOIN sensores_tipo ON sensores.id_sensor_tipo = sensores_tipo.id_sensor_tipo
         LEFT JOIN sensores_en_dispositivo ON sensores.id_sensor = sensores_en_dispositivo.id_sensor
-       """
-        if id_dispositivo:
-            sql_query += "WHERE sensores_en_dispositivo.id_dispositivo = %s "
-        
-        sql_query += "LIMIT %s OFFSET %s"
+        """
 
         params = []
-        if id_dispositivo:
-            params.append(id_dispositivo)
+
+        if id_dispositivos_raw:
+            # Convertir string '1,2,3' a lista ['1','2','3']
+            id_dispositivos = [id_.strip() for id_ in id_dispositivos_raw.split(',') if id_.strip().isdigit()]
+            if id_dispositivos:
+                placeholders = ','.join(['%s'] * len(id_dispositivos))
+                sql_query += f" WHERE sensores_en_dispositivo.id_dispositivo IN ({placeholders})"
+                params.extend(id_dispositivos)
+        # else no WHERE
+
+        sql_query += " ORDER BY sensores.id_sensor ASC"
+        sql_query += " LIMIT %s OFFSET %s"
         params.extend([limit, offset])
 
-        # Ejecutar la consulta
         cursor.execute(sql_query, params)
         filas = cursor.fetchall()
 
@@ -1157,24 +1255,15 @@ def listar_sensores():
             "Descripcion",
         ]
 
-        # Construir los diccionarios con el orden deseado
-        # respuesta = [columnas]+filas
-        # Convertir las filas a una lista de diccionarios
-        respuesta = [
-            dict(zip(columnas, fila))
-            for fila in filas
-        ]
+        respuesta = [dict(zip(columnas, fila)) for fila in filas]
 
-        # Manejar formato de respuesta
-        json_respuesta = jsonify({
+        return jsonify({
             'status': 'success',
             'data': {
                 'tableData': respuesta,
                 'tabla': 'sensores_combinados'
             }
-        })
-        return json_respuesta, 200, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
-
+        }), 200, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
 
     except mysql.connector.Error as e:
         mensaje_error = f"Error al conectarse a la base de datos {e}"
