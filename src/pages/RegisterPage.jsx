@@ -119,6 +119,7 @@ export const RegisterPage = () => {
   };
 
   const handleOnClickAddDevice = () => {
+    console.log("add")
     setSelectedTable("dispositivos");
     setSelectedAction("Agregar");
     setSelectedHiddenData({ "id_proyecto": selectedProject?.value || '' });
@@ -211,7 +212,7 @@ export const RegisterPage = () => {
         tableName={selectedTable}
         hiddenData={selectedHiddenData}
       />
-      {/* <Modal
+      <Modal
         type={"warning"}
         action={selectedAction}
         title={"Agregar sensor"}
@@ -223,7 +224,7 @@ export const RegisterPage = () => {
         onClose={handleCloseModal}
         tableName={"sensores"}
         hiddenData={selectedHiddenData}
-      /> */}
+      />
       <div className="container-fluid d-flex justify-content-center align-items-center">
         <div className="card w-100">
           <h2 className="card-title">Dispositivos</h2>
@@ -307,10 +308,12 @@ export const RegisterPage = () => {
                         {/* TODO cuando selecciono un proyecto sin dispositivos, este renderiza todos los sensores de la base de datos. Hay que revisar el flujo. */}
                         <BasicDataTableGraphic tableTitle={selectedDevice !== "" ? `Sensores en el dispositivo: ${selectedDevice?.label}` : ( selectedProject !== "" ?  `Sensores en el proyecto: ${selectedProject?.label.substring(3)}` : "Sensores totales")}  tableData={sensorsData?.data?.tableData} tablePrimaryKey={primaryKey} onDelete={()=>{console.log(handleDelete)}} handleOnClickEdit={()=> console.log(handleOnClickEdit)} onEdit={()=>console.log(handleEdit)} />
                         <div className="row my-4">
-                          <button className="btn m-1 ml-auto custom-button" onClick={handleOnClickAddSensor}>
+                          { selectedDevice !== "" &&
+                            <button className="btn m-1 ml-auto custom-button" onClick={handleOnClickAddSensor}>
                             <span className="btn-text">Agregar Sensor</span>
                             <i className="fas fa-plus-circle"></i>
                           </button>
+                          }
                         </div>
                       </>
                       )

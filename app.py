@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 
-from flask import Flask, jsonify, request,send_from_directory, Response, stream_with_context
+from flask import Flask, jsonify, request, send_from_directory, Response, stream_with_context
 from flask_cors import CORS
 from flasgger import Swagger
 
@@ -1046,162 +1046,6 @@ def listar_datos_estructurados():
             conn.close()
 
 
-# @app.route('/listarSensores', methods=['GET'])
-# def listar_sensores():
-#     """
-#     Lista los sensores junto con información detallada de su tipo y dispositivo asociado.
-#     ---
-#     tags:
-#       - Sensores
-#     parameters:
-#       - name: limite
-#         in: query
-#         type: integer
-#         required: false
-#         description: Número máximo de registros a retornar. Predeterminado a 100.
-#       - name: offset
-#         in: query
-#         type: integer
-#         required: false
-#         description: Desplazamiento inicial para la consulta. Predeterminado a 0.
-#       - name: id_dispositivo
-#         in: query
-#         type: integer
-#         required: false
-#         description: ID del dispositivo para filtrar los sensores relacionados.
-#     responses:
-#       200:
-#         description: Sensores listados con éxito.
-#         schema:
-#           type: object
-#           properties:
-#             status:
-#               type: string
-#               example: success
-#             data:
-#               type: object
-#               properties:
-#                 tableData:
-#                   type: array
-#                   items:
-#                     type: object
-#                     example: {
-#                       "Id Sensor": 1,
-#                       "Id Sensor Tipo": 10,
-#                       "N° de Serie": "SN123456",
-#                       "Código Interno": "C123",
-#                       "Marca": "MarcaX",
-#                       "Modelo": "ModeloY",
-#                       "Descripcion": "Sensor de temperatura"
-#                     }
-#                 tabla:
-#                   type: string
-#                   example: sensores_combinados
-#       500:
-#         description: Error interno en la base de datos o error inesperado.
-#         schema:
-#           type: object
-#           properties:
-#             status:
-#               type: string
-#               example: fail
-#             error:
-#               type: string
-#               example: Error al conectarse a la base de datos <detalle del error>
-#     """
-
-#     args = request.args
-#     limit = int(args.get('limite', 100))
-#     offset = int(args.get('offset', 0))
-#     # id_dispositivo = args.get('id_dispositivo')
-#     id_dispositivos = args.get('id_dispositivo', [])
-
-    
-
-#     try:
-#         conn = mysql.connector.connect(**config)
-#         cursor = conn.cursor()
-
-#         # Consulta SQL con uniones
-#         sql_query = """
-#         SELECT 
-#             sensores.id_sensor,	
-#             sensores.id_sensor_tipo,
-#             sensores.numero_serial,
-#             sensores_tipo.codigo_interno,
-#             sensores_tipo.marca,	
-#             sensores_tipo.modelo,
-#             sensores_tipo.descripcion	
-#         FROM sensores
-#         LEFT JOIN sensores_tipo ON sensores.id_sensor_tipo = sensores_tipo.id_sensor_tipo
-#         LEFT JOIN sensores_en_dispositivo ON sensores.id_sensor = sensores_en_dispositivo.id_sensor
-#        """
-#         if id_dispositivos:
-#             sql_query += "WHERE sensores_en_dispositivo.id_dispositivo = %s"
-
-#         if id_dispositivos:
-#             placeholders = ','.join(['%s'] * len(id_dispositivos))
-#             where_clause = f"WHERE sensores_en_dispositivo.id_dispositivo IN ({placeholders})"
-#             params = id_dispositivos
-#         else:
-#             where_clause = ''
-#             params = []
-        
-#         sql_query += "LIMIT %s OFFSET %s"
-
-#         # params = []
-#         if id_dispositivos:
-#             params.append(id_dispositivos)
-#         params.extend([limit, offset])
-
-#         # Ejecutar la consulta
-#         cursor.execute(sql_query, params)
-#         filas = cursor.fetchall()
-
-#         columnas = [
-#             "Id Sensor",
-#             "Id Sensor Tipo",
-#             "N° de Serie",
-#             "Código Interno",
-#             "Marca",
-#             "Modelo",
-#             "Descripcion",
-#         ]
-
-#         # Construir los diccionarios con el orden deseado
-#         # respuesta = [columnas]+filas
-#         # Convertir las filas a una lista de diccionarios
-#         respuesta = [
-#             dict(zip(columnas, fila))
-#             for fila in filas
-#         ]
-
-#         # Manejar formato de respuesta
-#         json_respuesta = jsonify({
-#             'status': 'success',
-#             'data': {
-#                 'tableData': respuesta,
-#                 'tabla': 'sensores_combinados'
-#             }
-#         })
-#         return json_respuesta, 200, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
-
-
-#     except mysql.connector.Error as e:
-#         mensaje_error = f"Error al conectarse a la base de datos {e}"
-#         print(mensaje_error)
-#         return jsonify({'status': 'fail', 'error': mensaje_error}), 500
-
-#     except Exception as e:
-#         mensaje_error = f"Error desconocido: {e}"
-#         print(mensaje_error)
-#         return jsonify({'status': 'fail', 'error': mensaje_error}), 500
-
-#     finally:
-#         if conn.is_connected():
-#             cursor.close()
-#             conn.close()
-
 @app.route('/listarSensores', methods=['GET'])
 def listar_sensores():
     args = request.args
@@ -1846,11 +1690,6 @@ def agregar_datos():
         if conn.is_connected():
             cursor.close()
             conn.close()
-from flask import Flask, request, jsonify
-from werkzeug.utils import secure_filename
-import os
-
-# app = Flask(__name__)
 
 # Definir el directorio donde se guardarán las imágenes
 UPLOAD_FOLDER = 'uploads'
@@ -1864,35 +1703,71 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+# @app.route('/agregarImagen', methods=['POST'])
+# def agregar_imagen():
+#     """
+#     Recibe una imagen y la guarda en el servidor.
+#     """
+
+#     # Verificar si la solicitud contiene un archivo
+#     if 'file' not in request.files:
+#         return jsonify({"error": "No image part"}), 400
+
+#     file = request.files['file']
+
+#     # Si no se seleccionó un archivo, devolver un error
+#     if file.filename == '':
+#         return jsonify({"error": "No selected file"}), 400
+
+#     # Si el archivo tiene una extensión permitida
+#     if file and allowed_file(file.filename):
+#         # Asegurarse de que el nombre del archivo sea seguro
+#         filename = secure_filename(file.filename)
+#         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+#         # Guardar el archivo en el directorio
+#         file.save(filepath)
+
+#         return jsonify({"mensaje": "Imagen recibida y guardada con éxito", "filename": filename}), 201
+#     #GUardar url con nombre imagen en base de datos. crear carpetas por dispositivos.
+
+#     return jsonify({"error": "Invalid file format"}), 400
+ 
+# Endpoint para recibir la imagen
+# @app.route('/agregarImagen', methods=['POST'])
+# def agregar_imagen():
+#     # if 'file' not in request.files:
+#         # return jsonify({"error": "No file part"}), 400
+#     file = request.files['file']
+#     if file.filename == '':
+#         return jsonify({"error": "No selected file"}), 400
+#     if file and allowed_file(file.filename):
+#         filepath = os.path.join(UPLOAD_FOLDER, file.filename)
+#         file.save(filepath)
+#         return jsonify({"message": f"Image saved at {filepath}"}), 200
+#     else:
+#         return jsonify({"error": "Invalid file type"}), 400
+
+# Endpoint para recibir la imagen como bytes
 @app.route('/agregarImagen', methods=['POST'])
 def agregar_imagen():
-    """
-    Recibe una imagen y la guarda en el servidor.
-    """
+    # Verificar si la solicitud contiene datos
+    if not request.data:
+        return jsonify({"error": "No image data received"}), 400
 
-    # Verificar si la solicitud contiene un archivo
-    if 'image' not in request.files:
-        return jsonify({"error": "No image part"}), 400
+    # Crear un nombre único para el archivo (puedes personalizarlo como quieras)
+    filename = "received_image.jpg"
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
 
-    file = request.files['image']
+    try:
+        # Guardar los datos binarios recibidos en el servidor
+        with open(filepath, 'wb') as img_file:
+            img_file.write(request.data)  # Guardar los bytes de la imagen
+        return jsonify({"message": f"Image successfully saved at {filepath}"}), 200
+    except Exception as e:
+        return jsonify({"error": f"Failed to save image: {str(e)}"}), 500
 
-    # Si no se seleccionó un archivo, devolver un error
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
 
-    # Si el archivo tiene una extensión permitida
-    if file and allowed_file(file.filename):
-        # Asegurarse de que el nombre del archivo sea seguro
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-
-        # Guardar el archivo en el directorio
-        file.save(filepath)
-
-        return jsonify({"mensaje": "Imagen recibida y guardada con éxito", "filename": filename}), 201
-
-    return jsonify({"error": "Invalid file format"}), 400
- 
 
 @app.route('/verImagenes', methods=['GET'])
 def ver_imagenes():
@@ -1942,4 +1817,4 @@ def build_csv(df_pivoted):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8084, debug=True)
+    app.run(host='0.0.0.0', port=8084)
