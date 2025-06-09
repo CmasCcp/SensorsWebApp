@@ -68,7 +68,8 @@ export const AdministradorPage = () => {
       tableDataSchema.length > 0
     ) {
       const keys = tableDataSchema.filter(x => x.Key === "PRI").map(x => x.Field);
-      setPrimaryKey(keys[0] || null);
+      // setPrimaryKey(keys[0] || null);
+      setPrimaryKey(keys);
     }
   }, [tableDataSchema]);
 

@@ -81,6 +81,7 @@ ALLOWED_TABLES_PROP = [
 FOREIGN_KEYS_PROP = {
     "id_sesion": {"table": "sesiones","columns": ["id_sesion", "descripcion"]}, 
     "id_variable": {"table": "variables", "columns":["id_variable", "descripcion"]}, 
+    "idVariable": {"table": "variables", "columns":["id_variable", "descripcion"]}, 
     "id_grupo": {"table": "grupos", "columns":["id_grupo", "nombre"]}, 
     "id_estado": {"table": "estados", "columns":["id_estado", "nombre"]}, 
     "id_proyecto": {"table": "proyectos", "columns":["id_proyecto", "nombre"]}, 
@@ -89,7 +90,10 @@ FOREIGN_KEYS_PROP = {
     "id_persona_responsable_ingreso": {"table": "personas", "columns":["id_persona", "nombre", "apellido"]}, 
     "id_persona_responsable_salida": {"table": "personas", "columns":["id_persona", "nombre", "apellido"]}, 
     "id_sensor": {"table": "sensores", "columns":["id_sensor", "numero_serial"]}, 
-    "id_sensor_tipo": {"table": "sensores_tipo", "columns":["id_sensor_tipo", "marca", "modelo"]}
+    "id_sensor_tipo": {"table": "sensores_tipo", "columns":["id_sensor_tipo", "marca", "modelo"]},
+    "idSensorTipo": {"table": "sensores_tipo", "columns":["id_sensor_tipo", "marca", "modelo"]},
+    "id_rol": {"table": "roles", "columns":["id_rol", "nombre"]},
+    "id_dispositivo": {"table": "dispositivos", "columns":["id_dispositivo", "codigo_interno"]},
     }
 
 ALLOWED_TABLES = [table['dataName'] for table in ALLOWED_TABLES_PROP]

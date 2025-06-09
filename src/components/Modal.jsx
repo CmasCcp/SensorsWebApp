@@ -217,6 +217,8 @@ export const Modal = ({ title, id, action, properties, data, isOpen, onClose, pk
                         <div className="modal-body">
                             {action !== "Eliminar" &&
                                 <Form
+                                    tableName={tableName}
+                                    pkValue={pkValue}
                                     properties={properties}
                                     data={formData}
                                     onChange={handleFormChange}  // Pasar la función para actualizar el formulario
