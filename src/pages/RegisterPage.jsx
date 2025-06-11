@@ -59,9 +59,13 @@ export const RegisterPage = () => {
     // setFormKeys(tableDataSchema);
 
     // console.log("tableData", tableData);
-    console.log("tableData state", sensorTableSchema);
+    // console.log("tableData state", sensorTableSchema);
     // }
   }, []);
+
+  useEffect(()=>{
+    console.log("data", sensorsData?.data);
+  },[sensorsData])
 
 
 
@@ -77,12 +81,12 @@ export const RegisterPage = () => {
     devices_ids = JSON.stringify(devices_ids)
     devices_ids = devices_ids.slice(1, -1)
     sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${devices_ids || ''}`);
-    console.log("devices_ids", deviceOptions);
+    // console.log("devices_ids", deviceOptions);
   },[deviceOptions])
   
   useEffect(() => {
     sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
-    console.log("Disparando fetch para:");
+    // console.log("Disparando fetch para:");
     // const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=sensores_en_dispositivo&id_dispositivo=${selectedProject?.value}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
     // tableDataSetUrl(url);
   }, [selectedDevice])
@@ -119,7 +123,7 @@ export const RegisterPage = () => {
   };
 
   const handleOnClickAddDevice = () => {
-    console.log("add")
+    // console.log("add")
     setSelectedTable("dispositivos");
     setSelectedAction("Agregar");
     setSelectedHiddenData({ "id_proyecto": selectedProject?.value || '' });
@@ -303,10 +307,10 @@ export const RegisterPage = () => {
                   </div>
                   {/* Right Column: Data Table */}
                   <div className="col-9">
-                    { sensorsData ?
-                      (<>
+                    { (sensorsData)
+                      ?(<>
                         {/* TODO cuando selecciono un proyecto sin dispositivos, este renderiza todos los sensores de la base de datos. Hay que revisar el flujo. */}
-                        <BasicDataTableGraphic tableTitle={selectedDevice !== "" ? `Sensores en el dispositivo: ${selectedDevice?.label}` : ( selectedProject !== "" ?  `Sensores en el proyecto: ${selectedProject?.label.substring(3)}` : "Sensores totales")}  tableData={sensorsData?.data?.tableData} tablePrimaryKey={primaryKey} onDelete={()=>{console.log(handleDelete)}} handleOnClickEdit={()=> console.log(handleOnClickEdit)} onEdit={()=>console.log(handleEdit)} />
+                        <BasicDataTableGraphic tableTitle={selectedDevice !== "" ? `Sensores en el dispositivo: ${selectedDevice?.label}` : ( selectedProject !== "" ?  `Sensores en el proyecto: ${selectedProject?.label.substring(3)}` : "Sensores totales")}  tableData={sensorsData?.data?.tableData || []} tablePrimaryKey={primaryKey} onDelete={()=>{console.log(handleDelete)}} handleOnClickEdit={()=> console.log(handleOnClickEdit)} onEdit={()=>console.log(handleEdit)} />
                         <div className="row my-4">
                           { selectedDevice !== "" &&
                             <button className="btn m-1 ml-auto custom-button" onClick={handleOnClickAddSensor}>
