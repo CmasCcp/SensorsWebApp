@@ -114,15 +114,15 @@ export const BasicDataTableGraphic = ({
                   return (
                     <td key={colIndex}>
                       {
-                      
-                      (!!label && label !== "None") 
-                        ? label 
-                        : (value?.startsWith("http") 
-                          ? <a href={value}>{value}</a> 
-                          : value )
-                        
+
+                        (!!label && label !== "None")
+                          ? label
+                          : (typeof value === "string" && value.startsWith("http")
+                            ? <a href={value} target="_blank" rel="noopener noreferrer">{value}</a>
+                            : value)
+
                       }
-                      
+
                     </td>
                   )
                 })}
