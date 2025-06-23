@@ -8,7 +8,8 @@ import { BasicDataTableGraphic } from "../components/graphics/BasicDataTableGrap
 export const RegisterPage = () => {
   // login
   const { accounts } = useMsal();
-  const username = accounts.length > 0;
+  // const username = accounts.length > 0;
+  const username = true;
 
   // datos estaticos para la pagina
   const projectsTableName = "proyectos";
@@ -19,11 +20,11 @@ export const RegisterPage = () => {
   const [selectedHiddenData, setSelectedHiddenData] = useState({});
   const [selectedTable, setSelectedTable] = useState("");
   const [selectedAction, setSelectedAction] = useState('');
-  
+
   // Formatos para la UI de las opciones a seleccionar: {value: id, label: }
   const [projectOptions, setProjectOptions] = useState([]);
   const [deviceOptions, setDeviceOptions] = useState([]);
-  
+
 
   const [selectedProject, setSelectedProject] = useState("");
   const [selectedDevice, setSelectedDevice] = useState("");
@@ -34,7 +35,7 @@ export const RegisterPage = () => {
   // Datos para tabla sensores
   // const [options, setOptions] = useState([]);
   // const { data: tableData, setUrl: tableDataSetUrl } = useFetch('');
-  
+
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -63,32 +64,39 @@ export const RegisterPage = () => {
     // }
   }, []);
 
-  useEffect(()=>{
-    console.log("data", sensorsData?.data);
-  },[sensorsData])
-
-
-
-  // TODO: separar evento cuando cambian las devices
   useEffect(() => {
+    console.log("sensorsdata", sensorsData?.data);
+  }, [sensorsData])
+
+  useEffect(() => {
+    console.log(selectedProject);
 
     devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject?.value || ''}`);
+    
+    //TODO: AGREGAR ESTE FILTRO ID PROYECTO EN API 
+    // http://localhost:8084/listarSensores?id_proyecto=9
+    // REVISAR EFECTO DE deviceOptions
+    // sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
+
     // const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=sensores_en_dispositivo&id_dispositivo=${selectedProject?.value}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
   }, [selectedProject])
-  
-  useEffect(()=>{
-    let devices_ids = deviceOptions.map(x=>x.value);
+
+  useEffect(() => {
+    let devices_ids = deviceOptions.map(x => x.value);
     devices_ids = JSON.stringify(devices_ids)
     devices_ids = devices_ids.slice(1, -1)
-    sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${devices_ids || ''}`);
-    // console.log("devices_ids", deviceOptions);
-  },[deviceOptions])
-  
+    if(devices_ids != ""){
+      sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${devices_ids || '0'}`);
+      console.log("devices_ids", devices_ids);
+    }else{
+      sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${'0'}`);
+      console.log("devices_ids", devices_ids);
+    }
+    // else if(){}
+  }, [deviceOptions])
+
   useEffect(() => {
     sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${selectedDevice?.value || ''}`);
-    // console.log("Disparando fetch para:");
-    // const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=sensores_en_dispositivo&id_dispositivo=${selectedProject?.value}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
-    // tableDataSetUrl(url);
   }, [selectedDevice])
 
   useEffect(() => {
@@ -114,6 +122,7 @@ export const RegisterPage = () => {
   }, [devicesData]);
 
   const handleProjectChange = (selectedProject) => {
+    console.log("selectedProject", selectedProject);
     setSelectedProject(selectedProject);
     setSelectedDevice(""); // Reset filter when project changes
   };
@@ -307,25 +316,28 @@ export const RegisterPage = () => {
                   </div>
                   {/* Right Column: Data Table */}
                   <div className="col-9">
-                    { (sensorsData)
-                      ?(<>
+                    {(!!sensorsData && sensorsData?.data.tableData.length > 0)
+                      ? (<>
                         {/* TODO cuando selecciono un proyecto sin dispositivos, este renderiza todos los sensores de la base de datos. Hay que revisar el flujo. */}
-                        <BasicDataTableGraphic tableTitle={selectedDevice !== "" ? `Sensores en el dispositivo: ${selectedDevice?.label}` : ( selectedProject !== "" ?  `Sensores en el proyecto: ${selectedProject?.label.substring(3)}` : "Sensores totales")}  tableData={sensorsData?.data?.tableData || []} tablePrimaryKey={primaryKey} onDelete={()=>{console.log(handleDelete)}} handleOnClickEdit={()=> console.log(handleOnClickEdit)} onEdit={()=>console.log(handleEdit)} />
-                        <div className="row my-4">
-                          { selectedDevice !== "" &&
-                            <button className="btn m-1 ml-auto custom-button" onClick={handleOnClickAddSensor}>
-                            <span className="btn-text">Agregar Sensor</span>
-                            <i className="fas fa-plus-circle"></i>
-                          </button>
-                          }
-                        </div>
+                        <BasicDataTableGraphic tableTitle={selectedDevice !== "" ? `Sensores en el dispositivo: ${selectedDevice?.label}` : (selectedProject !== "" ? `Sensores en el proyecto: ${selectedProject?.label.substring(3)}` : "Sensores totales")} tableData={sensorsData?.data?.tableData || []} tablePrimaryKey={primaryKey} onDelete={() => { console.log(handleDelete) }} handleOnClickEdit={() => console.log(handleOnClickEdit)} onEdit={() => console.log(handleEdit)} />
+                        {/* <BasicDataTableGraphic tableTitle={selectedDevice !== "" ? `Sensores en el dispositivo: ${selectedDevice?.label}` : ( selectedProject !== "" ?  `Sensores en el proyecto: ${selectedProject?.label.substring(3)}` : "Sensores totales")}  tableData={[]} tablePrimaryKey={primaryKey} onDelete={()=>{console.log(handleDelete)}} handleOnClickEdit={()=> console.log(handleOnClickEdit)} onEdit={()=>console.log(handleEdit)} /> */}
+
                       </>
                       )
-                      : 
+                      :
                       (
                         <p>Seleccione un filtro para ver los datos.</p>
                       )
                     }
+
+                    {<div className="row my-4">
+                      {selectedDevice !== "" &&
+                        <button className="btn m-1 ml-auto custom-button" onClick={handleOnClickAddSensor}>
+                          <span className="btn-text">Agregar Sensor</span>
+                          <i className="fas fa-plus-circle"></i>
+                        </button>
+                      }
+                    </div>}
                   </div>
 
                 </div>

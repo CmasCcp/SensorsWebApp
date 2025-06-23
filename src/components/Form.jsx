@@ -4,9 +4,9 @@ import React, { useEffect, useState } from 'react';
 // habilitados los campos para seleccionar las claves primarias como si fueran foraneas
 
 export const Form = ({ properties = [], data, onChange, tableName, pkValue }) => {
-  console.log("tableName", tableName);
-  console.log("pkValue", pkValue);
-  console.log(properties);
+  // console.log("tableName", tableName);
+  // console.log("pkValue", pkValue);
+  // console.log(properties);
 
   // Estado para almacenar los datos de las columnas foráneas
   const [foreignData, setForeignData] = useState({});
@@ -18,7 +18,7 @@ export const Form = ({ properties = [], data, onChange, tableName, pkValue }) =>
         // Poner condicional de que la prop.Field no debe ser la id primaria de la tabla que se esta editando
         try {
           const response = await fetch(`${import.meta.env.VITE_API_URL}/columnaForanea?columna=${prop.Field}`);
-          console.log(response.status);
+          // console.log(response.status);
           if (response.status == 200) {
             const result = await response.json();
             results[prop.Field] = result['data']; // Almacena los datos de la columna en el estado
@@ -27,7 +27,7 @@ export const Form = ({ properties = [], data, onChange, tableName, pkValue }) =>
           console.error(`Error fetching data for ${prop.Field}:`, error);
         }
       }
-      console.log(results);
+      // console.log(results);
       setForeignData(results); // Actualiza el estado con todos los resultados
     };
 
@@ -42,7 +42,7 @@ export const Form = ({ properties = [], data, onChange, tableName, pkValue }) =>
 
   const inputType = (prop, options)=>{
     const countPri = properties.filter(obj => obj.Key === "PRI").length;
-    console.log(countPri);
+    // console.log(countPri);
 
     let result;
 

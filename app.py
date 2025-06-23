@@ -76,6 +76,7 @@ ALLOWED_TABLES_PROP = [
 {'displayName':'Sesiones','dataName':'sesiones'},
 {'displayName':'Variables','dataName':'variables'},
 {'displayName':'Variables en sensores','dataName':'variables_en_sensores'},
+{'displayName':'Imagenes','dataName':'imagenes'},
 ]
 
 FOREIGN_KEYS_PROP = {
@@ -1676,9 +1677,14 @@ def agregar_datos():
 
         # Ejecutar la consulta
         cursor.execute(sql_query, valores)
+
+
+        # Intentar obtener el ID de la última fila insertada
+        last_inserted_id = cursor.lastrowid if cursor.lastrowid else None
+
         conn.commit()
 
-        return jsonify({'status': 'success', 'message': 'Registro insertado correctamente'}), 201, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
+        return jsonify({'status': 'success', 'message': 'Registro insertado correctamente', "id": last_inserted_id}), 201, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
 
     except mysql.connector.Error as e:
         mensaje_error = f"Error al conectarse a la base de datos {e}"

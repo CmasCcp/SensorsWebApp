@@ -42,6 +42,8 @@ export const BasicDataTableGraphic = ({
       for (const prop of properties) {
         // Poner condicional de que la prop.Field no debe ser la id primaria de la tabla que se esta editando
         try {
+
+          // TODO: controlar respuestas 400
           const response = await fetch(`${import.meta.env.VITE_API_URL}/columnaForanea?columna=${prop}`);
           if (response.status == 200) {
             const result = await response.json();
@@ -110,7 +112,18 @@ export const BasicDataTableGraphic = ({
                     label = item ? item.label : null;
                   }
                   return (
-                    <td key={colIndex}>{(!!label && label !== "None") ? label : value}</td>
+                    <td key={colIndex}>
+                      {
+                      
+                      (!!label && label !== "None") 
+                        ? label 
+                        : (value?.startsWith("http") 
+                          ? <a href={value}>{value}</a> 
+                          : value )
+                        
+                      }
+                      
+                    </td>
                   )
                 })}
                 <td>
