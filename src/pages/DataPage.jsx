@@ -2,6 +2,7 @@ import { useMsal } from '@azure/msal-react';
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { useFetch } from '../hooks/useFetch';
+import { BasicDataTableGraphic } from '../components/graphics/BasicDataTableGraphic';
 
 export const DataPage = () => {
   const { accounts } = useMsal();
@@ -256,7 +257,9 @@ export const DataPage = () => {
                 <div className="row d-flex justify-content-around my-4">
                   {selectedProjects.length > 0 && tableData.length > 0 ? (
                     <div style={{ overflowX: 'auto' }}>
-                      <table className="table table-bordered">
+                      <BasicDataTableGraphic tableTitle={"Datos"} tableData={tableData} tablePrimaryKey={"fecha"} onDelete={()=>{console.log("handle delete")}} handleOnClickEdit={()=>console.log("handleOnClickEdit")} onEdit={console.log("handleEdit")}/>
+                      
+                      {/* <table className="table table-bordered">
                         <thead>
                           <tr>
                             {Object.keys(tableData[0]).map((key, index) => (
@@ -273,7 +276,7 @@ export const DataPage = () => {
                             </tr>
                           ))}
                         </tbody>
-                      </table>
+                      </table> */}
                     </div>
                     
                   ) : (
