@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
+// tablePrimaryKey: parámetro del tableData para usar de Id de cada fila de la tabla (ej: "id_sensor")
+
 export const BasicDataTableGraphic = ({
   tableData = [],
   tableTitle = "",
