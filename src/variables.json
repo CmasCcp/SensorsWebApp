@@ -1,0 +1,128 @@
+{
+  "data": {
+    "tabla": "variables",
+    "tableData": [
+      {
+        "descripcion": "pH ambiental",
+        "id_variable": 1,
+        "unidad": "pH"
+      },
+      {
+        "descripcion": "Electroconductividad ambiental",
+        "id_variable": 2,
+        "unidad": "µS/cm"
+      },
+      {
+        "descripcion": "Grados celcius",
+        "id_variable": 3,
+        "unidad": "°C"
+      },
+      {
+        "descripcion": "Voltaje",
+        "id_variable": 4,
+        "unidad": "V"
+      },
+      {
+        "descripcion": "Velocidad del viento",
+        "id_variable": 5,
+        "unidad": "m/s"
+      },
+      {
+        "descripcion": "Humedad",
+        "id_variable": 6,
+        "unidad": "%"
+      },
+      {
+        "descripcion": "Material particulado PM 1.0",
+        "id_variable": 7,
+        "unidad": "µg/m³"
+      },
+      {
+        "descripcion": "Material particulado PM 2.5",
+        "id_variable": 8,
+        "unidad": "µg/m³"
+      },
+      {
+        "descripcion": "Material particulado PM 10",
+        "id_variable": 9,
+        "unidad": "µg/m³"
+      },
+      {
+        "descripcion": "Miliamperios hora",
+        "id_variable": 10,
+        "unidad": "mAh"
+      },
+      {
+        "descripcion": "Latitud",
+        "id_variable": 11,
+        "unidad": "°"
+      },
+      {
+        "descripcion": "Longitud",
+        "id_variable": 12,
+        "unidad": "°"
+      },
+      {
+        "descripcion": "Presión atmosférica",
+        "id_variable": 13,
+        "unidad": "hPa"
+      },
+      {
+        "descripcion": "Humedad relativa del Suelo",
+        "id_variable": 14,
+        "unidad": "% R.H."
+      },
+      {
+        "descripcion": "Intensidad señal telefónica",
+        "id_variable": 15,
+        "unidad": "Adimensional"
+      },
+      {
+        "descripcion": "Dióxido de Carbono (CO2)",
+        "id_variable": 16,
+        "unidad": "ppm"
+      },
+      {
+        "descripcion": "Dirección del Viento",
+        "id_variable": 17,
+        "unidad": "Grados"
+      },
+      {
+        "descripcion": "Óxido Nítrico (NO)",
+        "id_variable": 18,
+        "unidad": "ppb"
+      },
+      {
+        "descripcion": "Dióxido de Nitrógeno (NO2)",
+        "id_variable": 19,
+        "unidad": "ppb"
+      },
+      {
+        "descripcion": "Ozono (O3)",
+        "id_variable": 20,
+        "unidad": "ppb"
+      },
+      {
+        "descripcion": "Monóxido de Carbono (CO)",
+        "id_variable": 21,
+        "unidad": "ppb"
+      },
+      {
+        "descripcion": "Distancia",
+        "id_variable": 22,
+        "unidad": "m"
+      },
+      {
+        "descripcion": "Profundidad",
+        "id_variable": 23,
+        "unidad": "m"
+      },
+      {
+        "descripcion": "Dióxido de Azufre (SO2)",
+        "id_variable": 24,
+        "unidad": "RAW"
+      }
+    ]
+  },
+  "status": "success"
+}

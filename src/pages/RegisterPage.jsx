@@ -4,6 +4,8 @@ import Select from 'react-select';
 import { useFetch } from '../hooks/useFetch';
 import { Modal } from '../components/Modal';
 import { BasicDataTableGraphic } from "../components/graphics/BasicDataTableGraphic"
+import { data as variables } from "../variables.json"
+import { data as variablesEnSensoresTipo } from "../variables_en_sensores.json"
 
 export const RegisterPage = () => {
   // login
@@ -32,6 +34,10 @@ export const RegisterPage = () => {
   const [showAddSensorModal, setShowAddSensorModal] = useState(false);
   const [formKeys, setFormKeys] = useState([]);
 
+  // Estados para construir URL GET
+
+  const [variablesEnSensores, setVariablesEnSensores] = useState([]) // [{idSensor: 1, idSensorTipo: 2, idVariable: 3, }]
+
   // Datos para tabla sensores
   // const [options, setOptions] = useState([]);
   // const { data: tableData, setUrl: tableDataSetUrl } = useFetch('');
@@ -48,31 +54,59 @@ export const RegisterPage = () => {
   const { data: sensorsData, setUrl: sensorsSetUrl } = useFetch('');
   const { data: deviceSchema, setUrl: deviceSchemaSetUrl } = useFetch('');
   const { data: sensorTableSchema, setUrl: sensorTableSchemaSetUrl } = useFetch('');
+  // const { data: variablesEnSensoresTipo, setUrl: variablesEnSensoresTipoSetUrl } = useFetch('');
 
 
   useEffect(() => {
-    // if (tableName !== "" && tableDataSetUrl) {  
-    // Obtener el esquema de la tabla
     let urlSchema = `${import.meta.env.VITE_API_URL}/schema?tabla=${devicesTableName}`;
     let urlSensorSchema = `${import.meta.env.VITE_API_URL}/schema?tabla=${sensorTableName}`;
     deviceSchemaSetUrl(urlSchema);
     sensorTableSchemaSetUrl(urlSensorSchema);
-    // setFormKeys(tableDataSchema);
 
-    // console.log("tableData", tableData);
-    // console.log("tableData state", sensorTableSchema);
-    // }
   }, []);
 
+  // Buscar las variables para cada sensor tipo
   useEffect(() => {
-    console.log("sensorsdata", sensorsData?.data);
+
+    console.log("variablesEnSensoresTipo", variablesEnSensoresTipo)
+
+    if (sensorsData?.data.tableData.length > 0) {
+
+      console.log("sensorsdata", sensorsData?.data);
+
+      const urlData = sensorsData
+        .data.tableData
+        .map(x =>
+          variablesEnSensoresTipo.tableData
+            .map(vs => {
+
+              (vs) 
+              // vs.idSensorTipo === x["Id Sensor Tipo"]
+              //   &&
+              
+              // ({
+              //     "id_sensor": x["Id Sensor"],
+              //     "id_sensor_tipo": x["Id Sensor Tipo"],
+              //     "id_variable": vs.idVariable
+              //   })
+                
+              }
+
+            ))
+      console.log("url data:", urlData);
+    }
+
   }, [sensorsData])
 
+
+
+
+
+
   useEffect(() => {
-    console.log(selectedProject);
 
     devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${selectedProject?.value || ''}`);
-    
+
     //TODO: AGREGAR ESTE FILTRO ID PROYECTO EN API 
     // http://localhost:8084/listarSensores?id_proyecto=9
     // REVISAR EFECTO DE deviceOptions
@@ -85,12 +119,10 @@ export const RegisterPage = () => {
     let devices_ids = deviceOptions.map(x => x.value);
     devices_ids = JSON.stringify(devices_ids)
     devices_ids = devices_ids.slice(1, -1)
-    if(devices_ids != ""){
+    if (devices_ids != "") {
       sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${devices_ids || '0'}`);
-      console.log("devices_ids", devices_ids);
-    }else{
+    } else {
       sensorsSetUrl(`${import.meta.env.VITE_API_URL}/listarSensores?id_dispositivo=${'0'}`);
-      console.log("devices_ids", devices_ids);
     }
     // else if(){}
   }, [deviceOptions])
@@ -122,7 +154,6 @@ export const RegisterPage = () => {
   }, [devicesData]);
 
   const handleProjectChange = (selectedProject) => {
-    console.log("selectedProject", selectedProject);
     setSelectedProject(selectedProject);
     setSelectedDevice(""); // Reset filter when project changes
   };
@@ -132,7 +163,6 @@ export const RegisterPage = () => {
   };
 
   const handleOnClickAddDevice = () => {
-    // console.log("add")
     setSelectedTable("dispositivos");
     setSelectedAction("Agregar");
     setSelectedHiddenData({ "id_proyecto": selectedProject?.value || '' });
@@ -316,6 +346,29 @@ export const RegisterPage = () => {
                   </div>
                   {/* Right Column: Data Table */}
                   <div className="col-9">
+                    {/* https://api-sensores.cmasccp.cl/insertarMedicion?idsSensores=120&idsVariables=10&valores=120 */}
+
+                    <br />
+                    <br />
+                    <br />
+
+                    {sensorsData?.data.tableData.length > 0 && (
+                      <>{`LINK insertar: https://api-sensores.cmasccp.cl/insertarMedicion?idsSensores=${JSON.stringify(sensorsData.data.tableData.map(x => x["Id Sensor"]))}&idsVariables=[xxxx]&valores=[xxxxx]`}</>
+                    )}
+                    <br />
+                    <br />
+
+                    {sensorsData?.data.tableData.length > 0 && (<>{JSON.stringify(sensorsData.data.tableData)}</>)}
+                    <br />
+                    <br />
+
+                    {sensorsData?.data.tableData.length > 0 && (<>idsSensores={JSON.stringify(sensorsData.data.tableData.map(x => x["Id Sensor"]))}</>)}
+                    <br />
+                    <br />
+
+                    {sensorsData?.data.tableData.length > 0 && (<>Id Sensor Tipo={JSON.stringify(sensorsData.data.tableData.map(x => x["Id Sensor Tipo"]))}</>)}
+
+
                     {(!!sensorsData && sensorsData?.data.tableData.length > 0)
                       ? (<>
                         {/* TODO cuando selecciono un proyecto sin dispositivos, este renderiza todos los sensores de la base de datos. Hay que revisar el flujo. */}
