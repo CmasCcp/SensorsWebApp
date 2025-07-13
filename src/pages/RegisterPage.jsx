@@ -529,13 +529,7 @@ export const RegisterPage = () => {
                   <div className="col-9">
                     {/* https://api-sensores.cmasccp.cl/insertarMedicion?idsSensores=120&idsVariables=10&valores=120 */}
 
-                    <br />
-                    <br />
-                    NO MOSTRAR LINK SI NO SE SELECCIONA UN DISPOSITIVO
-                    <br />
-                    <br />
-
-
+{/*                     
                     {
 
                       JSON.stringify(dataURL)
@@ -564,13 +558,11 @@ export const RegisterPage = () => {
                     }
 
                     <br />
-                    <br />
+                    <br /> */}
                     
-                    {sensorsData?.data.tableData.length > 0 && (
+                    {(sensorsData?.data.tableData.length > 0 && selectedDevice !== "") && (
                       <>{`LINK: https://api-sensores.cmasccp.cl/insertarMedicion?idsSensores=${JSON.stringify(idsSensoresFormated)?.slice(1, -1)}&idsVariables=${JSON.stringify(idsVariablesFormated)?.slice(1, -1)}&valores=${JSON.stringify(idsValoresFormated)?.slice(1, -1)}`}</>
                     )}
-                    <br />
-                    <br />
 
                     {(!!sensorsData && sensorsData?.data.tableData.length > 0)
                       ? (<>
