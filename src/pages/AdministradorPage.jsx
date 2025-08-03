@@ -5,7 +5,12 @@ import { useMsal } from '@azure/msal-react';
 import { Modal } from '../components/Modal';
 
 export const AdministradorPage = () => {
+  // login
+  const visitorLoggedIn = localStorage.getItem("visitorLoggedIn") === "true";
   const { accounts } = useMsal();
+  const username = accounts.length > 0;
+
+
   const [tableName, setTableName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -14,8 +19,6 @@ export const AdministradorPage = () => {
   const { data: options } = useFetch(`${import.meta.env.VITE_API_URL}/listarTablas`);
   const { data: tableData, setUrl: tableDataSetUrl } = useFetch('');
   const { data: tableDataSchema, setUrl: tableDataSchemaSetUrl } = useFetch('');
-  // const username = accounts.length > 0;
-  const username = true;
   const [primaryKey, setPrimaryKey] = useState(null);
 
   // MODALS
@@ -197,7 +200,7 @@ export const AdministradorPage = () => {
             </div>
             <hr />
             {/* Selección de ordenación */}
-            <div className="mb-3">
+            {/* <div className="mb-3">
               <label htmlFor="sortOrder" className="form-label"><small>(En desarrollo)</small> Ordenar por fecha:</label>
               
               <select
@@ -211,6 +214,9 @@ export const AdministradorPage = () => {
               </select>
               
             </div>
+             */}
+            
+            
             {options && tableName && username && tableData && options.map((opt) => (
               tableName === opt.dataName && (
                 <BasicDataTableGraphic tableTitle={opt.displayName} tableData={tableData.data.tableData} tablePrimaryKey={primaryKey} onDelete={handleDelete} handleOnClickEdit={handleOnClickEdit} onEdit={handleEdit}/>

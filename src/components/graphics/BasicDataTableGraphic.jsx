@@ -1,3 +1,4 @@
+import { useMsal } from '@azure/msal-react';
 import React, { useEffect, useState } from 'react';
 
 // tablePrimaryKey: parámetro del tableData para usar de Id de cada fila de la tabla (ej: "id_sensor")
@@ -6,11 +7,13 @@ export const BasicDataTableGraphic = ({
   tableData = [],
   tableTitle = "",
   tablePrimaryKey = null,
-  onDelete = () => { },
-  onEdit = () => { },
-  handleOnClickEdit = () => { },
+  onDelete = false,
+  onEdit = false,
+  handleOnClickEdit = false,
 }) => {
-
+  const { accounts } = useMsal();
+  const username = accounts.length > 0;
+  const visitorLoggedIn = localStorage.getItem("visitorLoggedIn") === "true";
   const [selectedRows, setSelectedRows] = useState([]);
 
   if (!Array.isArray(tableData) || tableData.length === 0) {
@@ -59,7 +62,7 @@ export const BasicDataTableGraphic = ({
     };
 
     fetchForeignData();
-    console.log("tableData", tableData);
+    // console.log("tableData", tableData);
   }, [tableData]);
 
 
@@ -83,8 +86,12 @@ export const BasicDataTableGraphic = ({
             {Object.keys(tableData[0]).map((key, index) => (
               <th key={index}>{key}</th>
             ))}
-            <th>Editar</th>
-            <th>Eliminar</th>
+            {username && (
+              <>
+                {onEdit && <th>Editar</th>}
+                {onDelete && <th>Eliminar</th>}
+              </>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -128,16 +135,23 @@ export const BasicDataTableGraphic = ({
                     </td>
                   )
                 })}
-                <td>
-                  <button className="btn text-primary" onClick={() => handleOnClickEdit([rowId, row])}>
-                    Editar
-                  </button>
-                </td>
-                <td>
-                  <button className="btn text-danger" onClick={() => onDelete(rowId)}>
-                    Eliminar
-                  </button>
-                </td>
+                {username && (
+                  <>
+                    {onEdit && (
+                      <td>
+                        <button className="btn text-primary" onClick={() => handleOnClickEdit([rowId, row])}>
+                          Editar
+                        </button>
+                      </td>
+                    )}
+                    {onDelete && (
+                      <td>
+                        <button className="btn text-danger" onClick={() => onDelete(rowId)}>
+                          Eliminar
+                        </button>
+                      </td>
+                    )}
+                  </>)}
               </tr>
             );
           })}

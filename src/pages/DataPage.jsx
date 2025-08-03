@@ -5,31 +5,37 @@ import { useFetch } from '../hooks/useFetch';
 import { BasicDataTableGraphic } from '../components/graphics/BasicDataTableGraphic';
 
 export const DataPage = () => {
+  // login
   const { accounts } = useMsal();
   const username = accounts.length > 0;
+  const visitorLoggedIn = localStorage.getItem("visitorLoggedIn") === "true";
+
+  // Nombre de las tablas
   const projectsTableName = "proyectos";
   const devicesTableName = "dispositivos";
 
+  // Estados para manejar los datos de la página
   const [projectOptions, setProjectOptions] = useState([]);
   const [deviceOptions, setDeviceOptions] = useState([]);
   const [selectedProjects, setSelectedProjects] = useState([]); // Array para selección múltiple
   const [selectedDevices, setSelectedDevices] = useState([]); // Array para selección múltiple
   const [tableData, setTableData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1); // Página actual
-  const [totalPages, setTotalPages] = useState(0);
   const [startDate, setStartDate] = useState(''); // Fecha de inicio
   const [endDate, setEndDate] = useState(''); // Fecha de fin
-
+  
+  // Paginación
+  const [currentPage, setCurrentPage] = useState(1); // Página actual
+  const [totalPages, setTotalPages] = useState(0);
   const rowsPerPage = 25; // Número máximo de filas por página
 
+  // Hooks para obtener datos de las tablas
   const { data: projectsData } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${projectsTableName}`);
   const { data: devicesData, setUrl: devicesSetUrl } = useFetch('');
-  const { data: sensorsData, setUrl: sensorsSetUrl, url: sensorsUrl } = useFetch('');
+  const { data: sensorsData, setUrl: sensorsSetUrl } = useFetch('');
 
   // Actualiza la URL para dispositivos y sensores con base en los proyectos seleccionados
   useEffect(() => {
     if (selectedProjects.length > 0) {
-      console.log(sensorsUrl);
       const projectIds = selectedProjects.map((project) => project.value).join(',');
       const deviceIds = selectedDevices.map((device) => device.label).join(',');
 
@@ -71,9 +77,9 @@ export const DataPage = () => {
     console.log('sensorsData', sensorsData);
     if (sensorsData && sensorsData.status === 'success') {
       setTableData(sensorsData.data.tableData);
-      const totalCount = sensorsData.data.totalCount || 0;
+      let totalCount = sensorsData.data.totalCount || 0;
       setTotalPages(Math.ceil(totalCount / rowsPerPage));
-    } else{
+    } else {
       setTableData([]);
       setTotalPages(0);
     }
@@ -86,6 +92,7 @@ export const DataPage = () => {
   };
 
   const handleDeviceChange = (selectedDevices) => {
+    console.log('selectedDevices', selectedDevices);
     setSelectedDevices(selectedDevices || []); // Permite deseleccionar todo
     setCurrentPage(1);
   };
@@ -118,11 +125,11 @@ export const DataPage = () => {
       backgroundColor: state.isSelected
         ? 'rgb(44, 44, 44)' // Color de la opción seleccionada
         : state.isFocused
-        ? 'rgba(44, 44, 44, 0.1)' // Color al pasar el mouse sobre una opción
-        : 'white',      
+          ? 'rgba(44, 44, 44, 0.1)' // Color al pasar el mouse sobre una opción
+          : 'white',
       color: state.isSelected
-      ? 'white'
-      : 'black', // Color del texto de las opciones
+        ? 'white'
+        : 'black', // Color del texto de las opciones
     }),
     placeholder: (provided) => ({
       ...provided,
@@ -144,37 +151,25 @@ export const DataPage = () => {
     }),
   };
 
-  // const downloadFile = async () => {
-  //   try {
-  //     const link = document.createElement('a');
-  //     link.href = `${import.meta.env.VITE_API_URL}/listarDatosEstructurados?tabla=datos&disp.id_proyecto=${projectIds}&formato=csv`;
-
-  //     document.body.appendChild(link);
-  //     link.click();
-  //     document.body.removeChild(link);
-  //   } catch (error) {
-  //     console.error('Error al descargar el archivo:', error);
-  //   }
-  // };
 
   const downloadFile = async () => {
     try {
       // Obtén los IDs de los proyectos y dispositivos seleccionados
       const projectIds = selectedProjects.map((project) => project.value).join(',');
       const deviceIds = selectedDevices.map((device) => device.label).join(',');
-  
+
       // Construye la URL sin los límites de filas ni el offset (esto descarga todos los datos)
       let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructurados?tabla=datos&disp.id_proyecto=${projectIds}&formato=csv`;
-  
+
       // Añadir los filtros de fechas si se han especificado
       if (startDate) url += `&fecha_inicio=${startDate}`;
       if (endDate) url += `&fecha_fin=${endDate}`;
       if (selectedDevices.length > 0) url += `&disp.codigo_interno=${deviceIds}`;
-  
+
       // Crear el enlace para la descarga
       const link = document.createElement('a');
       link.href = url;
-  
+
       // Descargar el archivo CSV
       document.body.appendChild(link);
       link.click();
@@ -190,30 +185,30 @@ export const DataPage = () => {
         <div className="card w-100">
           <h2 className="card-title">Datos</h2>
           <div className="card-content">
-            {username && (
+            {(visitorLoggedIn || username) && (
               <div>
                 <p>Utilice esta página para visualizar y descargar sus datos.</p>
                 <div className="row d-flex justify-content-around my-2 py-4">
-                <div className="col-3">
-                  <label htmlFor="start-date">Fecha de inicio</label>
-                  <input
-                    type="date"
-                    id="start-date"
-                    value={startDate}
-                    onChange={handleStartDateChange}
-                    className="form-control"
-                  />
-                </div>
-                <div className="col-3">
-                  <label htmlFor="end-date">Fecha de fin</label>
-                  <input
-                    type="date"
-                    id="end-date"
-                    value={endDate}
-                    onChange={handleEndDateChange}
-                    className="form-control"
-                  />
-                </div>
+                  <div className="col-3">
+                    <label htmlFor="start-date">Fecha de inicio</label>
+                    <input
+                      type="date"
+                      id="start-date"
+                      value={startDate}
+                      onChange={handleStartDateChange}
+                      className="form-control"
+                    />
+                  </div>
+                  <div className="col-3">
+                    <label htmlFor="end-date">Fecha de fin</label>
+                    <input
+                      type="date"
+                      id="end-date"
+                      value={endDate}
+                      onChange={handleEndDateChange}
+                      className="form-control"
+                    />
+                  </div>
                 </div>
                 <div className="row d-flex justify-content-around my-2 py-4">
                   <div className="dropdown mb-4 col-3">
@@ -241,51 +236,35 @@ export const DataPage = () => {
                       styles={customStyles}
                       isMulti
                     />
-                  </div>                
+                  </div>
                 </div>
                 <div className='row d-flex justify-content-around my-2'>
-                {selectedProjects.length > 0 && tableData.length > 0 && (
+                  {selectedProjects.length > 0 && tableData.length > 0 && (
                     <div>
-                    <button className="btn m-1 ml-auto custom-button" onClick={downloadFile}>
-                      <span className="btn-text">Descargar CSV</span>
-                      <i className="fas fa-plus-circle"></i>
-                    </button>
-                  </div>
-                )}
+                      <button className="btn m-1 ml-auto custom-button" onClick={downloadFile}>
+                        <span className="btn-text">Descargar CSV</span>
+                        <i className="fas fa-plus-circle"></i>
+                      </button>
+                    </div>
+                  )}
 
                 </div>
                 <div className="row d-flex justify-content-around my-4">
                   {selectedProjects.length > 0 && tableData.length > 0 ? (
                     <div style={{ overflowX: 'auto' }}>
-                      <BasicDataTableGraphic tableTitle={"Datos"} tableData={tableData} tablePrimaryKey={"fecha"} onDelete={()=>{console.log("handle delete")}} handleOnClickEdit={()=>console.log("handleOnClickEdit")} onEdit={console.log("handleEdit")}/>
-                      
-                      {/* <table className="table table-bordered">
-                        <thead>
-                          <tr>
-                            {Object.keys(tableData[0]).map((key, index) => (
-                              <th key={index}>{key}</th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {tableData.map((row, rowIndex) => (
-                            <tr key={rowIndex}>
-                              {Object.values(row).map((value, colIndex) => (
-                                <td key={colIndex}>{value}</td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table> */}
+                      <BasicDataTableGraphic tableTitle={"Datos"} tableData={tableData} tablePrimaryKey={"fecha"} 
+                        // onDelete={() => { console.log("handle delete") }} 
+                        // handleOnClickEdit={() => console.log("handleOnClickEdit")} 
+                        // onEdit={() => console.log("handleEdit")} 
+                        />
                     </div>
-                    
                   ) : (
                     <p>Seleccione proyectos para ver los datos.</p>
                   )}
                 </div>
-                                
+
                 {selectedProjects.length > 0 && tableData.length > 0 && (<div className="pagination">
-                  { Array.from({ length: totalPages }, (_, index) => {
+                  {Array.from({ length: totalPages }, (_, index) => {
                     const pageNumber = index + 1;
 
                     // Siempre muestra la primera página
@@ -294,7 +273,7 @@ export const DataPage = () => {
                         <button
                           key={index}
                           onClick={() => handlePageChange(pageNumber)}
-                          className={`btn ${currentPage === pageNumber ? 'btn-primary' : 'btn-secondary'} m-1`}
+                          className={`btn ${currentPage === pageNumber ? 'btn-dark' : 'btn-secondary'} m-1`}
                         >
                           {pageNumber}
                         </button>
@@ -307,7 +286,7 @@ export const DataPage = () => {
                         <button
                           key={index}
                           onClick={() => handlePageChange(pageNumber)}
-                          className={`btn ${currentPage === pageNumber ? 'btn-primary' : 'btn-secondary'} m-1`}
+                          className={`btn ${currentPage === pageNumber ? 'btn-dark' : 'btn-secondary'} m-1`}
                         >
                           {pageNumber}
                         </button>
@@ -316,14 +295,14 @@ export const DataPage = () => {
 
                     if (
                       (pageNumber >= currentPage - 4 && // Desde 4 páginas antes de la actual
-                      pageNumber <= currentPage + 4) ||
-                      (currentPage<7 && pageNumber<10)
+                        pageNumber <= currentPage + 4) ||
+                      (currentPage < 7 && pageNumber < 10)
                     ) {
                       return (
                         <button
                           key={index}
                           onClick={() => handlePageChange(pageNumber)}
-                          className={`btn ${currentPage === pageNumber ? 'btn-primary' : 'btn-secondary'} m-1`}
+                          className={`btn ${currentPage === pageNumber ? 'btn-dark' : 'btn-secondary'} m-1`}
                         >
                           {pageNumber}
                         </button>
@@ -332,8 +311,8 @@ export const DataPage = () => {
 
                     // Mostrar puntos suspensivos cuando haya saltos entre páginas
                     if (
-                      (pageNumber === 2 && currentPage > 6) || 
-                      (pageNumber === totalPages - 1 && currentPage < totalPages - 5) 
+                      (pageNumber === 2 && currentPage > 6) ||
+                      (pageNumber === totalPages - 1 && currentPage < totalPages - 5)
                     ) {
                       return (
                         <span key={index} className="btn disabled m-1">
@@ -341,12 +320,13 @@ export const DataPage = () => {
                         </span>
                       );
                     }
-                    return null; 
+                    return null;
                   })}
                 </div>)}
               </div>
             )}
-            {!username && (
+            {!(visitorLoggedIn || username) && (
+
               <>
                 <h2>Acceso Restringido</h2>
                 <p>Para ver este contenido, es necesario que inicies sesión.</p>

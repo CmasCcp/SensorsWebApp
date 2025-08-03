@@ -10,8 +10,9 @@ import { data as variablesEnSensoresTipo } from "../variables_en_sensores.json"
 export const RegisterPage = () => {
   // login
   const { accounts } = useMsal();
-  // const username = accounts.length > 0;
-  const username = true;
+  const username = accounts.length > 0;
+  const visitorLoggedIn = localStorage.getItem("visitorLoggedIn") === "true";
+  // const username = true;
 
   // datos estaticos para la pagina
   const projectsTableName = "proyectos";
@@ -193,6 +194,7 @@ export const RegisterPage = () => {
 
   // Pagination logic
   const totalPages = Math.ceil(deviceOptions.length / itemsPerPage);
+
   const paginatedOptions = deviceOptions.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -209,181 +211,9 @@ export const RegisterPage = () => {
 
   function getIdVariable(id_sensor_tipo, id_sensor) {
     // Aquí está el JSON que tienes
-    const data = {
-      "data": {
-        "tabla": "variables_en_sensores",
-        "tableData": [
-          { "idSensorTipo": 1, "idVariable": 1 },
-          { "idSensorTipo": 2, "idVariable": 2 },
-          { "idSensorTipo": 3, "idVariable": 3 },
-          { "idSensorTipo": 4, "idVariable": 4 },
-          { "idSensorTipo": 5, "idVariable": 10 },
-          { "idSensorTipo": 6, "idVariable": 3 },
-          { "idSensorTipo": 6, "idVariable": 6 },
-          { "idSensorTipo": 6, "idVariable": 7 },
-          { "idSensorTipo": 6, "idVariable": 8 },
-          { "idSensorTipo": 7, "idVariable": 11 },
-          { "idSensorTipo": 7, "idVariable": 12 },
-          { "idSensorTipo": 8, "idVariable": 3 },
-          { "idSensorTipo": 8, "idVariable": 6 },
-          { "idSensorTipo": 8, "idVariable": 13 },
-          { "idSensorTipo": 9, "idVariable": 3 },
-          { "idSensorTipo": 9, "idVariable": 6 },
-          { "idSensorTipo": 10, "idVariable": 3 },
-          { "idSensorTipo": 10, "idVariable": 6 },
-          { "idSensorTipo": 11, "idVariable": 3 },
-          { "idSensorTipo": 11, "idVariable": 6 },
-          { "idSensorTipo": 12, "idVariable": 3 },
-          { "idSensorTipo": 12, "idVariable": 14 },
-          { "idSensorTipo": 13, "idVariable": 15 },
-          { "idSensorTipo": 14, "idVariable": 1 },
-          { "idSensorTipo": 17, "idVariable": 3 },
-          { "idSensorTipo": 17, "idVariable": 16 },
-          { "idSensorTipo": 18, "idVariable": 3 },
-          { "idSensorTipo": 18, "idVariable": 5 },
-          { "idSensorTipo": 18, "idVariable": 6 },
-          { "idSensorTipo": 18, "idVariable": 8 },
-          { "idSensorTipo": 18, "idVariable": 9 },
-          { "idSensorTipo": 18, "idVariable": 17 },
-          { "idSensorTipo": 19, "idVariable": 19 },
-          { "idSensorTipo": 20, "idVariable": 18 },
-          { "idSensorTipo": 21, "idVariable": 21 },
-          { "idSensorTipo": 22, "idVariable": 20 },
-          { "idSensorTipo": 23, "idVariable": 22 },
-          { "idSensorTipo": 24, "idVariable": 23 },
-          { "idSensorTipo": 25, "idVariable": 24 }
-        ]
-      }
-    };
+    const data = {"data":{"tabla":"variables_en_sensores","tableData":[{"idSensorTipo":1,"idVariable":1},{"idSensorTipo":2,"idVariable":2},{"idSensorTipo":3,"idVariable":3},{"idSensorTipo":4,"idVariable":4},{"idSensorTipo":5,"idVariable":10},{"idSensorTipo":6,"idVariable":3},{"idSensorTipo":6,"idVariable":6},{"idSensorTipo":6,"idVariable":7},{"idSensorTipo":6,"idVariable":8},{"idSensorTipo":7,"idVariable":11},{"idSensorTipo":7,"idVariable":12},{"idSensorTipo":8,"idVariable":3},{"idSensorTipo":8,"idVariable":6},{"idSensorTipo":8,"idVariable":13},{"idSensorTipo":9,"idVariable":3},{"idSensorTipo":9,"idVariable":6},{"idSensorTipo":10,"idVariable":3},{"idSensorTipo":10,"idVariable":6},{"idSensorTipo":11,"idVariable":3},{"idSensorTipo":11,"idVariable":6},{"idSensorTipo":12,"idVariable":3},{"idSensorTipo":12,"idVariable":14},{"idSensorTipo":13,"idVariable":15},{"idSensorTipo":14,"idVariable":1},{"idSensorTipo":17,"idVariable":3},{"idSensorTipo":17,"idVariable":16},{"idSensorTipo":17,"idVariable":32},{"idSensorTipo":17,"idVariable":33},{"idSensorTipo":18,"idVariable":3},{"idSensorTipo":18,"idVariable":5},{"idSensorTipo":18,"idVariable":6},{"idSensorTipo":18,"idVariable":8},{"idSensorTipo":18,"idVariable":9},{"idSensorTipo":18,"idVariable":17},{"idSensorTipo":19,"idVariable":19},{"idSensorTipo":19,"idVariable":27},{"idSensorTipo":20,"idVariable":18},{"idSensorTipo":20,"idVariable":28},{"idSensorTipo":21,"idVariable":21},{"idSensorTipo":21,"idVariable":25},{"idSensorTipo":22,"idVariable":20},{"idSensorTipo":22,"idVariable":26},{"idSensorTipo":23,"idVariable":22},{"idSensorTipo":24,"idVariable":23},{"idSensorTipo":25,"idVariable":24},{"idSensorTipo":26,"idVariable":3},{"idSensorTipo":26,"idVariable":5},{"idSensorTipo":26,"idVariable":6},{"idSensorTipo":26,"idVariable":13},{"idSensorTipo":26,"idVariable":17},{"idSensorTipo":26,"idVariable":29},{"idSensorTipo":26,"idVariable":30},{"idSensorTipo":27,"idVariable":3},{"idSensorTipo":28,"idVariable":3},{"idSensorTipo":28,"idVariable":6},{"idSensorTipo":29,"idVariable":34}]},"status":"success"}
 
-    const label_variable = {
-      "data": {
-        "tabla": "variables",
-        "tableData": [
-          {
-            "descripcion": "pH ambiental",
-            "id_variable": 1,
-            "unidad": "pH"
-          },
-          {
-            "descripcion": "Electroconductividad ambiental",
-            "id_variable": 2,
-            "unidad": "µS/cm"
-          },
-          {
-            "descripcion": "Grados celcius",
-            "id_variable": 3,
-            "unidad": "°C"
-          },
-          {
-            "descripcion": "Voltaje",
-            "id_variable": 4,
-            "unidad": "V"
-          },
-          {
-            "descripcion": "Velocidad del viento",
-            "id_variable": 5,
-            "unidad": "m/s"
-          },
-          {
-            "descripcion": "Humedad",
-            "id_variable": 6,
-            "unidad": "%"
-          },
-          {
-            "descripcion": "Material particulado PM 1.0",
-            "id_variable": 7,
-            "unidad": "µg/m³"
-          },
-          {
-            "descripcion": "Material particulado PM 2.5",
-            "id_variable": 8,
-            "unidad": "µg/m³"
-          },
-          {
-            "descripcion": "Material particulado PM 10",
-            "id_variable": 9,
-            "unidad": "µg/m³"
-          },
-          {
-            "descripcion": "Miliamperios hora",
-            "id_variable": 10,
-            "unidad": "mAh"
-          },
-          {
-            "descripcion": "Latitud",
-            "id_variable": 11,
-            "unidad": "°"
-          },
-          {
-            "descripcion": "Longitud",
-            "id_variable": 12,
-            "unidad": "°"
-          },
-          {
-            "descripcion": "Presión atmosférica",
-            "id_variable": 13,
-            "unidad": "hPa"
-          },
-          {
-            "descripcion": "Humedad relativa del Suelo",
-            "id_variable": 14,
-            "unidad": "% R.H."
-          },
-          {
-            "descripcion": "Intensidad señal telefónica",
-            "id_variable": 15,
-            "unidad": "Adimensional"
-          },
-          {
-            "descripcion": "Dióxido de Carbono (CO2)",
-            "id_variable": 16,
-            "unidad": "ppm"
-          },
-          {
-            "descripcion": "Dirección del Viento",
-            "id_variable": 17,
-            "unidad": "Grados"
-          },
-          {
-            "descripcion": "Óxido Nítrico (NO)",
-            "id_variable": 18,
-            "unidad": "ppb"
-          },
-          {
-            "descripcion": "Dióxido de Nitrógeno (NO2)",
-            "id_variable": 19,
-            "unidad": "ppb"
-          },
-          {
-            "descripcion": "Ozono (O3)",
-            "id_variable": 20,
-            "unidad": "ppb"
-          },
-          {
-            "descripcion": "Monóxido de Carbono (CO)",
-            "id_variable": 21,
-            "unidad": "ppb"
-          },
-          {
-            "descripcion": "Distancia",
-            "id_variable": 22,
-            "unidad": "m"
-          },
-          {
-            "descripcion": "Profundidad",
-            "id_variable": 23,
-            "unidad": "m"
-          },
-          {
-            "descripcion": "Dióxido de Azufre (SO2)",
-            "id_variable": 24,
-            "unidad": "RAW"
-          }
-        ]
-      },
-      "status": "success"
-    }
+    const label_variable = {"data":{"tabla":"variables","tableData":[{"descripcion":"pH ambiental","id_variable":1,"unidad":"pH"},{"descripcion":"Electroconductividad ambiental","id_variable":2,"unidad":"µS/cm"},{"descripcion":"Grados celcius","id_variable":3,"unidad":"°C"},{"descripcion":"Voltaje","id_variable":4,"unidad":"V"},{"descripcion":"Velocidad del viento","id_variable":5,"unidad":"m/s"},{"descripcion":"Humedad","id_variable":6,"unidad":"%"},{"descripcion":"Material particulado PM 1.0","id_variable":7,"unidad":"µg/m³"},{"descripcion":"Material particulado PM 2.5","id_variable":8,"unidad":"µg/m³"},{"descripcion":"Material particulado PM 10","id_variable":9,"unidad":"µg/m³"},{"descripcion":"Miliamperios hora","id_variable":10,"unidad":"mAh"},{"descripcion":"Latitud","id_variable":11,"unidad":"°"},{"descripcion":"Longitud","id_variable":12,"unidad":"°"},{"descripcion":"Presión atmosférica","id_variable":13,"unidad":"kPa"},{"descripcion":"Humedad relativa del Suelo","id_variable":14,"unidad":"% R.H."},{"descripcion":"Intensidad señal telefónica","id_variable":15,"unidad":"Adimensional"},{"descripcion":"Dióxido de Carbono (CO2)","id_variable":16,"unidad":"ppm"},{"descripcion":"Dirección del Viento","id_variable":17,"unidad":"Grados"},{"descripcion":"Óxido Nítrico (NO), RAW 1","id_variable":18,"unidad":"RAW"},{"descripcion":"Dióxido de Nitrógeno (NO2), RAW 1","id_variable":19,"unidad":"RAW"},{"descripcion":"Ozono (O3), RAW 1","id_variable":20,"unidad":"RAW"},{"descripcion":"Monóxido de Carbono (CO), RAW 1","id_variable":21,"unidad":"RAW"},{"descripcion":"Distancia","id_variable":22,"unidad":"m"},{"descripcion":"Profundidad","id_variable":23,"unidad":"m"},{"descripcion":"Dióxido de Azufre (SO2)","id_variable":24,"unidad":"RAW"},{"descripcion":"Monóxido de Carbono (CO), RAW 2","id_variable":25,"unidad":"RAW"},{"descripcion":"Ozono (O3), RAW 2","id_variable":26,"unidad":"RAW"},{"descripcion":"Dióxido de Nitrógeno (NO2), RAW 2","id_variable":27,"unidad":"RAW"},{"descripcion":"Óxido Nítrico (NO), RAW 2","id_variable":28,"unidad":"RAW"},{"descripcion":"Radiación Solar","id_variable":29,"unidad":"W/m2"},{"descripcion":"Agua caída (Lluvia)","id_variable":30,"unidad":"mm"},{"descripcion":"Dióxido de Carbono (CO2) RAW","id_variable":31,"unidad":"RAW"},{"descripcion":"Dióxido de Carbono (CO2) Interno","id_variable":32,"unidad":"ppm"},{"descripcion":"Dióxido de Carbono (CO2) Custom","id_variable":33,"unidad":"ppm"},{"descripcion":"Compuestos orgánicos volátiles (VOC)","id_variable":34,"unidad":"ug/m2"}]},"status":"success"}
 
     // const data = variablesEnSensoresTipo;
     // Filtrar el array 'tableData' para obtener los idVariable correspondientes al idSensorTipo
@@ -453,7 +283,8 @@ export const RegisterPage = () => {
         <div className="card w-100">
           <h2 className="card-title">Dispositivos</h2>
           <div className="card-content">
-            {username && (
+            {/* {username && ( */}
+            {(visitorLoggedIn || username) && (
               <div>
                 <p>Utilice esta página para gestionar sus sensores y dispositivos.</p>
                 <div className="dropdown row mb-4 col-3 align-items-start">
@@ -520,45 +351,13 @@ export const RegisterPage = () => {
                           {device.label}
                         </li>
                       ))}
-                      {selectedProject && (
+                      {(selectedProject && username) && (
                         <li className='list-group-item' onClick={handleOnClickAddDevice} style={{ cursor: 'pointer' }}>Agregar Dispositivo</li>
                       )}
                     </ul>
                   </div>
                   {/* Right Column: Data Table */}
                   <div className="col-9">
-                    {/* https://api-sensores.cmasccp.cl/insertarMedicion?idsSensores=120&idsVariables=10&valores=120 */}
-
-{/*                     
-                    {
-
-                      JSON.stringify(dataURL)
-                    }
-
-
-
-                    <br />
-                    <br />
-                    idsSensores {
-
-                      JSON.stringify(idsSensoresFormated)?.slice(1, -1)
-                      
-                    }
-                    <br />
-                    <br />
-                    variables {
-                      
-                      JSON.stringify(idsVariablesFormated)?.slice(1, -1)
-                    }
-                    <br />
-                    <br />
-                    valores {
-                      
-                      JSON.stringify(idsValoresFormated)?.slice(1, -1)
-                    }
-
-                    <br />
-                    <br /> */}
                     
                     {(sensorsData?.data.tableData.length > 0 && selectedDevice !== "") && (
                       <>{`LINK: https://api-sensores.cmasccp.cl/insertarMedicion?idsSensores=${JSON.stringify(idsSensoresFormated)?.slice(1, -1)}&idsVariables=${JSON.stringify(idsVariablesFormated)?.slice(1, -1)}&valores=${JSON.stringify(idsValoresFormated)?.slice(1, -1)}`}</>
@@ -567,19 +366,20 @@ export const RegisterPage = () => {
                     {(!!sensorsData && sensorsData?.data.tableData.length > 0)
                       ? (<>
                         {/* TODO cuando selecciono un proyecto sin dispositivos, este renderiza todos los sensores de la base de datos. Hay que revisar el flujo. */}
-                        <BasicDataTableGraphic tableTitle={selectedDevice !== "" ? `Sensores en el dispositivo: ${selectedDevice?.label}` : (selectedProject !== "" ? `Sensores en el proyecto: ${selectedProject?.label.substring(3)}` : "Sensores totales")} tableData={sensorsData?.data?.tableData || []} tablePrimaryKey={primaryKey} onDelete={() => { console.log("delete", sensorsData?.data?.tableData) }} handleOnClickEdit={() => console.log(handleOnClickEdit)} onEdit={() => console.log(handleEdit)} />
+                        <BasicDataTableGraphic tableTitle={selectedDevice !== "" ? `Sensores en el dispositivo: ${selectedDevice?.label}` : (selectedProject !== "" ? `Sensores en el proyecto: ${selectedProject?.label.substring(3)}` : "Sensores totales")} tableData={sensorsData?.data?.tableData || []} tablePrimaryKey={primaryKey} onDelete={() =>  console.log("delete") } handleOnClickEdit={() => console.log("handleOnClickEdit")} onEdit={() => console.log("handleEdit")} />
                         {/* <BasicDataTableGraphic tableTitle={selectedDevice !== "" ? `Sensores en el dispositivo: ${selectedDevice?.label}` : ( selectedProject !== "" ?  `Sensores en el proyecto: ${selectedProject?.label.substring(3)}` : "Sensores totales")}  tableData={[]} tablePrimaryKey={primaryKey} onDelete={()=>{console.log(handleDelete)}} handleOnClickEdit={()=> console.log(handleOnClickEdit)} onEdit={()=>console.log(handleEdit)} /> */}
 
                       </>
                       )
                       :
                       (
-                        <p>Seleccione un filtro para ver los datos.</p>
+                        // <p>Seleccione un filtro para ver los datos.</p>
+                        <p>Sin datos para mostrar.</p>
                       )
                     }
 
                     {<div className="row my-4">
-                      {selectedDevice !== "" &&
+                      {(selectedDevice !== "" && username) &&
                         <button className="btn m-1 ml-auto custom-button" onClick={handleOnClickAddSensor}>
                           <span className="btn-text">Agregar Sensor</span>
                           <i className="fas fa-plus-circle"></i>
@@ -591,7 +391,7 @@ export const RegisterPage = () => {
                 </div>
               </div>
             )}
-            {!username && (
+            {!(visitorLoggedIn || username)&&(
               <>
                 <h2>Acceso Restringido</h2>
                 <p>Para ver este contenido, es necesario que inicies sesión.</p>

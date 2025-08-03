@@ -1,8 +1,12 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import LoginPage from '../pages/LoginPage.jsx'
+import { useMsal } from '@azure/msal-react';
 
 export const Navbar = () => {
+    const { accounts } = useMsal();
+    const username = accounts.length > 0;
+    const visitorLoggedIn = localStorage.getItem("visitorLoggedIn") === "true";
     return (
         <>
             <nav className="navbar navbar-expand-lg p-0 box-shadow navbar-light bg-white overflow-hidden">
@@ -28,15 +32,17 @@ export const Navbar = () => {
                             <li className="nav-item active">
                                 <Link to="protocolos" className="nav-link text-customdark">PROTOCOLOS<span className="sr-only">(current)</span></Link>
                             </li>
-                            
-                            <li className="nav-item active">
-                                <Link to="administrador" className="nav-link text-customdark">ADMINISTRADOR</Link>
-                            </li>                            
-                           
+                            { (username) && (
+                                <li className="nav-item active">
+                                    <Link to="administrador" className="nav-link text-customdark">ADMINISTRADOR</Link>
+                                </li>                           
+                            )}
 
                             <li className="nav-item active">
                                 <LoginPage/>
                             </li>
+                                               
+                           
                         </ul>
                     </div>
                 </div>
