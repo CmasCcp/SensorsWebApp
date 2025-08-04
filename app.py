@@ -10,6 +10,8 @@ import csv, decimal, io, os, json
 from datetime import datetime, date
 
 from werkzeug.utils import secure_filename
+import openpyxl  # Asegúrate de tener openpyxl instalado
+
 
 
 load_dotenv()
@@ -1031,6 +1033,13 @@ def listar_datos_estructurados():
                 mimetype="text/csv",
                 headers={"Content-Disposition": "attachment;filename=output.csv"}
             )
+        elif formato == 'xlsx':
+            return Response(
+                stream_with_context(build_excel(df_pivoted)),
+                mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                headers={"Content-Disposition": "attachment;filename=output.xlsx"}
+            )
+
         else:
             mensaje_error = f"Formato '{formato}' no soportado. Use 'json' o 'csv'."
             return jsonify({'status': 'fail', 'error': mensaje_error}), 400
@@ -1825,6 +1834,14 @@ def build_csv(df_pivoted):
         yield line    
     output.close()
 
+def build_excel(df_pivoted):
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df_pivoted.to_excel(writer, index=False, sheet_name='Datos')
+    output.seek(0)
+    for line in output:
+        yield line
+    output.close()
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8084)
