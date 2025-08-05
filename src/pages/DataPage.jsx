@@ -14,14 +14,18 @@ export const DataPage = () => {
   const projectsTableName = "proyectos";
   const devicesTableName = "dispositivos";
 
-  // Estados para manejar los datos de la página
+  // Opciones de filtros
   const [projectOptions, setProjectOptions] = useState([]);
   const [deviceOptions, setDeviceOptions] = useState([]);
+
+  // filtros seleccionados
   const [selectedProjects, setSelectedProjects] = useState([]); // Array para selección múltiple
   const [selectedDevices, setSelectedDevices] = useState([]); // Array para selección múltiple
-  const [tableData, setTableData] = useState([]);
   const [startDate, setStartDate] = useState(''); // Fecha de inicio
   const [endDate, setEndDate] = useState(''); // Fecha de fin
+  
+  // Datos de la tabla
+  const [tableData, setTableData] = useState([]);
   
   // Paginación
   const [currentPage, setCurrentPage] = useState(1); // Página actual
@@ -32,25 +36,8 @@ export const DataPage = () => {
   const { data: projectsData } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${projectsTableName}`);
   const { data: devicesData, setUrl: devicesSetUrl } = useFetch('');
   const { data: sensorsData, setUrl: sensorsSetUrl } = useFetch('');
-
-  // Actualiza la URL para dispositivos y sensores con base en los proyectos seleccionados
-  useEffect(() => {
-    if (selectedProjects.length > 0) {
-      const projectIds = selectedProjects.map((project) => project.value).join(',');
-      const deviceIds = selectedDevices.map((device) => device.label).join(',');
-
-      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructurados?tabla=datos&disp.id_proyecto=${projectIds}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
-
-      if (startDate) url += `&fecha_inicio=${startDate}`;
-      if (endDate) url += `&fecha_fin=${endDate}`;
-      if (selectedDevices.length > 0) url += `&disp.codigo_interno=${deviceIds}`;
-
-      devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${projectIds}`);
-      sensorsSetUrl(url);
-    }
-  }, [selectedProjects, selectedDevices, startDate, endDate, currentPage]);
-
-  // Procesa opciones de proyectos
+  
+  // Establece opciones de proyectos
   useEffect(() => {
     if (projectsData && projectsData.status === 'success') {
       const options = projectsData.data.tableData.map((project) => ({
@@ -61,7 +48,7 @@ export const DataPage = () => {
     }
   }, [projectsData]);
 
-  // Procesa opciones de dispositivos
+  // Establece opciones de dispositivos
   useEffect(() => {
     if (devicesData && devicesData.status === 'success') {
       const options = devicesData.data.tableData.map((device) => ({
@@ -71,6 +58,31 @@ export const DataPage = () => {
       setDeviceOptions(options);
     }
   }, [devicesData]);
+
+  // Actualiza la peticion de datos dependiendo de dispositivos y proyectos seleccionados
+  useEffect(() => {
+    // if (selectedProjects.length > 0 && selectedDevices.length > 0) {
+    if (selectedProjects.length > 0) {
+      const projectIds = selectedProjects.map((project) => project.value).join(',');
+      const deviceIds = selectedDevices.map((device) => device.label).join(',');
+      
+      devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${projectIds}`);
+      
+      
+      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructurados?tabla=datos&disp.id_proyecto=${projectIds}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
+      
+      if (selectedDevices.length > 0){
+        url += `&disp.codigo_interno=${deviceIds}`;
+        if (startDate) url += `&fecha_inicio=${startDate}`;
+        if (endDate) url += `&fecha_fin=${endDate}`;
+        
+        sensorsSetUrl(url);
+      }else{
+        sensorsSetUrl("");
+      }
+    }
+  }, [selectedProjects, selectedDevices, startDate, endDate, currentPage]);
+
 
   // Procesa datos de sensores
   useEffect(() => {

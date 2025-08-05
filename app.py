@@ -11,6 +11,9 @@ from datetime import datetime, date
 
 from werkzeug.utils import secure_filename
 import openpyxl  # Asegúrate de tener openpyxl instalado
+from openpyxl import Workbook
+from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl.styles import PatternFill
 
 
 
@@ -1834,14 +1837,125 @@ def build_csv(df_pivoted):
         yield line    
     output.close()
 
+
+# Funcion adaptada para DICTUC
+# def build_excel(df_pivoted):
+#     # Realizar el reemplazo de los encabezados
+#     df_pivoted.columns = df_pivoted.columns.str.replace('codigo_interno', 'dispositivo', case=False)
+#     df_pivoted.columns = df_pivoted.columns.str.replace('AM2302 [Grados celcius (°C)]', 'Temperatura Ambiental (°C)', case=False)
+#     df_pivoted.columns = df_pivoted.columns.str.replace('AM2302 [Humedad (%)]', 'Humedad Ambiental (%)', case=False)
+#     df_pivoted.columns = df_pivoted.columns.str.replace('CWT-Soil-THC-S [Grados celcius (°C)]', 'Temperatura de Suelo (°C)', case=False)
+#     df_pivoted.columns = df_pivoted.columns.str.replace('CWT-Soil-THC-S [Humedad relativa del Suelo (% R.H.)]', 'Humedad del Suelo (% R.H.)', case=False)
+
+#     # Eliminar la columna con el título 'id_sesion'
+#     if 'id_sesion' in df_pivoted.columns:
+#         df_pivoted = df_pivoted.drop('id_sesion', axis=1)
+#     if 'sesion_descripcion' in df_pivoted.columns:
+#         df_pivoted = df_pivoted.drop('sesion_descripcion', axis=1)
+#     if 'fecha_inicio' in df_pivoted.columns:
+#         df_pivoted = df_pivoted.drop('fecha_inicio', axis=1)
+#     if 'ubicacion' in df_pivoted.columns:
+#         df_pivoted = df_pivoted.drop('ubicacion', axis=1)
+#     if 'id_proyecto' in df_pivoted.columns:
+#         df_pivoted = df_pivoted.drop('id_proyecto', axis=1)
+#     if 'dispositivo_descripcion' in df_pivoted.columns:
+#         df_pivoted = df_pivoted.drop('dispositivo_descripcion', axis=1)
+#     if 'Divisor de Voltaje [Voltaje (V)]' in df_pivoted.columns:
+#         df_pivoted = df_pivoted.drop('Divisor de Voltaje [Voltaje (V)]', axis=1)
+#     if 'SIM7600G [Intensidad señal telefónica (Adimensional)]' in df_pivoted.columns:
+#         df_pivoted = df_pivoted.drop('SIM7600G [Intensidad señal telefónica (Adimensional)]', axis=1)
+
+# # http://127.0.0.1:8084/listarDatosEstructurados?tabla=datos&disp.id_proyecto=6&formato=xlsx
+
+#     output = io.BytesIO()
+
+#     with pd.ExcelWriter(output, engine='openpyxl') as writer:
+#         df_pivoted.to_excel(writer, index=False, sheet_name='Datos')
+#     output.seek(0)
+#     for line in output:
+#         yield line
+#     output.close()
+
+
+
 def build_excel(df_pivoted):
+    # Realizar el reemplazo de los encabezados
+    df_pivoted.columns = df_pivoted.columns.str.replace('codigo_interno', 'dispositivo', case=False)
+    df_pivoted.columns = df_pivoted.columns.str.replace('AM2302 [Grados celcius (°C)]', 'Temperatura Ambiental (°C)', case=False)
+    df_pivoted.columns = df_pivoted.columns.str.replace('AM2302 [Humedad (%)]', 'Humedad Ambiental (%)', case=False)
+    df_pivoted.columns = df_pivoted.columns.str.replace('CWT-Soil-THC-S [Grados celcius (°C)]', 'Temperatura de Suelo (°C)', case=False)
+    df_pivoted.columns = df_pivoted.columns.str.replace('CWT-Soil-THC-S [Humedad relativa del Suelo (% R.H.)]', 'Humedad del Suelo (% R.H.)', case=False)
+
+    # Eliminar la columna con el título 'id_sesion'
+    columns_to_drop = [
+        'id_sesion', 'sesion_descripcion', 'fecha_inicio', 'ubicacion', 
+        'id_proyecto', 'dispositivo_descripcion', 
+        'Divisor de Voltaje [Voltaje (V)]', 
+        'SIM7600G [Intensidad señal telefónica (Adimensional)]'
+    ]
+    df_pivoted = df_pivoted.drop(columns=[col for col in columns_to_drop if col in df_pivoted.columns])
+
+    # Crear el archivo Excel en memoria
     output = io.BytesIO()
-    with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        df_pivoted.to_excel(writer, index=False, sheet_name='Datos')
+
+    # Crear un nuevo libro de trabajo con openpyxl
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Datos"
+    
+    # Convertir el DataFrame a una lista de listas (incluyendo encabezados)
+    data = [df_pivoted.columns.to_list()] + df_pivoted.values.tolist()
+
+    # Escribir los datos en la hoja de trabajo
+    for row in data:
+        ws.append(row)
+    
+    # Crear un objeto de tabla en openpyxl
+    table = Table(displayName="DatosTabla", ref=ws.dimensions)
+
+    # Establecer el estilo de la tabla (opcional)
+    style = TableStyleInfo(
+        showFirstColumn=False,
+        showLastColumn=False,
+        showRowStripes=True,
+        showColumnStripes=True
+    )
+    table.tableStyleInfo = style
+
+    # Añadir la tabla a la hoja
+    ws.add_table(table)
+
+    # Establecer estilo azul para la tabla y alternar las filas con fondo negro
+    blue_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+    dark_fill = PatternFill(start_color="000000", end_color="000000", fill_type="solid")
+    light_fill = PatternFill(start_color="D9E1F2", end_color="D9E1F2", fill_type="solid")
+
+    # Aplicar los estilos de fondo azul y alternar filas negras
+    for row_idx, row in enumerate(ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=1, max_col=ws.max_column)):
+        for cell in row:
+            if row_idx % 2 == 0:  # Fila par (blanca)
+                cell.fill = light_fill
+            else:  # Fila impar (negra)
+                cell.fill = blue_fill
+
+            # Colorear la cabecera (si es necesario)
+            # if row_idx == -1:
+            #     cell.fill = light_fill
+
+    # Guardar el archivo en memoria
+    wb.save(output)
+
+    # Mover el puntero al principio para leer el archivo
     output.seek(0)
+    
+    # Generar el archivo para que se pueda enviar como respuesta
     for line in output:
         yield line
+        
     output.close()
+
+
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8084)

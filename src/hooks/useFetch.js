@@ -28,6 +28,10 @@ export const useFetch = (apiUrl) => {
     };
     if(url !== ''){
       fetchData();
+    }else{
+      setIsLoading(false);
+      setData(null);
+      setHasError(null);
     }
   }, [url]);
 
