@@ -7,6 +7,7 @@ export const BasicDataTableGraphic = ({
   tableData = [],
   tableTitle = "",
   tablePrimaryKey = null,
+  tablePrimaryKey_secondary = null,
   onDelete = false,
   onEdit = false,
   handleOnClickEdit = false,
@@ -118,7 +119,7 @@ export const BasicDataTableGraphic = ({
                     const item = options.find(obj => obj.value === Object.values(row)[colIndex]);
 
                     // Obtener el label
-                    label = item ? item.label : null;
+                    label = item ? "("+item.value+") "+item.label : null;
                   }
                   return (
                     <td key={colIndex}>
@@ -146,7 +147,7 @@ export const BasicDataTableGraphic = ({
                     )}
                     {onDelete && (
                       <td>
-                        <button className="btn text-danger" onClick={() => onDelete(rowId)}>
+                        <button className="btn text-danger" onClick={() => onDelete(row[tablePrimaryKey], row[tablePrimaryKey_secondary])}>
                           Eliminar
                         </button>
                       </td>
@@ -253,7 +254,7 @@ export const BasicDataTableGraphic = ({
         </tbody>
       </table>
 
-      {selectedRows.length > 0 && (
+      {(selectedRows.length > 0 && username) && (
         <div className="mt-3">
           <p><strong>Filas seleccionadas:</strong> {selectedRows.join(",")}</p>
           <button onClick={() => onDelete(selectedRows.join(","))} className='btn btn-danger'>Eliminar filas seleccionadas</button>

@@ -19,7 +19,7 @@ export const AdministradorPage = () => {
   const { data: options } = useFetch(`${import.meta.env.VITE_API_URL}/listarTablas`);
   const { data: tableData, setUrl: tableDataSetUrl } = useFetch('');
   const { data: tableDataSchema, setUrl: tableDataSchemaSetUrl } = useFetch('');
-  const [primaryKey, setPrimaryKey] = useState(null);
+  const [primaryKey, setPrimaryKey] = useState([]);
 
   // MODALS
   const [showAddModal, setShowAddModal] = useState(false);
@@ -30,7 +30,7 @@ export const AdministradorPage = () => {
 
   const handleClick = (tableName) => {
     setTableName(tableName);
-    setPrimaryKey(null); // ← Forzar que no dispare el fetch antes de tiempo
+    setPrimaryKey([]); // ← Forzar que no dispare el fetch antes de tiempo
     setCurrentPage(1); // Resetear la página al seleccionar una nueva tabla
   };
 
@@ -73,7 +73,7 @@ export const AdministradorPage = () => {
     ) {
       const keys = tableDataSchema.filter(x => x.Key === "PRI").map(x => x.Field);
       // setPrimaryKey(keys[0] || null);
-      setPrimaryKey(keys);
+      setPrimaryKey(keys || null);
     }
   }, [tableDataSchema]);
 
@@ -100,27 +100,30 @@ export const AdministradorPage = () => {
   }, [tableName, currentPage, primaryKey]);
 
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, idSecondary) => {
     if (!tableName || !primaryKey) return;
-  
+
     const confirmed = window.confirm("¿Estás seguro que quieres eliminar este registro?");
     if (!confirmed) return;
   
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/eliminarDatos?tabla=${tableName}&${primaryKey}=${id}`);
-  
+      let url = `${import.meta.env.VITE_API_URL}/eliminarDatos?tabla=${tableName}&${primaryKey[0]}=${id}`;
+      if (idSecondary) {
+        url += `&${primaryKey[1]}=${idSecondary}`;
+      }
+      console.log(url);
+      const response = await fetch(url);
+
       if (!response.ok) {
-        throw new Error("Error al eliminar el dato");
+        const data = await response.json();
+        throw new Error(data.error || "Error al eliminar el dato");
       }
   
-      // Actualizar la tabla luego de eliminar
-      const url = `${import.meta.env.VITE_API_URL}/listarDatos?tabla=${tableName}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}&primarykey=${primaryKey}`;
-      tableDataSetUrl(url);
       alert(`Fila(s) no. ${id} eliminadas. Se recargará la página para actualizar los datos.`);
       window.location.reload(); // 🚀 Esto recarga toda la página después de eliminar
     } catch (error) {
       console.error("Error eliminando dato:", error);
-      alert("Ocurrió un error al intentar eliminar el dato.");
+      alert(error.message || "Ocurrió un error al intentar eliminar el dato.");
     }
   };
 
@@ -219,7 +222,7 @@ export const AdministradorPage = () => {
             
             {options && tableName && username && tableData && options.map((opt) => (
               tableName === opt.dataName && (
-                <BasicDataTableGraphic tableTitle={opt.displayName} tableData={tableData.data.tableData} tablePrimaryKey={primaryKey} onDelete={handleDelete} handleOnClickEdit={handleOnClickEdit} onEdit={handleEdit}/>
+                <BasicDataTableGraphic tableTitle={opt.displayName} tableData={tableData.data.tableData} tablePrimaryKey={primaryKey[0]||null} tablePrimaryKey_secondary={primaryKey[1] || null} onDelete={handleDelete} handleOnClickEdit={handleOnClickEdit} onEdit={handleEdit}/>
               )
             ))}
             {tableName !== "" && (<div className="row my-4">

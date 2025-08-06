@@ -23,10 +23,10 @@ export const DataPage = () => {
   const [selectedDevices, setSelectedDevices] = useState([]); // Array para selección múltiple
   const [startDate, setStartDate] = useState(''); // Fecha de inicio
   const [endDate, setEndDate] = useState(''); // Fecha de fin
-  
+
   // Datos de la tabla
   const [tableData, setTableData] = useState([]);
-  
+
   // Paginación
   const [currentPage, setCurrentPage] = useState(1); // Página actual
   const [totalPages, setTotalPages] = useState(0);
@@ -36,7 +36,7 @@ export const DataPage = () => {
   const { data: projectsData } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${projectsTableName}`);
   const { data: devicesData, setUrl: devicesSetUrl } = useFetch('');
   const { data: sensorsData, setUrl: sensorsSetUrl } = useFetch('');
-  
+
   // Establece opciones de proyectos
   useEffect(() => {
     if (projectsData && projectsData.status === 'success') {
@@ -65,19 +65,19 @@ export const DataPage = () => {
     if (selectedProjects.length > 0) {
       const projectIds = selectedProjects.map((project) => project.value).join(',');
       const deviceIds = selectedDevices.map((device) => device.label).join(',');
-      
+
       devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${projectIds}`);
-      
-      
+
+
       let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructurados?tabla=datos&disp.id_proyecto=${projectIds}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
-      
-      if (selectedDevices.length > 0){
+
+      if (selectedDevices.length > 0) {
         url += `&disp.codigo_interno=${deviceIds}`;
         if (startDate) url += `&fecha_inicio=${startDate}`;
         if (endDate) url += `&fecha_fin=${endDate}`;
-        
+
         sensorsSetUrl(url);
-      }else{
+      } else {
         sensorsSetUrl("");
       }
     }
@@ -190,6 +190,64 @@ export const DataPage = () => {
       console.error('Error al descargar el archivo:', error);
     }
   };
+  const downloadExcel = async () => {
+    try {
+      // Obtén los IDs de los proyectos y dispositivos seleccionados
+      const projectIds = selectedProjects.map((project) => project.value).join(',');
+      const deviceIds = selectedDevices.map((device) => device.label).join(',');
+
+      // Construye la URL sin los límites de filas ni el offset (esto descarga todos los datos)
+      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructurados?tabla=datos&disp.id_proyecto=${projectIds}&formato=xlsx`;
+
+      // Añadir los filtros de fechas si se han especificado
+      if (startDate) url += `&fecha_inicio=${startDate}`;
+      if (endDate) url += `&fecha_fin=${endDate}`;
+      if (selectedDevices.length > 0) url += `&disp.codigo_interno=${deviceIds}`;
+
+      // Crear el enlace para la descarga
+      const link = document.createElement('a');
+      link.href = url;
+
+      // Descargar el archivo CSV
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error al descargar el archivo:', error);
+    }
+  };
+
+  const handleDelete = async (rows) => {
+    
+    const confirmed = window.confirm("¿Estás seguro que quieres eliminar este registro?");
+    if (!confirmed) return;
+
+    console.log(rows)
+    let id_datos_sin_espacios = rows.replace(/\s+/g, ''); // Esto elimina todos los espacios en la cadena
+    console.log(id_datos_sin_espacios);
+
+    // TODO: que pasaria si selecciona varios proyectos?
+    // validar que solo pueda eliminar multiples en solo un proyecto
+    console.log(`/eliminarDatos?tabla=datos&id_dato=${id_datos_sin_espacios}`);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/eliminarDatos?tabla=datos&id_dato=${id_datos_sin_espacios}`, {
+        method: 'GET',
+      });
+
+      if (response.ok) {
+        // Actualizar la tabla después de eliminar
+        alert("Datos eliminados correctamente");
+        window.location.reload(); // Recargar la página para actualizar los datos
+        console.log("Datos eliminados correctamente");
+      } else {
+        throw new Error('Error al eliminar los datos');      
+      }
+    }catch (error) {
+      alert("Error al eliminar los datos");
+      console.error('Error al eliminar los datos:', error);
+    }
+  }
 
   return (
     <>
@@ -252,9 +310,13 @@ export const DataPage = () => {
                 </div>
                 <div className='row d-flex justify-content-around my-2'>
                   {selectedProjects.length > 0 && tableData.length > 0 && (
-                    <div>
+                    <div className='row'>
                       <button className="btn m-1 ml-auto custom-button" onClick={downloadFile}>
                         <span className="btn-text">Descargar CSV</span>
+                        <i className="fas fa-plus-circle"></i>
+                      </button>
+                      <button className="btn m-1 ml-auto custom-button" onClick={downloadExcel}>
+                        <span className="btn-text">Descargar Excel</span>
                         <i className="fas fa-plus-circle"></i>
                       </button>
                     </div>
@@ -264,11 +326,11 @@ export const DataPage = () => {
                 <div className="row d-flex justify-content-around my-4">
                   {selectedProjects.length > 0 && tableData.length > 0 ? (
                     <div style={{ overflowX: 'auto' }}>
-                      <BasicDataTableGraphic tableTitle={"Datos"} tableData={tableData} tablePrimaryKey={"fecha"} 
-                        // onDelete={() => { console.log("handle delete") }} 
-                        // handleOnClickEdit={() => console.log("handleOnClickEdit")} 
-                        // onEdit={() => console.log("handleEdit")} 
-                        />
+                      <BasicDataTableGraphic tableTitle={"Datos"} tableData={tableData} tablePrimaryKey={"id_dato_concatenado"}
+                        onDelete={handleDelete}
+                      // handleOnClickEdit={() => console.log("handleOnClickEdit")} 
+                      // onEdit={() => console.log("handleEdit")} 
+                      />
                     </div>
                   ) : (
                     <p>Seleccione proyectos para ver los datos.</p>

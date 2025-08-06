@@ -1010,7 +1010,10 @@ def listar_datos_estructurados():
         ).reset_index()
 
         # Convertir las listas a cadenas separadas por comas
-        df_pivoted = df_pivoted.applymap(lambda x: ', '.join(map(str, x)) if isinstance(x, list) else x)
+        # df_pivoted = df_pivoted.applymap(lambda x: ', '.join(map(str, x)) if isinstance(x, list) else x)
+
+        df_pivoted = df_pivoted.applymap(lambda x: ', '.join(map(str, x)) if isinstance(x, list) else str(x) if x is not None else "")
+
 
         # Calcular total_count antes de aplicar limit y offset
         total_count = len(df_pivoted)
