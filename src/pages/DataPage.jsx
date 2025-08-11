@@ -31,6 +31,7 @@ export const DataPage = () => {
   const [currentPage, setCurrentPage] = useState(1); // Página actual
   const [totalPages, setTotalPages] = useState(0);
   const rowsPerPage = 25; // Número máximo de filas por página
+  const [sortOrder, setSortOrder] = useState("ASC")
 
   // Hooks para obtener datos de las tablas
   const { data: projectsData } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${projectsTableName}`);
@@ -218,7 +219,7 @@ export const DataPage = () => {
   };
 
   const handleDelete = async (rows) => {
-    
+
     const confirmed = window.confirm("¿Estás seguro que quieres eliminar este registro?");
     if (!confirmed) return;
 
@@ -241,9 +242,9 @@ export const DataPage = () => {
         window.location.reload(); // Recargar la página para actualizar los datos
         console.log("Datos eliminados correctamente");
       } else {
-        throw new Error('Error al eliminar los datos');      
+        throw new Error('Error al eliminar los datos');
       }
-    }catch (error) {
+    } catch (error) {
       alert("Error al eliminar los datos");
       console.error('Error al eliminar los datos:', error);
     }
@@ -321,6 +322,24 @@ export const DataPage = () => {
                       </button>
                     </div>
                   )}
+
+                </div>
+                <div className="row">
+                  {/* Selección de ordenación */}
+                  <div className="mb-3">
+                    <label htmlFor="sortOrder" className="form-label"><small></small> Ordenar por fecha:</label>
+
+                    <select
+                      id="sortOrder"
+                      className="form-select"
+                      value={sortOrder}
+                      onChange={() => console.log(handleSortChange)}
+                    >
+                      <option value="asc">Fecha Ascendente</option>
+                      <option value="desc">Fecha Descendente</option>
+                    </select>
+
+                  </div>
 
                 </div>
                 <div className="row d-flex justify-content-around my-4">

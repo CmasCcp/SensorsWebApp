@@ -413,7 +413,7 @@ export const RegisterPage = () => {
                           onClick={() => handleFilterClick(device)}
                           style={{ cursor: 'pointer' }}
                         >
-                          {device.label}
+                          ({device.value}) {device.label}
                         </li>
                       ))}
                       {(selectedProject && username) && (

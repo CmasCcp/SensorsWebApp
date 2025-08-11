@@ -202,22 +202,7 @@ export const AdministradorPage = () => {
               ))}
             </div>
             <hr />
-            {/* Selección de ordenación */}
-            {/* <div className="mb-3">
-              <label htmlFor="sortOrder" className="form-label"><small>(En desarrollo)</small> Ordenar por fecha:</label>
-              
-              <select
-                id="sortOrder"
-                className="form-select"
-                value={"sortOrder"}
-                onChange={() => console.log(handleSortChange)}
-              >
-                <option value="asc">Fecha Ascendente</option>
-                <option value="desc">Fecha Descendente</option>
-              </select>
-              
-            </div>
-             */}
+            
             
             
             {options && tableName && username && tableData && options.map((opt) => (
