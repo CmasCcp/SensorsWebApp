@@ -6,6 +6,7 @@ import { Modal } from '../components/Modal';
 import { BasicDataTableGraphic } from "../components/graphics/BasicDataTableGraphic"
 import { data as variables } from "../variables.json"
 import { data as variablesEnSensoresTipo } from "../variables_en_sensores.json"
+import { Spinner } from '../components/Spinner';
 
 export const RegisterPage = () => {
   // login
@@ -49,6 +50,8 @@ export const RegisterPage = () => {
   const rowsPerPage = 10;
   const itemsPerPage = rowsPerPage;
   const primaryKey = "Id Sensor";
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const { data: projectsData } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${projectsTableName}`);
   const { data: devicesData, setUrl: devicesSetUrl } = useFetch('');
@@ -147,6 +150,115 @@ export const RegisterPage = () => {
     setShowAddSensorModal(prev => !prev);
   };
 
+  const handleDuplicateDevice = async () => {
+    // 1. Agregar dispositivo nuevo: /agregarDatos con body:  
+    //  {tableName: "dispositivos", formData: {id_proyecto: 15, id_estado: "1", codigo_interno: "MPE002"}} 
+    console.log(deviceOptions)
+
+    setIsLoading(true);
+    const prefijo = deviceOptions[0].label.split('-')[0];
+    console.log(prefijo)
+    const lastNumbers = deviceOptions.map(device => {
+      const label = device.label || '';
+      const parts = label.split('-');
+      return parts.length > 1 ? parts[1].trim() : '';
+    });
+    console.log(lastNumbers);
+
+    const newDeviceNumber = lastNumbers.reduce((max, numStr) => {
+      const num = parseInt(numStr, 10);
+      return isNaN(num) ? max : Math.max(max, num);
+    }, 0) + 1;
+
+    console.log(newDeviceNumber);
+    console.log("nuevo codito interno: ", `${prefijo}-${newDeviceNumber}`);
+
+    const nuevo_codigo_interno = `${prefijo}-${newDeviceNumber}`;
+    const formData = {
+      id_proyecto: selectedProject.value,
+      id_estado: "1",
+      codigo_interno: nuevo_codigo_interno
+    };
+
+    const result_addDevice = await handleAdd("dispositivos", formData);
+    console.log("result_addDevice", result_addDevice);
+
+    // Traer ultimo id de dispositivo
+    const lastDeviceIdResponse = await fetch(`${import.meta.env.VITE_API_URL}/ultimoValor?tabla=dispositivos&columna=id_dispositivo`);
+    const lastDeviceIdData = await lastDeviceIdResponse.json();
+    const lastDeviceId = lastDeviceIdData?.data;
+    console.log("lastDeviceId", lastDeviceId);
+
+    // 2. Agregar sensor /agregarDatos con Body: {tableName: "sensores", formData: {id_sensor_tipo: "4", id_estado: "1", numero_serial: "123"}} 
+    for (const sensor of sensorsData.data.tableData) {
+
+      const result_addSensor = await handleAdd("sensores", {
+        id_sensor_tipo: sensor["Id Sensor Tipo"]
+      });
+
+      // const data_addSensor = await result_addSensor.json();
+      const data_addSensor = await result_addSensor;
+      console.log("result_addSensor", data_addSensor);
+
+      // 3. traer el id de ese ultimo sensor agregado: https://api-sensores.cmasccp.cl/ultimoValor?tabla=sensores&columna=id_sensor **es una vulnerabilidad 
+      const lastSensorIdResponse = await fetch(`${import.meta.env.VITE_API_URL}/ultimoValor?tabla=sensores&columna=id_sensor`);
+      const lastSensorIdData = await lastSensorIdResponse.json();
+      const lastSensorId = lastSensorIdData?.data;
+      console.log("lastSensorId", lastSensorId);
+
+
+
+      // 4. Agregar sensores a ese dispositivo /agregarDatos
+      //  {tableName: "sensores_en_dispositivo", formData: {id_dispositivo: 90, id_sensor: 217}}
+      const result_sensor_dispositivo = await handleAdd("sensores_en_dispositivo", {
+        id_dispositivo: lastDeviceId,
+        id_sensor: lastSensorId
+      });
+
+      console.log("result_sensor_dispositivo", result_sensor_dispositivo);
+      setIsLoading(false);
+
+    }
+
+    if (result_addDevice.status == "success") {
+      alert("dispositivo duplicado")
+      window.location.reload();
+
+    }
+
+  };
+
+
+
+  const handleAdd = async (assignedTableName, assignedFormData) => {
+    try {
+      const payload = {
+        tableName: assignedTableName,
+        formData: assignedFormData // Los datos del formulario
+      };
+      console.log("sensorsData", sensorsData.data.tableData.map(sensor => sensor["Id Sensor Tipo"]));
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/agregarDatos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),  // Enviar los datos del formulario como JSON
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Dispositivo actualizado correctamente');
+        return data; // Retorna la respuesta en formato JSON
+      } else {
+        console.error('Error al actualizar el dispositivo');
+      }
+    } catch (error) {
+      console.error('Error al hacer la solicitud:', error);
+    }
+  };
+
+
   const handleCloseModal = () => {
     setShowAddModal(false);
     setShowAddSensorModal(false);
@@ -211,11 +323,12 @@ export const RegisterPage = () => {
 
   function getIdVariable(id_sensor_tipo, id_sensor) {
     // Aquí está el JSON que tienes
-    const data = { "data": { "tabla": "variables_en_sensores", "tableData": [{ "idSensorTipo": 1, "idVariable": 1 }, { "idSensorTipo": 2, "idVariable": 2 }, { "idSensorTipo": 3, "idVariable": 3 }, { "idSensorTipo": 4, "idVariable": 4 }, { "idSensorTipo": 5, "idVariable": 10 }, { "idSensorTipo": 6, "idVariable": 3 }, { "idSensorTipo": 6, "idVariable": 6 }, { "idSensorTipo": 6, "idVariable": 7 }, { "idSensorTipo": 6, "idVariable": 8 }, { "idSensorTipo": 7, "idVariable": 11 }, { "idSensorTipo": 7, "idVariable": 12 }, { "idSensorTipo": 8, "idVariable": 3 }, { "idSensorTipo": 8, "idVariable": 6 }, { "idSensorTipo": 8, "idVariable": 13 }, { "idSensorTipo": 9, "idVariable": 3 }, { "idSensorTipo": 9, "idVariable": 6 }, { "idSensorTipo": 10, "idVariable": 3 }, { "idSensorTipo": 10, "idVariable": 6 }, { "idSensorTipo": 11, "idVariable": 3 }, { "idSensorTipo": 11, "idVariable": 6 }, { "idSensorTipo": 12, "idVariable": 3 }, { "idSensorTipo": 12, "idVariable": 14 }, { "idSensorTipo": 13, "idVariable": 15 }, { "idSensorTipo": 14, "idVariable": 1 }, { "idSensorTipo": 17, "idVariable": 3 }, { "idSensorTipo": 17, "idVariable": 16 }, { "idSensorTipo": 17, "idVariable": 32 }, { "idSensorTipo": 17, "idVariable": 33 }, { "idSensorTipo": 18, "idVariable": 3 }, { "idSensorTipo": 18, "idVariable": 5 }, { "idSensorTipo": 18, "idVariable": 6 }, { "idSensorTipo": 18, "idVariable": 8 }, { "idSensorTipo": 18, "idVariable": 9 }, { "idSensorTipo": 18, "idVariable": 17 }, { "idSensorTipo": 19, "idVariable": 19 }, { "idSensorTipo": 19, "idVariable": 27 }, { "idSensorTipo": 20, "idVariable": 18 }, { "idSensorTipo": 20, "idVariable": 28 }, { "idSensorTipo": 21, "idVariable": 21 }, { "idSensorTipo": 21, "idVariable": 25 }, { "idSensorTipo": 22, "idVariable": 20 }, { "idSensorTipo": 22, "idVariable": 26 }, { "idSensorTipo": 23, "idVariable": 22 }, { "idSensorTipo": 24, "idVariable": 23 }, { "idSensorTipo": 25, "idVariable": 24 }, { "idSensorTipo": 26, "idVariable": 3 }, { "idSensorTipo": 26, "idVariable": 5 }, { "idSensorTipo": 26, "idVariable": 6 }, { "idSensorTipo": 26, "idVariable": 13 }, { "idSensorTipo": 26, "idVariable": 17 }, { "idSensorTipo": 26, "idVariable": 29 }, { "idSensorTipo": 26, "idVariable": 30 }, { "idSensorTipo": 27, "idVariable": 3 }, { "idSensorTipo": 28, "idVariable": 3 }, { "idSensorTipo": 28, "idVariable": 6 }, { "idSensorTipo": 29, "idVariable": 34 }] }, "status": "success" }
+    // const data = { "data": { "tabla": "variables_en_sensores", "tableData": [{ "idSensorTipo": 1, "idVariable": 1 }, { "idSensorTipo": 2, "idVariable": 2 }, { "idSensorTipo": 3, "idVariable": 3 }, { "idSensorTipo": 4, "idVariable": 4 }, { "idSensorTipo": 5, "idVariable": 10 }, { "idSensorTipo": 6, "idVariable": 3 }, { "idSensorTipo": 6, "idVariable": 6 }, { "idSensorTipo": 6, "idVariable": 7 }, { "idSensorTipo": 6, "idVariable": 8 }, { "idSensorTipo": 7, "idVariable": 11 }, { "idSensorTipo": 7, "idVariable": 12 }, { "idSensorTipo": 8, "idVariable": 3 }, { "idSensorTipo": 8, "idVariable": 6 }, { "idSensorTipo": 8, "idVariable": 13 }, { "idSensorTipo": 9, "idVariable": 3 }, { "idSensorTipo": 9, "idVariable": 6 }, { "idSensorTipo": 10, "idVariable": 3 }, { "idSensorTipo": 10, "idVariable": 6 }, { "idSensorTipo": 11, "idVariable": 3 }, { "idSensorTipo": 11, "idVariable": 6 }, { "idSensorTipo": 12, "idVariable": 3 }, { "idSensorTipo": 12, "idVariable": 14 }, { "idSensorTipo": 13, "idVariable": 15 }, { "idSensorTipo": 14, "idVariable": 1 }, { "idSensorTipo": 17, "idVariable": 3 }, { "idSensorTipo": 17, "idVariable": 16 }, { "idSensorTipo": 17, "idVariable": 32 }, { "idSensorTipo": 17, "idVariable": 33 }, { "idSensorTipo": 18, "idVariable": 3 }, { "idSensorTipo": 18, "idVariable": 5 }, { "idSensorTipo": 18, "idVariable": 6 }, { "idSensorTipo": 18, "idVariable": 8 }, { "idSensorTipo": 18, "idVariable": 9 }, { "idSensorTipo": 18, "idVariable": 17 }, { "idSensorTipo": 19, "idVariable": 19 }, { "idSensorTipo": 19, "idVariable": 27 }, { "idSensorTipo": 20, "idVariable": 18 }, { "idSensorTipo": 20, "idVariable": 28 }, { "idSensorTipo": 21, "idVariable": 21 }, { "idSensorTipo": 21, "idVariable": 25 }, { "idSensorTipo": 22, "idVariable": 20 }, { "idSensorTipo": 22, "idVariable": 26 }, { "idSensorTipo": 23, "idVariable": 22 }, { "idSensorTipo": 24, "idVariable": 23 }, { "idSensorTipo": 25, "idVariable": 24 }, { "idSensorTipo": 26, "idVariable": 3 }, { "idSensorTipo": 26, "idVariable": 5 }, { "idSensorTipo": 26, "idVariable": 6 }, { "idSensorTipo": 26, "idVariable": 13 }, { "idSensorTipo": 26, "idVariable": 17 }, { "idSensorTipo": 26, "idVariable": 29 }, { "idSensorTipo": 26, "idVariable": 30 }, { "idSensorTipo": 27, "idVariable": 3 }, { "idSensorTipo": 28, "idVariable": 3 }, { "idSensorTipo": 28, "idVariable": 6 }, { "idSensorTipo": 29, "idVariable": 34 }] }, "status": "success" }
+    const data = { "data": { "tabla": "variables_en_sensores", "tableData": [{ "idSensorTipo": 1, "idVariable": 1 }, { "idSensorTipo": 2, "idVariable": 2 }, { "idSensorTipo": 3, "idVariable": 3 }, { "idSensorTipo": 4, "idVariable": 4 }, { "idSensorTipo": 5, "idVariable": 10 }, { "idSensorTipo": 6, "idVariable": 3 }, { "idSensorTipo": 6, "idVariable": 6 }, { "idSensorTipo": 6, "idVariable": 7 }, { "idSensorTipo": 6, "idVariable": 8 }, { "idSensorTipo": 7, "idVariable": 11 }, { "idSensorTipo": 7, "idVariable": 12 }, { "idSensorTipo": 8, "idVariable": 3 }, { "idSensorTipo": 8, "idVariable": 6 }, { "idSensorTipo": 8, "idVariable": 13 }, { "idSensorTipo": 9, "idVariable": 3 }, { "idSensorTipo": 9, "idVariable": 6 }, { "idSensorTipo": 10, "idVariable": 3 }, { "idSensorTipo": 10, "idVariable": 6 }, { "idSensorTipo": 11, "idVariable": 3 }, { "idSensorTipo": 11, "idVariable": 6 }, { "idSensorTipo": 12, "idVariable": 3 }, { "idSensorTipo": 12, "idVariable": 14 }, { "idSensorTipo": 13, "idVariable": 15 }, { "idSensorTipo": 14, "idVariable": 1 }, { "idSensorTipo": 17, "idVariable": 3 }, { "idSensorTipo": 17, "idVariable": 16 }, { "idSensorTipo": 17, "idVariable": 32 }, { "idSensorTipo": 17, "idVariable": 33 }, { "idSensorTipo": 18, "idVariable": 3 }, { "idSensorTipo": 18, "idVariable": 5 }, { "idSensorTipo": 18, "idVariable": 6 }, { "idSensorTipo": 18, "idVariable": 8 }, { "idSensorTipo": 18, "idVariable": 9 }, { "idSensorTipo": 18, "idVariable": 17 }, { "idSensorTipo": 19, "idVariable": 19 }, { "idSensorTipo": 19, "idVariable": 27 }, { "idSensorTipo": 20, "idVariable": 18 }, { "idSensorTipo": 20, "idVariable": 28 }, { "idSensorTipo": 21, "idVariable": 21 }, { "idSensorTipo": 21, "idVariable": 25 }, { "idSensorTipo": 22, "idVariable": 20 }, { "idSensorTipo": 22, "idVariable": 26 }, { "idSensorTipo": 23, "idVariable": 22 }, { "idSensorTipo": 24, "idVariable": 23 }, { "idSensorTipo": 25, "idVariable": 24 }, { "idSensorTipo": 26, "idVariable": 3 }, { "idSensorTipo": 26, "idVariable": 5 }, { "idSensorTipo": 26, "idVariable": 6 }, { "idSensorTipo": 26, "idVariable": 13 }, { "idSensorTipo": 26, "idVariable": 17 }, { "idSensorTipo": 26, "idVariable": 29 }, { "idSensorTipo": 26, "idVariable": 30 }, { "idSensorTipo": 27, "idVariable": 3 }, { "idSensorTipo": 28, "idVariable": 3 }, { "idSensorTipo": 28, "idVariable": 6 }, { "idSensorTipo": 29, "idVariable": 34 }, { "idSensorTipo": 30, "idVariable": 35 }, { "idSensorTipo": 30, "idVariable": 36 }, { "idSensorTipo": 31, "idVariable": 37 }, { "idSensorTipo": 31, "idVariable": 38 }, { "idSensorTipo": 32, "idVariable": 39 }, { "idSensorTipo": 32, "idVariable": 40 }] }, "status": "success" }
 
-    const label_variable = { "data": { "tabla": "variables", "tableData": [{ "descripcion": "pH ambiental", "id_variable": 1, "unidad": "pH" }, { "descripcion": "Electroconductividad ambiental", "id_variable": 2, "unidad": "µS/cm" }, { "descripcion": "Grados celcius", "id_variable": 3, "unidad": "°C" }, { "descripcion": "Voltaje", "id_variable": 4, "unidad": "V" }, { "descripcion": "Velocidad del viento", "id_variable": 5, "unidad": "m/s" }, { "descripcion": "Humedad", "id_variable": 6, "unidad": "%" }, { "descripcion": "Material particulado PM 1.0", "id_variable": 7, "unidad": "µg/m³" }, { "descripcion": "Material particulado PM 2.5", "id_variable": 8, "unidad": "µg/m³" }, { "descripcion": "Material particulado PM 10", "id_variable": 9, "unidad": "µg/m³" }, { "descripcion": "Miliamperios hora", "id_variable": 10, "unidad": "mAh" }, { "descripcion": "Latitud", "id_variable": 11, "unidad": "°" }, { "descripcion": "Longitud", "id_variable": 12, "unidad": "°" }, { "descripcion": "Presión atmosférica", "id_variable": 13, "unidad": "kPa" }, { "descripcion": "Humedad relativa del Suelo", "id_variable": 14, "unidad": "% R.H." }, { "descripcion": "Intensidad señal telefónica", "id_variable": 15, "unidad": "Adimensional" }, { "descripcion": "Dióxido de Carbono (CO2)", "id_variable": 16, "unidad": "ppm" }, { "descripcion": "Dirección del Viento", "id_variable": 17, "unidad": "Grados" }, { "descripcion": "Óxido Nítrico (NO), RAW 1", "id_variable": 18, "unidad": "RAW" }, { "descripcion": "Dióxido de Nitrógeno (NO2), RAW 1", "id_variable": 19, "unidad": "RAW" }, { "descripcion": "Ozono (O3), RAW 1", "id_variable": 20, "unidad": "RAW" }, { "descripcion": "Monóxido de Carbono (CO), RAW 1", "id_variable": 21, "unidad": "RAW" }, { "descripcion": "Distancia", "id_variable": 22, "unidad": "m" }, { "descripcion": "Profundidad", "id_variable": 23, "unidad": "m" }, { "descripcion": "Dióxido de Azufre (SO2)", "id_variable": 24, "unidad": "RAW" }, { "descripcion": "Monóxido de Carbono (CO), RAW 2", "id_variable": 25, "unidad": "RAW" }, { "descripcion": "Ozono (O3), RAW 2", "id_variable": 26, "unidad": "RAW" }, { "descripcion": "Dióxido de Nitrógeno (NO2), RAW 2", "id_variable": 27, "unidad": "RAW" }, { "descripcion": "Óxido Nítrico (NO), RAW 2", "id_variable": 28, "unidad": "RAW" }, { "descripcion": "Radiación Solar", "id_variable": 29, "unidad": "W/m2" }, { "descripcion": "Agua caída (Lluvia)", "id_variable": 30, "unidad": "mm" }, { "descripcion": "Dióxido de Carbono (CO2) RAW", "id_variable": 31, "unidad": "RAW" }, { "descripcion": "Dióxido de Carbono (CO2) Interno", "id_variable": 32, "unidad": "ppm" }, { "descripcion": "Dióxido de Carbono (CO2) Custom", "id_variable": 33, "unidad": "ppm" }, { "descripcion": "Compuestos orgánicos volátiles (VOC)", "id_variable": 34, "unidad": "ug/m2" }] }, "status": "success" }
+    // const label_variable = { "data": { "tabla": "variables", "tableData": [{ "descripcion": "pH ambiental", "id_variable": 1, "unidad": "pH" }, { "descripcion": "Electroconductividad ambiental", "id_variable": 2, "unidad": "µS/cm" }, { "descripcion": "Grados celcius", "id_variable": 3, "unidad": "°C" }, { "descripcion": "Voltaje", "id_variable": 4, "unidad": "V" }, { "descripcion": "Velocidad del viento", "id_variable": 5, "unidad": "m/s" }, { "descripcion": "Humedad", "id_variable": 6, "unidad": "%" }, { "descripcion": "Material particulado PM 1.0", "id_variable": 7, "unidad": "µg/m³" }, { "descripcion": "Material particulado PM 2.5", "id_variable": 8, "unidad": "µg/m³" }, { "descripcion": "Material particulado PM 10", "id_variable": 9, "unidad": "µg/m³" }, { "descripcion": "Miliamperios hora", "id_variable": 10, "unidad": "mAh" }, { "descripcion": "Latitud", "id_variable": 11, "unidad": "°" }, { "descripcion": "Longitud", "id_variable": 12, "unidad": "°" }, { "descripcion": "Presión atmosférica", "id_variable": 13, "unidad": "kPa" }, { "descripcion": "Humedad relativa del Suelo", "id_variable": 14, "unidad": "% R.H." }, { "descripcion": "Intensidad señal telefónica", "id_variable": 15, "unidad": "Adimensional" }, { "descripcion": "Dióxido de Carbono (CO2)", "id_variable": 16, "unidad": "ppm" }, { "descripcion": "Dirección del Viento", "id_variable": 17, "unidad": "Grados" }, { "descripcion": "Óxido Nítrico (NO), RAW 1", "id_variable": 18, "unidad": "RAW" }, { "descripcion": "Dióxido de Nitrógeno (NO2), RAW 1", "id_variable": 19, "unidad": "RAW" }, { "descripcion": "Ozono (O3), RAW 1", "id_variable": 20, "unidad": "RAW" }, { "descripcion": "Monóxido de Carbono (CO), RAW 1", "id_variable": 21, "unidad": "RAW" }, { "descripcion": "Distancia", "id_variable": 22, "unidad": "m" }, { "descripcion": "Profundidad", "id_variable": 23, "unidad": "m" }, { "descripcion": "Dióxido de Azufre (SO2)", "id_variable": 24, "unidad": "RAW" }, { "descripcion": "Monóxido de Carbono (CO), RAW 2", "id_variable": 25, "unidad": "RAW" }, { "descripcion": "Ozono (O3), RAW 2", "id_variable": 26, "unidad": "RAW" }, { "descripcion": "Dióxido de Nitrógeno (NO2), RAW 2", "id_variable": 27, "unidad": "RAW" }, { "descripcion": "Óxido Nítrico (NO), RAW 2", "id_variable": 28, "unidad": "RAW" }, { "descripcion": "Radiación Solar", "id_variable": 29, "unidad": "W/m2" }, { "descripcion": "Agua caída (Lluvia)", "id_variable": 30, "unidad": "mm" }, { "descripcion": "Dióxido de Carbono (CO2) RAW", "id_variable": 31, "unidad": "RAW" }, { "descripcion": "Dióxido de Carbono (CO2) Interno", "id_variable": 32, "unidad": "ppm" }, { "descripcion": "Dióxido de Carbono (CO2) Custom", "id_variable": 33, "unidad": "ppm" }, { "descripcion": "Compuestos orgánicos volátiles (VOC)", "id_variable": 34, "unidad": "ug/m2" }] }, "status": "success" }
+    const label_variable = { "data": { "tabla": "variables", "tableData": [{ "descripcion": "pH ambiental", "id_variable": 1, "unidad": "pH" }, { "descripcion": "Electroconductividad ambiental", "id_variable": 2, "unidad": "µS/cm" }, { "descripcion": "Grados celcius", "id_variable": 3, "unidad": "°C" }, { "descripcion": "Voltaje", "id_variable": 4, "unidad": "V" }, { "descripcion": "Velocidad del viento", "id_variable": 5, "unidad": "m/s" }, { "descripcion": "Humedad", "id_variable": 6, "unidad": "%" }, { "descripcion": "Material particulado PM 1.0", "id_variable": 7, "unidad": "µg/m³" }, { "descripcion": "Material particulado PM 2.5", "id_variable": 8, "unidad": "µg/m³" }, { "descripcion": "Material particulado PM 10", "id_variable": 9, "unidad": "µg/m³" }, { "descripcion": "Miliamperios hora", "id_variable": 10, "unidad": "mAh" }, { "descripcion": "Latitud", "id_variable": 11, "unidad": "°" }, { "descripcion": "Longitud", "id_variable": 12, "unidad": "°" }, { "descripcion": "Presión atmosférica", "id_variable": 13, "unidad": "kPa" }, { "descripcion": "Humedad relativa del Suelo", "id_variable": 14, "unidad": "% R.H." }, { "descripcion": "Intensidad señal telefónica", "id_variable": 15, "unidad": "Adimensional" }, { "descripcion": "Dióxido de Carbono (CO2)", "id_variable": 16, "unidad": "ppm" }, { "descripcion": "Dirección del Viento", "id_variable": 17, "unidad": "Grados" }, { "descripcion": "Óxido Nítrico (NO), RAW 1", "id_variable": 18, "unidad": "RAW" }, { "descripcion": "Dióxido de Nitrógeno (NO2), RAW 1", "id_variable": 19, "unidad": "RAW" }, { "descripcion": "Ozono (O3), RAW 1", "id_variable": 20, "unidad": "RAW" }, { "descripcion": "Monóxido de Carbono (CO), RAW 1", "id_variable": 21, "unidad": "RAW" }, { "descripcion": "Distancia", "id_variable": 22, "unidad": "m" }, { "descripcion": "Profundidad", "id_variable": 23, "unidad": "m" }, { "descripcion": "Dióxido de Azufre (SO2)", "id_variable": 24, "unidad": "RAW" }, { "descripcion": "Monóxido de Carbono (CO), RAW 2", "id_variable": 25, "unidad": "RAW" }, { "descripcion": "Ozono (O3), RAW 2", "id_variable": 26, "unidad": "RAW" }, { "descripcion": "Dióxido de Nitrógeno (NO2), RAW 2", "id_variable": 27, "unidad": "RAW" }, { "descripcion": "Óxido Nítrico (NO), RAW 2", "id_variable": 28, "unidad": "RAW" }, { "descripcion": "Radiación Solar", "id_variable": 29, "unidad": "W/m2" }, { "descripcion": "Agua caída (Lluvia)", "id_variable": 30, "unidad": "mm" }, { "descripcion": "Dióxido de Carbono (CO2) RAW", "id_variable": 31, "unidad": "RAW" }, { "descripcion": "Dióxido de Carbono (CO2) Interno", "id_variable": 32, "unidad": "ppm" }, { "descripcion": "Dióxido de Carbono (CO2) Custom", "id_variable": 33, "unidad": "ppm" }, { "descripcion": "Compuestos orgánicos volátiles (VOC)", "id_variable": 34, "unidad": "ug/m2" }, { "descripcion": "Índice de Radiación UV", "id_variable": 35, "unidad": "Adimensional" }, { "descripcion": "Radiación UV", "id_variable": 36, "unidad": "mW/cm2" }, { "descripcion": "Dióxido de Azufre (SO2), RAW 1", "id_variable": 37, "unidad": "RAW" }, { "descripcion": "Dióxido de Azufre (SO2), RAW 2", "id_variable": 38, "unidad": "RAW" }, { "descripcion": "Sensor Alphasense Placeholder, RAW 1", "id_variable": 39, "unidad": "RAW" }, { "descripcion": "Sensor Alphasense Placeholder, RAW 2", "id_variable": 40, "unidad": "RAW" }] }, "status": "success" }
 
-    // const data = variablesEnSensoresTipo;
     // Filtrar el array 'tableData' para obtener los idVariable correspondientes al idSensorTipo
     const result = data.data.tableData.filter(item => item.idSensorTipo === id_sensor_tipo)
       .map(item => { return { "s": id_sensor, "t": id_sensor_tipo, "v": item.idVariable, "l": label_variable.data.tableData.filter(x => x["id_variable"] === item.idVariable).map(y => y.unidad)[0] + "(" + id_sensor + ")" } });
@@ -287,6 +400,10 @@ export const RegisterPage = () => {
 
   return (
     <>
+
+      {isLoading && (
+        <Spinner />
+      )}
       <Modal
         type={"warning"}
         action={selectedAction}
@@ -337,9 +454,12 @@ export const RegisterPage = () => {
                     <>
 
                       <div className="col-9 pl-3">
-                        
                         <button className="btn m-1 ml-auto bg-secondary custom-button" onClick={toggleLinkVisibility}>
                           <span className="btn-text">Link de inserción de mediciones</span>
+                        </button>
+
+                        <button className="btn m-1 ml-auto bg-secondary custom-button" onClick={handleDuplicateDevice}>
+                          <span className="btn-text">Duplicar dispositivo</span>
                         </button>
 
                         <div className="w-100">
@@ -357,12 +477,9 @@ export const RegisterPage = () => {
                           {/* <p style={{"fontSize":"0.75rem"}} className='fs-6'>{`https://api-sensores.cmasccp.cl/insertarMedicion?idsSensores=${JSON.stringify(idsSensoresFormated)?.slice(1, -1)}&idsVariables=${JSON.stringify(idsVariablesFormated)?.slice(1, -1)}&valores=${JSON.stringify(idsValoresFormated)?.slice(1, -1)}`}</p> */}
                         </div>
                       </div>
-
-
                     </>
                   )}
                 </div>
-
                 <div className="row">
                   {/* Left Column: Filters */}
                   <div className="col-3">
@@ -429,7 +546,6 @@ export const RegisterPage = () => {
                         {/* TODO cuando selecciono un proyecto sin dispositivos, este renderiza todos los sensores de la base de datos. Hay que revisar el flujo. */}
                         <BasicDataTableGraphic tableTitle={selectedDevice !== "" ? `Sensores en el dispositivo: ${selectedDevice?.label}` : (selectedProject !== "" ? `Sensores en el proyecto: ${selectedProject?.label.substring(3)}` : "Sensores totales")} tableData={sensorsData?.data?.tableData || []} tablePrimaryKey={primaryKey} onDelete={handleDelete} handleOnClickEdit={() => console.log("handleOnClickEdit")} onEdit={() => console.log("handleEdit")} />
                         {/* <BasicDataTableGraphic tableTitle={selectedDevice !== "" ? `Sensores en el dispositivo: ${selectedDevice?.label}` : ( selectedProject !== "" ?  `Sensores en el proyecto: ${selectedProject?.label.substring(3)}` : "Sensores totales")}  tableData={[]} tablePrimaryKey={primaryKey} onDelete={()=>{console.log(handleDelete)}} handleOnClickEdit={()=> console.log(handleOnClickEdit)} onEdit={()=>console.log(handleEdit)} /> */}
-
                       </>
                       )
                       :
@@ -438,7 +554,6 @@ export const RegisterPage = () => {
                         <p>Sin datos para mostrar.</p>
                       )
                     }
-
                     {<div className="row my-4">
                       {(selectedDevice !== "" && username) &&
                         <button className="btn m-1 ml-auto custom-button" onClick={handleOnClickAddSensor}>

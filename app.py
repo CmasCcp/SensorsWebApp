@@ -10,7 +10,6 @@ import csv, decimal, io, os, json
 from datetime import datetime, date
 
 from werkzeug.utils import secure_filename
-import openpyxl  # Asegúrate de tener openpyxl instalado
 from openpyxl import Workbook
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.styles import PatternFill
@@ -1051,7 +1050,7 @@ def listar_datos_estructurados():
             LEFT JOIN
                 sensores_dev.dispositivos AS disp ON sed.id_dispositivo = disp.id_dispositivo
             {where_clause}
-            ORDER BY d.fecha ASC
+            ORDER BY d.fecha DESC
         """
 
         params_sql = params.copy()

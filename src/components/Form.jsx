@@ -40,7 +40,7 @@ export const Form = ({ properties = [], data, onChange, tableName, pkValue }) =>
   };
 
 
-  const inputType = (prop, options)=>{
+  const inputType = (prop, options) => {
     const countPri = properties.filter(obj => obj.Key === "PRI").length;
     // console.log(countPri);
 
@@ -48,22 +48,22 @@ export const Form = ({ properties = [], data, onChange, tableName, pkValue }) =>
 
 
     switch (true) {
-      case (countPri > 1 && prop.Key === "PRI") :
+      case (countPri > 1 && prop.Key === "PRI"):
         result = "compuesta"
         break;
-      case (countPri === 1 && prop.Key === "PRI") :
+      case (countPri === 1 && prop.Key === "PRI"):
         result = "primaria"
         break;
-    
-      case (prop.Key === "MUL" && Array.isArray(options)) :
+
+      case (prop.Key === "MUL" && Array.isArray(options)):
         result = "foranea"
         break;
-    
+
       default:
         result = "normal"
         break;
     }
-    
+
     return result;
   }
 
@@ -71,64 +71,73 @@ export const Form = ({ properties = [], data, onChange, tableName, pkValue }) =>
     <div className="container">
       <form>
         {
-        properties?.map(prop => {
-          const options = foreignData[prop.Field] || []; // Acceso correcto a la propiedad en foreignData
-          const inputRenderType = inputType(prop, options); // obtener el tipo de input que se va a renderizar
+          properties?.map(prop => {
+            const options = foreignData[prop.Field] || []; // Acceso correcto a la propiedad en foreignData
+            const inputRenderType = inputType(prop, options); // obtener el tipo de input que se va a renderizar
 
-          return (
-            <div className="mb-3" key={prop.Field}> {/* Usa prop.Field para clave única */}
-              <label htmlFor={prop.Field} className="form-label">{prop.Field.toUpperCase()}</label>
-              
-              {inputRenderType === "compuesta" && (
-                <select
-                      className="form-control"
-                      id={prop.Field} // Utiliza prop.Field como id
+            return (
+              <div className="mb-3" key={prop.Field}> {/* Usa prop.Field para clave única */}
+                <label htmlFor={prop.Field} className="form-label">{prop.Field.toUpperCase()}</label>
+
+                {inputRenderType === "compuesta" && (
+                  <select
+                    className="form-control"
+                    id={prop.Field} // Utiliza prop.Field como id
+                    name={prop.Field}
+                    value={data?.[prop.Field] || ""}
+                    onChange={handleChange}
+                  >
+                    <option value="noValueSelected">Seleccione un valor</option>
+                    {options.map((option, index) => (
+                      <option key={index} value={option.value}>
+                        {option.value} - {option.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                {inputRenderType === "primaria" && (
+                  <input type="text" className="form-control" id={prop.Field} disabled={true} name={prop.Field} />
+                )}
+                {inputRenderType === "foranea" && (
+                  <select
+                    className="form-control"
+                    id={prop.Field} // Utiliza prop.Field como id
+                    name={prop.Field}
+                    value={data?.[prop.Field] || ""}
+                    onChange={handleChange}
+                  >
+                    <option value="noValueSelected">Seleccione un valor</option>
+                    {options.map((option, index) => (
+                      <option key={index} value={option.value}>
+                        {option.value} - {option.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                {inputRenderType === "normal" && (
+                  <>
+                    {prop.Field === "codigo_interno" && (
+                      <small className="form-text text-muted">
+                        Sigue el siguiente formato: nombre + guión + número. 
+                        <br/>
+                        Ejemplo: SOIL-01
+                      </small>
+                    )}
+                    <input
+                      type={(prop.Type === "datetime") ? "datetime-local" : (prop.Type === "date") ? "date" : "text"}
+                      className={`form-control ${prop.Key === "PRI" && "primary-key"}`}
+                      id={prop.Field}
                       name={prop.Field}
                       value={data?.[prop.Field] || ""}
                       onChange={handleChange}
-                    >
-                      <option value="noValueSelected">Seleccione un valor</option>
-                      {options.map((option, index) => (
-                        <option key={index} value={option.value}>
-                          {option.value} - {option.label}
-                        </option>
-                      ))}
-                    </select>
-              )}
-
-              {inputRenderType === "primaria" && (
-                <input type="text" className="form-control" id={prop.Field} disabled={true} name={prop.Field} />
-              )}
-              {inputRenderType === "foranea" && (
-                <select
-                      className="form-control"
-                      id={prop.Field} // Utiliza prop.Field como id
-                      name={prop.Field}
-                      value={data?.[prop.Field] || ""}
-                      onChange={handleChange}
-                    >
-                      <option value="noValueSelected">Seleccione un valor</option>
-                      {options.map((option, index) => (
-                        <option key={index} value={option.value}>
-                          {option.value} - {option.label}
-                        </option>
-                      ))}
-                    </select>
-              )}
-
-              {inputRenderType === "normal" && (
-                <input
-                  type={(prop.Type === "datetime") ? "datetime-local" : (prop.Type === "date") ? "date" : "text"}
-                  className={`form-control ${prop.Key === "PRI" && "primary-key"}`} 
-                  id={prop.Field}
-                  name={prop.Field}
-                  value={data?.[prop.Field] || ""}
-                  onChange={handleChange}
-                />
-              )}
+                    />
+                  </>
+                )}
 
 
-              {
+                {
               /* {
                 (prop.Key === "MUL" && 
                 Array.isArray(options)) // Verifica si hay opciones disponibles para el select
@@ -176,9 +185,9 @@ export const Form = ({ properties = [], data, onChange, tableName, pkValue }) =>
                     />
                   // )
               } */}
-            </div>
-          )
-        })}
+              </div>
+            )
+          })}
       </form>
     </div>
   );

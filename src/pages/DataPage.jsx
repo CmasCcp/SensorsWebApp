@@ -70,7 +70,7 @@ export const DataPage = () => {
       devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${projectIds}`);
 
 
-      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructurados?tabla=datos&disp.id_proyecto=${projectIds}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
+      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructuradosV2?tabla=datos&disp.id_proyecto=${projectIds}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
 
       if (selectedDevices.length > 0) {
         url += `&disp.codigo_interno=${deviceIds}`;
@@ -172,7 +172,7 @@ export const DataPage = () => {
       const deviceIds = selectedDevices.map((device) => device.label).join(',');
 
       // Construye la URL sin los límites de filas ni el offset (esto descarga todos los datos)
-      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructurados?tabla=datos&disp.id_proyecto=${projectIds}&formato=csv`;
+      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructuradosV2?tabla=datos&disp.id_proyecto=${projectIds}&formato=csv`;
 
       // Añadir los filtros de fechas si se han especificado
       if (startDate) url += `&fecha_inicio=${startDate}`;
@@ -198,7 +198,7 @@ export const DataPage = () => {
       const deviceIds = selectedDevices.map((device) => device.label).join(',');
 
       // Construye la URL sin los límites de filas ni el offset (esto descarga todos los datos)
-      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructurados?tabla=datos&disp.id_proyecto=${projectIds}&formato=xlsx`;
+      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructuradosV2?tabla=datos&disp.id_proyecto=${projectIds}&formato=xlsx`;
 
       // Añadir los filtros de fechas si se han especificado
       if (startDate) url += `&fecha_inicio=${startDate}`;
@@ -326,7 +326,7 @@ export const DataPage = () => {
                 </div>
                 <div className="row">
                   {/* Selección de ordenación */}
-                  <div className="mb-3">
+                  {/* <div className="mb-3">
                     <label htmlFor="sortOrder" className="form-label"><small></small> Ordenar por fecha:</label>
 
                     <select
@@ -339,7 +339,7 @@ export const DataPage = () => {
                       <option value="desc">Fecha Descendente</option>
                     </select>
 
-                  </div>
+                  </div> */}
 
                 </div>
                 <div className="row d-flex justify-content-around my-4">

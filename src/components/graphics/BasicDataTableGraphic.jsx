@@ -67,6 +67,13 @@ export const BasicDataTableGraphic = ({
   }, [tableData]);
 
 
+  // Lista de columnas a ocultar
+  const hiddenColumns = ["id_sesion", "sesion_descripcion", "fecha_inicio", "ubicacion", "id_dato_concatenado"];
+
+  // Filtra las columnas visibles
+  const visibleKeys = Object.keys(tableData[0]).filter(key => !hiddenColumns.includes(key));
+
+
 
   return (
     <div style={{ overflowX: 'auto' }}>
@@ -84,7 +91,7 @@ export const BasicDataTableGraphic = ({
                 }
               />
             </th>
-            {Object.keys(tableData[0]).map((key, index) => (
+            {visibleKeys.map((key, index) => (
               <th key={index}>{key}</th>
             ))}
             {username && (
@@ -108,33 +115,25 @@ export const BasicDataTableGraphic = ({
                     onChange={() => handleCheckboxChange(rowId)}
                   />
                 </td>
-                {Object.values(row).map((value, colIndex) => {
+                {visibleKeys.map((key, colIndex) => {
+                  let value = row[key];
                   let label = "None";
-                  if (Object.entries(foreignData).length != 0) {
-
-                    const options = foreignData[Object.keys(row)[colIndex]] || []; // Acceso correcto a la propiedad en foreignData
-                    // console.log(Object.keys(row)[colIndex], Object.values(row)[colIndex], options);
-
-                    // Buscar el objeto con el value
-                    const item = options.find(obj => obj.value === Object.values(row)[colIndex]);
-
-                    // Obtener el label
-                    label = item ? "("+item.value+") "+item.label : null;
+                  if (Object.entries(foreignData).length !== 0) {
+                    const options = foreignData[key] || [];
+                    const item = options.find(obj => obj.value === value);
+                    label = item ? "(" + item.value + ") " + item.label : null;
                   }
                   return (
                     <td key={colIndex}>
                       {
-
                         (!!label && label !== "None")
                           ? label
                           : (typeof value === "string" && value.startsWith("http")
                             ? <a href={value} target="_blank" rel="noopener noreferrer">{value}</a>
                             : value)
-
                       }
-
                     </td>
-                  )
+                  );
                 })}
                 {username && (
                   <>
@@ -152,105 +151,11 @@ export const BasicDataTableGraphic = ({
                         </button>
                       </td>
                     )}
-                  </>)}
+                  </>
+                )}
               </tr>
             );
           })}
-
-          {/* {tableData.map((row, rowIndex) => {
-            const rowId = row[tablePrimaryKey];
-            return (
-              <tr key={rowIndex}>
-                <td>
-                  <input
-                    type="checkbox"
-                    value={rowId}
-                    checked={selectedRows.includes(rowId)}
-                    onChange={() => handleCheckboxChange(rowId)}
-                  />
-                </td>
-                {Object.values(row).map((value, colIndex) => {
-                  let label = value; // Asignamos el valor por defecto en caso de que no haya un `label`
-
-                  const columnKey = Object.keys(row)[colIndex]; // Obtener el nombre de la columna
-
-                  if (foreignData && foreignData.hasOwnProperty(columnKey)) {
-                    const options = foreignData[columnKey] || []; // Obtener las opciones para esa columna
-                    console.log(columnKey, value, options);
-
-                    // Buscar el objeto donde el `value` de la fila coincida con `obj.value` de las opciones
-                    const item = options.find(obj => obj.value === value);
-
-                    // Si encontramos el item, asignamos el `label`
-                    label = item ? item.label : value;
-                  }
-
-                  return (
-                    <td key={colIndex}>{(label && label !== "None") ? label : value}</td>
-                  );
-                })}
-                <td>
-                  <button className="btn text-primary" onClick={() => handleOnClickEdit([rowId, row])}>
-                    Editar
-                  </button>
-                </td>
-                <td>
-                  <button className="btn text-danger" onClick={() => onDelete(rowId)}>
-                    Eliminar
-                  </button>
-                </td>
-              </tr>
-            );
-          })} */}
-
-          {/* {tableData.map((row, rowIndex) => {
-            const rowId = row[tablePrimaryKey];
-            return (
-              <tr key={rowIndex}>
-                <td>
-                  <input
-                    type="checkbox"
-                    value={rowId}
-                    checked={selectedRows.includes(rowId)}
-                    onChange={() => handleCheckboxChange(rowId)}
-                  />
-                </td>
-                {Object.values(row).map((value, colIndex) => {
-                  let label = value; // Asignamos el valor por defecto en caso de que no haya un `label`
-                  const columnKey = Object.keys(row)[colIndex]; // Obtener el nombre de la columna
-
-                  // Verificar si 'foreignData' tiene la propiedad para esta columna
-                  if (foreignData && foreignData[columnKey]) {
-                    const options = foreignData[columnKey] || []; // Obtener las opciones para esa columna
-
-                    // Si options no es un array o está vacío, evitamos el error
-                    if (Array.isArray(options) && options.length > 0) {
-                      const item = options.find(obj => obj.value === value);
-
-                      // Si encontramos el item, asignamos el `label`
-                      label = item ? item.label : value;
-                    }
-                  }
-
-                  return (
-                    <td key={colIndex}>{(label && label !== "None") ? label : value}</td>
-                  );
-                })}
-                <td>
-                  <button className="btn text-primary" onClick={() => handleOnClickEdit([rowId, row])}>
-                    Editar
-                  </button>
-                </td>
-                <td>
-                  <button className="btn text-danger" onClick={() => onDelete(rowId)}>
-                    Eliminar
-                  </button>
-                </td>
-              </tr>
-            );
-          })} */}
-
-
         </tbody>
       </table>
 
