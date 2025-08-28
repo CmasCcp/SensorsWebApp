@@ -107,6 +107,14 @@
         "idVariable": 16
       },
       {
+        "idSensorTipo": 17,
+        "idVariable": 32
+      },
+      {
+        "idSensorTipo": 17,
+        "idVariable": 33
+      },
+      {
         "idSensorTipo": 18,
         "idVariable": 3
       },
@@ -135,16 +143,32 @@
         "idVariable": 19
       },
       {
+        "idSensorTipo": 19,
+        "idVariable": 27
+      },
+      {
         "idSensorTipo": 20,
         "idVariable": 18
+      },
+      {
+        "idSensorTipo": 20,
+        "idVariable": 28
       },
       {
         "idSensorTipo": 21,
         "idVariable": 21
       },
       {
+        "idSensorTipo": 21,
+        "idVariable": 25
+      },
+      {
         "idSensorTipo": 22,
         "idVariable": 20
+      },
+      {
+        "idSensorTipo": 22,
+        "idVariable": 26
       },
       {
         "idSensorTipo": 23,
@@ -157,6 +181,102 @@
       {
         "idSensorTipo": 25,
         "idVariable": 24
+      },
+      {
+        "idSensorTipo": 26,
+        "idVariable": 3
+      },
+      {
+        "idSensorTipo": 26,
+        "idVariable": 5
+      },
+      {
+        "idSensorTipo": 26,
+        "idVariable": 6
+      },
+      {
+        "idSensorTipo": 26,
+        "idVariable": 13
+      },
+      {
+        "idSensorTipo": 26,
+        "idVariable": 17
+      },
+      {
+        "idSensorTipo": 26,
+        "idVariable": 29
+      },
+      {
+        "idSensorTipo": 26,
+        "idVariable": 30
+      },
+      {
+        "idSensorTipo": 27,
+        "idVariable": 3
+      },
+      {
+        "idSensorTipo": 28,
+        "idVariable": 3
+      },
+      {
+        "idSensorTipo": 28,
+        "idVariable": 6
+      },
+      {
+        "idSensorTipo": 29,
+        "idVariable": 34
+      },
+      {
+        "idSensorTipo": 30,
+        "idVariable": 35
+      },
+      {
+        "idSensorTipo": 30,
+        "idVariable": 36
+      },
+      {
+        "idSensorTipo": 31,
+        "idVariable": 37
+      },
+      {
+        "idSensorTipo": 31,
+        "idVariable": 38
+      },
+      {
+        "idSensorTipo": 32,
+        "idVariable": 39
+      },
+      {
+        "idSensorTipo": 32,
+        "idVariable": 40
+      },
+      {
+        "idSensorTipo": 33,
+        "idVariable": 23
+      },
+      {
+        "idSensorTipo": 33,
+        "idVariable": 41
+      },
+      {
+        "idSensorTipo": 34,
+        "idVariable": 11
+      },
+      {
+        "idSensorTipo": 34,
+        "idVariable": 12
+      },
+      {
+        "idSensorTipo": 34,
+        "idVariable": 42
+      },
+      {
+        "idSensorTipo": 34,
+        "idVariable": 43
+      },
+      {
+        "idSensorTipo": 34,
+        "idVariable": 44
       }
     ]
   },

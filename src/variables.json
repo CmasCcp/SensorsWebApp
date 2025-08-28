@@ -65,7 +65,7 @@
       {
         "descripcion": "Presión atmosférica",
         "id_variable": 13,
-        "unidad": "hPa"
+        "unidad": "kPa"
       },
       {
         "descripcion": "Humedad relativa del Suelo",
@@ -88,24 +88,24 @@
         "unidad": "Grados"
       },
       {
-        "descripcion": "Óxido Nítrico (NO)",
+        "descripcion": "Óxido Nítrico (NO), RAW 1",
         "id_variable": 18,
-        "unidad": "ppb"
+        "unidad": "RAW"
       },
       {
-        "descripcion": "Dióxido de Nitrógeno (NO2)",
+        "descripcion": "Dióxido de Nitrógeno (NO2), RAW 1",
         "id_variable": 19,
-        "unidad": "ppb"
+        "unidad": "RAW"
       },
       {
-        "descripcion": "Ozono (O3)",
+        "descripcion": "Ozono (O3), RAW 1",
         "id_variable": 20,
-        "unidad": "ppb"
+        "unidad": "RAW"
       },
       {
-        "descripcion": "Monóxido de Carbono (CO)",
+        "descripcion": "Monóxido de Carbono (CO), RAW 1",
         "id_variable": 21,
-        "unidad": "ppb"
+        "unidad": "RAW"
       },
       {
         "descripcion": "Distancia",
@@ -121,6 +121,106 @@
         "descripcion": "Dióxido de Azufre (SO2)",
         "id_variable": 24,
         "unidad": "RAW"
+      },
+      {
+        "descripcion": "Monóxido de Carbono (CO), RAW 2",
+        "id_variable": 25,
+        "unidad": "RAW"
+      },
+      {
+        "descripcion": "Ozono (O3), RAW 2",
+        "id_variable": 26,
+        "unidad": "RAW"
+      },
+      {
+        "descripcion": "Dióxido de Nitrógeno (NO2), RAW 2",
+        "id_variable": 27,
+        "unidad": "RAW"
+      },
+      {
+        "descripcion": "Óxido Nítrico (NO), RAW 2",
+        "id_variable": 28,
+        "unidad": "RAW"
+      },
+      {
+        "descripcion": "Radiación Solar",
+        "id_variable": 29,
+        "unidad": "W/m2"
+      },
+      {
+        "descripcion": "Agua caída (Lluvia)",
+        "id_variable": 30,
+        "unidad": "mm"
+      },
+      {
+        "descripcion": "Dióxido de Carbono (CO2) RAW",
+        "id_variable": 31,
+        "unidad": "RAW"
+      },
+      {
+        "descripcion": "Dióxido de Carbono (CO2) Interno",
+        "id_variable": 32,
+        "unidad": "ppm"
+      },
+      {
+        "descripcion": "Dióxido de Carbono (CO2) Custom",
+        "id_variable": 33,
+        "unidad": "ppm"
+      },
+      {
+        "descripcion": "Compuestos orgánicos volátiles (VOC)",
+        "id_variable": 34,
+        "unidad": "ug/m2"
+      },
+      {
+        "descripcion": "Índice de Radiación UV",
+        "id_variable": 35,
+        "unidad": "Adimensional"
+      },
+      {
+        "descripcion": "Radiación UV",
+        "id_variable": 36,
+        "unidad": "mW/cm2"
+      },
+      {
+        "descripcion": "Dióxido de Azufre (SO2), RAW 1",
+        "id_variable": 37,
+        "unidad": "RAW"
+      },
+      {
+        "descripcion": "Dióxido de Azufre (SO2), RAW 2",
+        "id_variable": 38,
+        "unidad": "RAW"
+      },
+      {
+        "descripcion": "Sensor Alphasense Placeholder, RAW 1",
+        "id_variable": 39,
+        "unidad": "RAW"
+      },
+      {
+        "descripcion": "Sensor Alphasense Placeholder, RAW 2",
+        "id_variable": 40,
+        "unidad": "RAW"
+      },
+      {
+        "descripcion": "profundidad promedio",
+        "id_variable": 41,
+        "unidad": "m"
+      },
+      {
+        "descripcion": "ID",
+        "id_variable": 42,
+        "unidad": "String"
+      },
+      {
+        "descripcion": "Numero de envios",
+        "id_variable": 43,
+        "unidad": "Numeral"
+      },
+      {
+        "descripcion": "Registro SD",
+        "id_variable": 44,
+        "unidad": "Bool"
       }
     ]
   },
