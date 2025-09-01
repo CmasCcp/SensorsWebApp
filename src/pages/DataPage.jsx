@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { useFetch } from '../hooks/useFetch';
 import { BasicDataTableGraphic } from '../components/graphics/BasicDataTableGraphic';
+import { Spinner } from '../components/Spinner';
 
 export const DataPage = () => {
   // login
@@ -27,11 +28,14 @@ export const DataPage = () => {
   // Datos de la tabla
   const [tableData, setTableData] = useState([]);
 
+  const [isLoading, setIsLoading] = useState(false);
+
+
   // Paginación
   const [currentPage, setCurrentPage] = useState(1); // Página actual
   const [totalPages, setTotalPages] = useState(0);
   const rowsPerPage = 25; // Número máximo de filas por página
-  const [sortOrder, setSortOrder] = useState("ASC")
+  const [sortOrder, setSortOrder] = useState("desc")
 
   // Hooks para obtener datos de las tablas
   const { data: projectsData } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${projectsTableName}`);
@@ -40,23 +44,29 @@ export const DataPage = () => {
 
   // Establece opciones de proyectos
   useEffect(() => {
+
+    setIsLoading(true);
     if (projectsData && projectsData.status === 'success') {
       const options = projectsData.data.tableData.map((project) => ({
         value: project.id_proyecto,
         label: `${project.id_proyecto}. ${project.nombre}`,
       }));
       setProjectOptions(options);
+      setIsLoading(false);
     }
   }, [projectsData]);
 
   // Establece opciones de dispositivos
   useEffect(() => {
+    setIsLoading(true);
     if (devicesData && devicesData.status === 'success') {
       const options = devicesData.data.tableData.map((device) => ({
         value: device.id_dispositivo,
         label: device.codigo_interno,
       }));
+      
       setDeviceOptions(options);
+      setIsLoading(false);
     }
   }, [devicesData]);
 
@@ -66,20 +76,22 @@ export const DataPage = () => {
     if (selectedProjects.length > 0) {
       const projectIds = selectedProjects.map((project) => project.value).join(',');
       const deviceIds = selectedDevices.map((device) => device.label).join(',');
-
+      setIsLoading(true);
       devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${projectIds}`);
-
-
+      
+      
       let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructurados?tabla=datos&disp.id_proyecto=${projectIds}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
-
+      
       if (selectedDevices.length > 0) {
         url += `&disp.codigo_interno=${deviceIds}`;
         if (startDate) url += `&fecha_inicio=${startDate}`;
         if (endDate) url += `&fecha_fin=${endDate}`;
-
+        
         sensorsSetUrl(url);
+        setIsLoading(false);
       } else {
         sensorsSetUrl("");
+        setIsLoading(false);
       }
     }
   }, [selectedProjects, selectedDevices, startDate, endDate, currentPage]);
@@ -232,19 +244,24 @@ export const DataPage = () => {
     console.log(`/eliminarDatos?tabla=datos&id_dato=${id_datos_sin_espacios}`);
 
     try {
+        setIsLoading(true);
       const response = await fetch(`${import.meta.env.VITE_API_URL}/eliminarDatos?tabla=datos&id_dato=${id_datos_sin_espacios}`, {
         method: 'GET',
       });
 
       if (response.ok) {
         // Actualizar la tabla después de eliminar
+        setIsLoading(false);
         alert("Datos eliminados correctamente");
         window.location.reload(); // Recargar la página para actualizar los datos
         console.log("Datos eliminados correctamente");
+        
       } else {
+        setIsLoading(false);
         throw new Error('Error al eliminar los datos');
       }
     } catch (error) {
+      setIsLoading(false);
       alert("Error al eliminar los datos");
       console.error('Error al eliminar los datos:', error);
     }
@@ -252,6 +269,9 @@ export const DataPage = () => {
 
   return (
     <>
+      {isLoading && (
+        <Spinner />
+      )}
       <div className="container-fluid d-flex justify-content-center align-items-center">
         <div className="card w-100">
           <h2 className="card-title">Datos</h2>
@@ -345,7 +365,7 @@ export const DataPage = () => {
                 <div className="row d-flex justify-content-around my-4">
                   {selectedProjects.length > 0 && tableData.length > 0 ? (
                     <div style={{ overflowX: 'auto' }}>
-                      <BasicDataTableGraphic tableTitle={"Datos"} tableData={tableData} tablePrimaryKey={"id_dato_concatenado"}
+                      <BasicDataTableGraphic order={sortOrder} tableTitle={"Datos"} tableData={tableData} tablePrimaryKey={"id_dato_concatenado"}
                         onDelete={handleDelete}
                       // handleOnClickEdit={() => console.log("handleOnClickEdit")} 
                       // onEdit={() => console.log("handleEdit")} 

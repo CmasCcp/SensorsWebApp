@@ -11,6 +11,7 @@ export const BasicDataTableGraphic = ({
   onDelete = false,
   onEdit = false,
   handleOnClickEdit = false,
+  order="desc"
 }) => {
   const { accounts } = useMsal();
   const username = accounts.length > 0;
@@ -74,6 +75,8 @@ export const BasicDataTableGraphic = ({
   const visibleKeys = Object.keys(tableData[0]).filter(key => !hiddenColumns.includes(key));
 
 
+  // Renderiza los datos en orden inverso
+  const renderedTableData = (order === "desc") ? [...tableData].reverse() : [...tableData];
 
   return (
     <div style={{ overflowX: 'auto' }}>
@@ -103,7 +106,7 @@ export const BasicDataTableGraphic = ({
           </tr>
         </thead>
         <tbody>
-          {tableData.map((row, rowIndex) => {
+          {renderedTableData.map((row, rowIndex) => {
             const rowId = row[tablePrimaryKey];
             return (
               <tr key={rowIndex}>
