@@ -38,9 +38,9 @@ export const DataPage = () => {
   const [sortOrder, setSortOrder] = useState("desc")
 
   // Hooks para obtener datos de las tablas
-  const { data: projectsData } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${projectsTableName}`);
-  const { data: devicesData, setUrl: devicesSetUrl } = useFetch('');
-  const { data: sensorsData, setUrl: sensorsSetUrl } = useFetch('');
+  const { data: projectsData, isLoading: isLoadingProjects } = useFetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${projectsTableName}`);
+  const { data: devicesData, setUrl: devicesSetUrl, isLoading: isLoadingDevices } = useFetch('');
+  const { data: sensorsData, setUrl: sensorsSetUrl, isLoading: isLoadingSensors } = useFetch('');
 
   // Establece opciones de proyectos
   useEffect(() => {
@@ -80,7 +80,7 @@ export const DataPage = () => {
       devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${projectIds}`);
       
       
-      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructurados?tabla=datos&disp.id_proyecto=${projectIds}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
+      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructuradosV2?tabla=datos&disp.id_proyecto=${projectIds}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
       
       if (selectedDevices.length > 0) {
         url += `&disp.codigo_interno=${deviceIds}`;
@@ -184,7 +184,7 @@ export const DataPage = () => {
       const deviceIds = selectedDevices.map((device) => device.label).join(',');
 
       // Construye la URL sin los límites de filas ni el offset (esto descarga todos los datos)
-      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructurados?tabla=datos&disp.id_proyecto=${projectIds}&formato=csv`;
+      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructuradosV2?tabla=datos&disp.id_proyecto=${projectIds}&formato=csv`;
 
       // Añadir los filtros de fechas si se han especificado
       if (startDate) url += `&fecha_inicio=${startDate}`;
@@ -210,7 +210,7 @@ export const DataPage = () => {
       const deviceIds = selectedDevices.map((device) => device.label).join(',');
 
       // Construye la URL sin los límites de filas ni el offset (esto descarga todos los datos)
-      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructurados?tabla=datos&disp.id_proyecto=${projectIds}&formato=xlsx`;
+      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructuradosV2?tabla=datos&disp.id_proyecto=${projectIds}&formato=xlsx`;
 
       // Añadir los filtros de fechas si se han especificado
       if (startDate) url += `&fecha_inicio=${startDate}`;
@@ -269,7 +269,7 @@ export const DataPage = () => {
 
   return (
     <>
-      {isLoading && (
+      {isLoading || isLoadingProjects || isLoadingDevices || isLoadingSensors && (
         <Spinner />
       )}
       <div className="container-fluid d-flex justify-content-center align-items-center">

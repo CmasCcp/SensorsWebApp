@@ -76,7 +76,7 @@ export const BasicDataTableGraphic = ({
 
 
   // Renderiza los datos en orden inverso
-  const renderedTableData = (order === "desc") ? [...tableData].reverse() : [...tableData];
+  // const renderedTableData = (order === "desc") ? [...tableData].reverse() : [...tableData];
 
   return (
     <div style={{ overflowX: 'auto' }}>
@@ -106,7 +106,7 @@ export const BasicDataTableGraphic = ({
           </tr>
         </thead>
         <tbody>
-          {renderedTableData.map((row, rowIndex) => {
+          {tableData.map((row, rowIndex) => {
             const rowId = row[tablePrimaryKey];
             return (
               <tr key={rowIndex}>
