@@ -7,6 +7,7 @@ import { BasicDataTableGraphic } from "../components/graphics/BasicDataTableGrap
 import { data as variables } from "../variables.json"
 import { data as variablesEnSensoresTipo } from "../variables_en_sensores.json"
 import { Spinner } from '../components/Spinner';
+import { InsertionLinkComponent } from '../components/InsertionLinkComponent';
 
 export const RegisterPage = () => {
   // login
@@ -41,8 +42,6 @@ export const RegisterPage = () => {
   const [variablesEnSensores, setVariablesEnSensores] = useState([]) // [{idSensor: 1, idSensorTipo: 2, idVariable: 3, }]
 
   // Datos para tabla sensores
-  // const [options, setOptions] = useState([]);
-  // const { data: tableData, setUrl: tableDataSetUrl } = useFetch('');
 
   const [showLink, setShowLink] = useState(false);
   // Pagination states
@@ -318,81 +317,6 @@ export const RegisterPage = () => {
     }
   };
 
-  // LINK DE INSERTAR MEDICIONES
-
-  // Buscar las variables para cada sensor tipo
-  const [variablesEnSensoresData, setVariablesEnSensoresData] = useState(null);
-  const [variablesData, setVariablesData] = useState(null);
-  useEffect(() => {
-    const fetchVariablesEnSensores = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=variables_en_sensores`);
-        const data = await response.json();
-        setVariablesEnSensoresData(data);
-      } catch (error) {
-        console.error('Error fetching variables_en_sensores:', error);
-      }
-    };
-    const fetchVariables = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=variables`);
-        const data = await response.json();
-        setVariablesData(data);
-      } catch (error) {
-        console.error('Error fetching variables:', error);
-      }
-    };
-    fetchVariablesEnSensores();
-    fetchVariables();
-  }, []);
-
-  function getIdVariable(id_sensor_tipo, id_sensor) {
-    // Aquí está el JSON que tienes
-    // const data = { "data": { "tabla": "variables_en_sensores", "tableData": [{ "idSensorTipo": 1, "idVariable": 1 }, { "idSensorTipo": 2, "idVariable": 2 }, { "idSensorTipo": 3, "idVariable": 3 }, { "idSensorTipo": 4, "idVariable": 4 }, { "idSensorTipo": 5, "idVariable": 10 }, { "idSensorTipo": 6, "idVariable": 3 }, { "idSensorTipo": 6, "idVariable": 6 }, { "idSensorTipo": 6, "idVariable": 7 }, { "idSensorTipo": 6, "idVariable": 8 }, { "idSensorTipo": 7, "idVariable": 11 }, { "idSensorTipo": 7, "idVariable": 12 }, { "idSensorTipo": 8, "idVariable": 3 }, { "idSensorTipo": 8, "idVariable": 6 }, { "idSensorTipo": 8, "idVariable": 13 }, { "idSensorTipo": 9, "idVariable": 3 }, { "idSensorTipo": 9, "idVariable": 6 }, { "idSensorTipo": 10, "idVariable": 3 }, { "idSensorTipo": 10, "idVariable": 6 }, { "idSensorTipo": 11, "idVariable": 3 }, { "idSensorTipo": 11, "idVariable": 6 }, { "idSensorTipo": 12, "idVariable": 3 }, { "idSensorTipo": 12, "idVariable": 14 }, { "idSensorTipo": 13, "idVariable": 15 }, { "idSensorTipo": 14, "idVariable": 1 }, { "idSensorTipo": 17, "idVariable": 3 }, { "idSensorTipo": 17, "idVariable": 16 }, { "idSensorTipo": 17, "idVariable": 32 }, { "idSensorTipo": 17, "idVariable": 33 }, { "idSensorTipo": 18, "idVariable": 3 }, { "idSensorTipo": 18, "idVariable": 5 }, { "idSensorTipo": 18, "idVariable": 6 }, { "idSensorTipo": 18, "idVariable": 8 }, { "idSensorTipo": 18, "idVariable": 9 }, { "idSensorTipo": 18, "idVariable": 17 }, { "idSensorTipo": 19, "idVariable": 19 }, { "idSensorTipo": 19, "idVariable": 27 }, { "idSensorTipo": 20, "idVariable": 18 }, { "idSensorTipo": 20, "idVariable": 28 }, { "idSensorTipo": 21, "idVariable": 21 }, { "idSensorTipo": 21, "idVariable": 25 }, { "idSensorTipo": 22, "idVariable": 20 }, { "idSensorTipo": 22, "idVariable": 26 }, { "idSensorTipo": 23, "idVariable": 22 }, { "idSensorTipo": 24, "idVariable": 23 }, { "idSensorTipo": 25, "idVariable": 24 }, { "idSensorTipo": 26, "idVariable": 3 }, { "idSensorTipo": 26, "idVariable": 5 }, { "idSensorTipo": 26, "idVariable": 6 }, { "idSensorTipo": 26, "idVariable": 13 }, { "idSensorTipo": 26, "idVariable": 17 }, { "idSensorTipo": 26, "idVariable": 29 }, { "idSensorTipo": 26, "idVariable": 30 }, { "idSensorTipo": 27, "idVariable": 3 }, { "idSensorTipo": 28, "idVariable": 3 }, { "idSensorTipo": 28, "idVariable": 6 }, { "idSensorTipo": 29, "idVariable": 34 }] }, "status": "success" }
-
-    if (!variablesEnSensoresData) return [];
-
-    const data = variablesEnSensoresData;
-    // const data = { "data": { "tabla": "variables_en_sensores", "tableData": [{ "idSensorTipo": 1, "idVariable": 1 }, { "idSensorTipo": 2, "idVariable": 2 }, { "idSensorTipo": 3, "idVariable": 3 }, { "idSensorTipo": 4, "idVariable": 4 }, { "idSensorTipo": 5, "idVariable": 10 }, { "idSensorTipo": 6, "idVariable": 3 }, { "idSensorTipo": 6, "idVariable": 6 }, { "idSensorTipo": 6, "idVariable": 7 }, { "idSensorTipo": 6, "idVariable": 8 }, { "idSensorTipo": 7, "idVariable": 11 }, { "idSensorTipo": 7, "idVariable": 12 }, { "idSensorTipo": 8, "idVariable": 3 }, { "idSensorTipo": 8, "idVariable": 6 }, { "idSensorTipo": 8, "idVariable": 13 }, { "idSensorTipo": 9, "idVariable": 3 }, { "idSensorTipo": 9, "idVariable": 6 }, { "idSensorTipo": 10, "idVariable": 3 }, { "idSensorTipo": 10, "idVariable": 6 }, { "idSensorTipo": 11, "idVariable": 3 }, { "idSensorTipo": 11, "idVariable": 6 }, { "idSensorTipo": 12, "idVariable": 3 }, { "idSensorTipo": 12, "idVariable": 14 }, { "idSensorTipo": 13, "idVariable": 15 }, { "idSensorTipo": 14, "idVariable": 1 }, { "idSensorTipo": 17, "idVariable": 3 }, { "idSensorTipo": 17, "idVariable": 16 }, { "idSensorTipo": 17, "idVariable": 32 }, { "idSensorTipo": 17, "idVariable": 33 }, { "idSensorTipo": 18, "idVariable": 3 }, { "idSensorTipo": 18, "idVariable": 5 }, { "idSensorTipo": 18, "idVariable": 6 }, { "idSensorTipo": 18, "idVariable": 8 }, { "idSensorTipo": 18, "idVariable": 9 }, { "idSensorTipo": 18, "idVariable": 17 }, { "idSensorTipo": 19, "idVariable": 19 }, { "idSensorTipo": 19, "idVariable": 27 }, { "idSensorTipo": 20, "idVariable": 18 }, { "idSensorTipo": 20, "idVariable": 28 }, { "idSensorTipo": 21, "idVariable": 21 }, { "idSensorTipo": 21, "idVariable": 25 }, { "idSensorTipo": 22, "idVariable": 20 }, { "idSensorTipo": 22, "idVariable": 26 }, { "idSensorTipo": 23, "idVariable": 22 }, { "idSensorTipo": 24, "idVariable": 23 }, { "idSensorTipo": 25, "idVariable": 24 }, { "idSensorTipo": 26, "idVariable": 3 }, { "idSensorTipo": 26, "idVariable": 5 }, { "idSensorTipo": 26, "idVariable": 6 }, { "idSensorTipo": 26, "idVariable": 13 }, { "idSensorTipo": 26, "idVariable": 17 }, { "idSensorTipo": 26, "idVariable": 29 }, { "idSensorTipo": 26, "idVariable": 30 }, { "idSensorTipo": 27, "idVariable": 3 }, { "idSensorTipo": 28, "idVariable": 3 }, { "idSensorTipo": 28, "idVariable": 6 }, { "idSensorTipo": 29, "idVariable": 34 }, { "idSensorTipo": 30, "idVariable": 35 }, { "idSensorTipo": 30, "idVariable": 36 }, { "idSensorTipo": 31, "idVariable": 37 }, { "idSensorTipo": 31, "idVariable": 38 }, { "idSensorTipo": 32, "idVariable": 39 }, { "idSensorTipo": 32, "idVariable": 40 }] }, "status": "success" }
-
-    const label_variable = variablesData;
-    // const label_variable = { "data": { "tabla": "variables", "tableData": [{ "descripcion": "pH ambiental", "id_variable": 1, "unidad": "pH" }, { "descripcion": "Electroconductividad ambiental", "id_variable": 2, "unidad": "µS/cm" }, { "descripcion": "Grados celcius", "id_variable": 3, "unidad": "°C" }, { "descripcion": "Voltaje", "id_variable": 4, "unidad": "V" }, { "descripcion": "Velocidad del viento", "id_variable": 5, "unidad": "m/s" }, { "descripcion": "Humedad", "id_variable": 6, "unidad": "%" }, { "descripcion": "Material particulado PM 1.0", "id_variable": 7, "unidad": "µg/m³" }, { "descripcion": "Material particulado PM 2.5", "id_variable": 8, "unidad": "µg/m³" }, { "descripcion": "Material particulado PM 10", "id_variable": 9, "unidad": "µg/m³" }, { "descripcion": "Miliamperios hora", "id_variable": 10, "unidad": "mAh" }, { "descripcion": "Latitud", "id_variable": 11, "unidad": "°" }, { "descripcion": "Longitud", "id_variable": 12, "unidad": "°" }, { "descripcion": "Presión atmosférica", "id_variable": 13, "unidad": "kPa" }, { "descripcion": "Humedad relativa del Suelo", "id_variable": 14, "unidad": "% R.H." }, { "descripcion": "Intensidad señal telefónica", "id_variable": 15, "unidad": "Adimensional" }, { "descripcion": "Dióxido de Carbono (CO2)", "id_variable": 16, "unidad": "ppm" }, { "descripcion": "Dirección del Viento", "id_variable": 17, "unidad": "Grados" }, { "descripcion": "Óxido Nítrico (NO), RAW 1", "id_variable": 18, "unidad": "RAW" }, { "descripcion": "Dióxido de Nitrógeno (NO2), RAW 1", "id_variable": 19, "unidad": "RAW" }, { "descripcion": "Ozono (O3), RAW 1", "id_variable": 20, "unidad": "RAW" }, { "descripcion": "Monóxido de Carbono (CO), RAW 1", "id_variable": 21, "unidad": "RAW" }, { "descripcion": "Distancia", "id_variable": 22, "unidad": "m" }, { "descripcion": "Profundidad", "id_variable": 23, "unidad": "m" }, { "descripcion": "Dióxido de Azufre (SO2)", "id_variable": 24, "unidad": "RAW" }, { "descripcion": "Monóxido de Carbono (CO), RAW 2", "id_variable": 25, "unidad": "RAW" }, { "descripcion": "Ozono (O3), RAW 2", "id_variable": 26, "unidad": "RAW" }, { "descripcion": "Dióxido de Nitrógeno (NO2), RAW 2", "id_variable": 27, "unidad": "RAW" }, { "descripcion": "Óxido Nítrico (NO), RAW 2", "id_variable": 28, "unidad": "RAW" }, { "descripcion": "Radiación Solar", "id_variable": 29, "unidad": "W/m2" }, { "descripcion": "Agua caída (Lluvia)", "id_variable": 30, "unidad": "mm" }, { "descripcion": "Dióxido de Carbono (CO2) RAW", "id_variable": 31, "unidad": "RAW" }, { "descripcion": "Dióxido de Carbono (CO2) Interno", "id_variable": 32, "unidad": "ppm" }, { "descripcion": "Dióxido de Carbono (CO2) Custom", "id_variable": 33, "unidad": "ppm" }, { "descripcion": "Compuestos orgánicos volátiles (VOC)", "id_variable": 34, "unidad": "ug/m2" }, { "descripcion": "Índice de Radiación UV", "id_variable": 35, "unidad": "Adimensional" }, { "descripcion": "Radiación UV", "id_variable": 36, "unidad": "mW/cm2" }, { "descripcion": "Dióxido de Azufre (SO2), RAW 1", "id_variable": 37, "unidad": "RAW" }, { "descripcion": "Dióxido de Azufre (SO2), RAW 2", "id_variable": 38, "unidad": "RAW" }, { "descripcion": "Sensor Alphasense Placeholder, RAW 1", "id_variable": 39, "unidad": "RAW" }, { "descripcion": "Sensor Alphasense Placeholder, RAW 2", "id_variable": 40, "unidad": "RAW" }] }, "status": "success" }
-
-    // Filtrar el array 'tableData' para obtener los idVariable correspondientes al idSensorTipo
-    const result = data.data.tableData.filter(item => item.idSensorTipo === id_sensor_tipo)
-      .map(item => { return { "s": id_sensor, "t": id_sensor_tipo, "v": item.idVariable, "l": label_variable.data.tableData.filter(x => x["id_variable"] === item.idVariable).map(y => y.descripcion + " " + y.unidad)[0] + "(" + id_sensor + ")" } });
-
-    return result;  // Devuelve un array con los idVariable encontrados
-  }
-
-  let idsSensores = sensorsData?.data?.tableData.map(x => { return { "idSensor": x["Id Sensor"], "idSensorTipo": x["Id Sensor Tipo"] } })
-
-  let dataURL = idsSensores?.map(idSensorTipo => { return getIdVariable(idSensorTipo.idSensorTipo, idSensorTipo.idSensor) })
-
-  let idsSensoresString = JSON.stringify(dataURL?.map(sensor => sensor.map(sensorProperties => sensorProperties.s)))
-  // Eliminar corchetes, comillas y barras
-  let idsSensoresFormated = idsSensoresString
-    ?.replace(/\[|\]/g, "") // Elimina los corchetes []
-    .replace(/"/g, "")      // Elimina las comillas "
-    .replace(/"/g, "")      // Elimina las comillas "
-    .replace(/\//g, "")    // Elimina las barras /
-
-
-  let idsVariablesString = JSON.stringify(dataURL?.map(sensor => sensor.map(sensorProperties => sensorProperties.v)))
-  // Eliminar corchetes, comillas y barras
-  let idsVariablesFormated = idsVariablesString
-    ?.replace(/\[|\]/g, "") // Elimina los corchetes []
-    .replace(/"/g, "")      // Elimina las comillas "
-    .replace(/"/g, "")      // Elimina las comillas "
-    .replace(/\//g, "")    // Elimina las barras /
-
-  let idsValoresString = JSON.stringify(dataURL?.map(sensor => sensor.map(sensorProperties => sensorProperties.l)))
-  // Eliminar corchetes, comillas y barras
-  let idsValoresFormated = idsValoresString
-    ?.replace(/\[|\]/g, "") // Elimina los corchetes []
-    .replace(/"/g, "")      // Elimina las comillas "
-    .replace(/"/g, "")      // Elimina las comillas "
-    .replace(/\//g, "")    // Elimina las barras /
 
 
   const handleDelete = async (id) => {
@@ -429,28 +353,27 @@ export const RegisterPage = () => {
 
   return (
     <>
-
       {isLoading && (
         <Spinner />
       )}
+
       <Modal
         type={"warning"}
         action={selectedAction}
-        title={"Agregar dispositivo"}
+        title={"Agregar dispositivo al proyecto " + (selectedProject ? selectedProject.value : "")}
         id="addModal"
         properties={deviceSchema}
         isOpen={showAddModal}
         onClose={handleCloseModal}
         tableName={selectedTable}
         hiddenData={selectedHiddenData}
+        data={{"id_proyecto": selectedProject ? selectedProject.value : ""}}
       />
       <Modal
         type={"warning"}
         action={selectedAction}
         title={"Agregar sensor"}
         id="addModal"
-        // properties={["Hola","sfjslf"]}
-
         properties={sensorTableSchema}
         isOpen={showAddSensorModal}
         onClose={handleCloseModal}
@@ -461,7 +384,6 @@ export const RegisterPage = () => {
         <div className="card w-100">
           <h2 className="card-title">Dispositivos</h2>
           <div className="card-content mt-3">
-            {/* {username && ( */}
             {(visitorLoggedIn || username) && (
               <div>
                 <p>Utilice esta página para gestionar sus sensores y dispositivos.</p>
@@ -493,17 +415,8 @@ export const RegisterPage = () => {
 
                         <div className="w-100">
                           {showLink && (
-                            <p style={{ fontSize: "0.75rem" }} className="fs-6">
-                              {`https://api-sensores.cmasccp.cl/insertarMedicion?idsSensores=${JSON.stringify(
-                                idsSensoresFormated
-                              )?.slice(1, -1)}&idsVariables=${JSON.stringify(
-                                idsVariablesFormated
-                              )?.slice(1, -1)}&valores=${JSON.stringify(
-                                idsValoresFormated
-                              )?.slice(1, -1)}`}
-                            </p>
+                            <InsertionLinkComponent sensorsData={sensorsData}/>
                           )}
-                          {/* <p style={{"fontSize":"0.75rem"}} className='fs-6'>{`https://api-sensores.cmasccp.cl/insertarMedicion?idsSensores=${JSON.stringify(idsSensoresFormated)?.slice(1, -1)}&idsVariables=${JSON.stringify(idsVariablesFormated)?.slice(1, -1)}&valores=${JSON.stringify(idsValoresFormated)?.slice(1, -1)}`}</p> */}
                         </div>
                       </div>
                     </>
@@ -572,14 +485,12 @@ export const RegisterPage = () => {
 
                     {(!!sensorsData && sensorsData?.data.tableData.length > 0)
                       ? (<>
-                        {/* TODO cuando selecciono un proyecto sin dispositivos, este renderiza todos los sensores de la base de datos. Hay que revisar el flujo. */}
+                        {/* TODO: cuando selecciono un proyecto sin dispositivos, este renderiza todos los sensores de la base de datos. Hay que revisar el flujo. */}
                         <BasicDataTableGraphic tableTitle={selectedDevice !== "" ? `Sensores en el dispositivo: ${selectedDevice?.label}` : (selectedProject !== "" ? `Sensores en el proyecto: ${selectedProject?.label.substring(3)}` : "Sensores totales")} tableData={sensorsData?.data?.tableData || []} tablePrimaryKey={primaryKey} onDelete={handleDelete} handleOnClickEdit={() => console.log("handleOnClickEdit")} onEdit={() => console.log("handleEdit")} />
-                        {/* <BasicDataTableGraphic tableTitle={selectedDevice !== "" ? `Sensores en el dispositivo: ${selectedDevice?.label}` : ( selectedProject !== "" ?  `Sensores en el proyecto: ${selectedProject?.label.substring(3)}` : "Sensores totales")}  tableData={[]} tablePrimaryKey={primaryKey} onDelete={()=>{console.log(handleDelete)}} handleOnClickEdit={()=> console.log(handleOnClickEdit)} onEdit={()=>console.log(handleEdit)} /> */}
                       </>
                       )
                       :
                       (
-                        // <p>Seleccione un filtro para ver los datos.</p>
                         <p>Sin datos para mostrar.</p>
                       )
                     }

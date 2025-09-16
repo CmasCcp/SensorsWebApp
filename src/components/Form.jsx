@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { VariablesSelector } from './VariablesSelector';
 
 // TODO: las tablas que tienen claves primarias cruzadas ( muchas a muchas) tienen que tener 
 // habilitados los campos para seleccionar las claves primarias como si fueran foraneas
@@ -58,6 +59,10 @@ export const Form = ({ properties = [], data, onChange, tableName, pkValue }) =>
       case (prop.Key === "MUL" && Array.isArray(options)):
         result = "foranea"
         break;
+      
+      case (prop.Field === "variables_usadas"):
+        result = "variables_usadas"
+        break;
 
       default:
         result = "normal"
@@ -116,12 +121,27 @@ export const Form = ({ properties = [], data, onChange, tableName, pkValue }) =>
                   </select>
                 )}
 
+                {inputRenderType === "variables_usadas" && (
+                  <>
+                    <input
+                      type={"text"}
+                      disabled={true}
+                      className={`form-control`}
+                      id={prop.Field}
+                      name={prop.Field}
+                      value={data?.[prop.Field] || ""}
+                      onChange={handleChange}
+                    />
+                  <VariablesSelector data={data} handleChange={handleChange} variablesValueString={data?.["variables_usadas"]} onChange={handleChange} sensorTipo={data?.["id_sensor_tipo"]} />
+
+                  </>
+                )}
                 {inputRenderType === "normal" && (
                   <>
                     {prop.Field === "codigo_interno" && (
                       <small className="form-text text-muted">
-                        Sigue el siguiente formato: nombre + guión + número. 
-                        <br/>
+                        Sigue el siguiente formato: nombre + guión + número.
+                        <br />
                         Ejemplo: SOIL-01
                       </small>
                     )}
@@ -187,7 +207,8 @@ export const Form = ({ properties = [], data, onChange, tableName, pkValue }) =>
               } */}
               </div>
             )
-          })}
+          })
+        }
       </form>
     </div>
   );

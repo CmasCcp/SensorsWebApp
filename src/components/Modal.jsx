@@ -10,6 +10,8 @@ export const Modal = ({ title, id, action, properties, data, isOpen, onClose, pk
         setFormData(data);
     }, [data]);
 
+    console.log("formData inicial", formData);
+
     useEffect(() => {
         if (isOpen) {
             $(modalRef.current).modal('show');
@@ -40,37 +42,6 @@ export const Modal = ({ title, id, action, properties, data, isOpen, onClose, pk
         setErrors(newErrors); // Almacena los errores en el estado
         return isValid;
     };
-
-    // Manejar el cambio en los datos del formulario
-    // const handleSend = async () => {
-    //     // if (!validateForm(formData)) return;
-
-    //     try {
-    //         const payload = {
-    //             tableName: tableName,
-    //             primaryKeys: pkValue,
-    //             formData: { ...formData, ...hiddenData }  // Los datos del formulario
-    //         };
-
-    //         console.log(payload);
-
-    //         const response = await fetch(`${import.meta.env.VITE_API_URL}/modificarDatos`, {
-    //             method: 'PUT',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },
-    //             body: JSON.stringify(payload),  // Enviar los datos del formulario como JSON
-    //         });
-
-    //         if (response.ok) {
-    //             console.log('Dispositivo actualizado correctamente');
-    //         } else {
-    //             console.error('Error al actualizar el dispositivo');
-    //         }
-    //     } catch (error) {
-    //         console.error('Error al hacer la solicitud:', error);
-    //     }
-    // };
 
     const handleSend = async () => {
         if (!formData || !tableName || !pkValue) {

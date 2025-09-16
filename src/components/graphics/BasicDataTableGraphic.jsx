@@ -69,7 +69,7 @@ export const BasicDataTableGraphic = ({
 
 
   // Lista de columnas a ocultar
-  const hiddenColumns = ["id_sesion", "sesion_descripcion", "fecha_inicio", "ubicacion", "id_dato_concatenado"];
+  const hiddenColumns = ["sesion_descripcion", "fecha_inicio", "ubicacion", "id_dato_concatenado"];
 
   // Filtra las columnas visibles
   const visibleKeys = Object.keys(tableData[0]).filter(key => !hiddenColumns.includes(key));

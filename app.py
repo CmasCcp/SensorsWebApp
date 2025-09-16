@@ -1436,7 +1436,8 @@ def listar_sensores():
             sensores_tipo.codigo_interno,
             sensores_tipo.marca,    
             sensores_tipo.modelo,
-            sensores_tipo.descripcion    
+            sensores_tipo.descripcion,
+            sensores.variables_usadas
         FROM sensores
         LEFT JOIN sensores_tipo ON sensores.id_sensor_tipo = sensores_tipo.id_sensor_tipo
         LEFT JOIN sensores_en_dispositivo ON sensores.id_sensor = sensores_en_dispositivo.id_sensor
@@ -1468,6 +1469,7 @@ def listar_sensores():
             "Marca",
             "Modelo",
             "Descripcion",
+            "Variables usadas"
         ]
 
         respuesta = [dict(zip(columnas, fila)) for fila in filas]
