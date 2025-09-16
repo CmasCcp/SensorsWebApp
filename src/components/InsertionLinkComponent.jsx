@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 export const InsertionLinkComponent = ({ sensorsData }) => {
     const [variablesEnSensoresData, setVariablesEnSensoresData] = useState(null);
     const [variablesData, setVariablesData] = useState(null);
+    console.log(sensorsData)
 
     useEffect(() => {
         const fetchVariablesEnSensores = async () => {
@@ -27,23 +28,41 @@ export const InsertionLinkComponent = ({ sensorsData }) => {
         fetchVariables();
     }, []);
 
-      function getIdVariable(id_sensor_tipo, id_sensor) {
+    function getSensorVariables(id_sensor_tipo, id_sensor, variables_usadas="") {
+        console.log("variables_usadas", variables_usadas)
         if (!variablesEnSensoresData || !variablesData) return [];
-        const data = variablesEnSensoresData;
         const label_variable = variablesData;
-        return data?.data?.tableData
-          .filter(item => item.idSensorTipo === id_sensor_tipo)
-          .map(item => ({
-            s: id_sensor,
-            t: id_sensor_tipo,
-            v: item.idVariable,
-            l:
-              (label_variable.data.tableData.find(x => x["id_variable"] === item.idVariable)?.descripcion || "") +
-              " " +
-              (label_variable.data.tableData.find(x => x["id_variable"] === item.idVariable)?.unidad || "") +
-              `(${id_sensor})`
-          }));
-      }
+        if (variables_usadas != "" && variables_usadas != null) {
+            const variablesUsadasArray = variables_usadas?.split(',').map(Number);
+            console.log("variablesEnSensoresData", variablesEnSensoresData)
+            
+            return variablesUsadasArray
+            // .filter(item => item.idSensorTipo === id_sensor_tipo)
+            .map(item => ({
+                s: id_sensor,
+                t: id_sensor_tipo,
+                v: item,
+                l:
+                    (label_variable.data.tableData.find(x => x["id_variable"] === item)?.descripcion || "") +
+                    " " +
+                    (label_variable.data.tableData.find(x => x["id_variable"] === item)?.unidad || "") +
+                    `(${id_sensor})`
+            }));
+        }
+
+        return variablesEnSensoresData?.data?.tableData
+            .filter(item => item.idSensorTipo === id_sensor_tipo)
+            .map(item => ({
+                s: id_sensor,
+                t: id_sensor_tipo,
+                v: item.idVariable,
+                l:
+                    (label_variable.data.tableData.find(x => x["id_variable"] === item.idVariable)?.descripcion || "") +
+                    " " +
+                    (label_variable.data.tableData.find(x => x["id_variable"] === item.idVariable)?.unidad || "") +
+                    `(${id_sensor})`
+            }));
+    }
 
     if (!variablesEnSensoresData || !variablesData) {
         return <p>Cargando datos de variables...</p>;
@@ -54,11 +73,12 @@ export const InsertionLinkComponent = ({ sensorsData }) => {
 
     const idsSensores = sensorsData.data.tableData.map(x => ({
         idSensor: x["Id Sensor"],
-        idSensorTipo: x["Id Sensor Tipo"]
+        idSensorTipo: x["Id Sensor Tipo"],
+        variables_usadas: x["Variables Usadas"]
     }));
 
-    const dataURL = idsSensores.map(idSensorTipo =>
-        getIdVariable(idSensorTipo.idSensorTipo, idSensorTipo.idSensor)
+    const dataURL = idsSensores.map(sensor =>
+        getSensorVariables(sensor.idSensorTipo, sensor.idSensor, sensor.variables_usadas)
     );
 
     // Aplana y filtra valores vacíos
