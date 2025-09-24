@@ -11,7 +11,7 @@ export const BasicDataTableGraphic = ({
   onDelete = false,
   onEdit = false,
   handleOnClickEdit = false,
-  order="desc"
+  order = "desc"
 }) => {
   const { accounts } = useMsal();
   const username = accounts.length > 0;
@@ -67,20 +67,69 @@ export const BasicDataTableGraphic = ({
     // console.log("tableData", tableData);
   }, [tableData]);
 
+  const [allColumns, setAllColumns] = useState([]);
+
+  useEffect(() => {
+    if (Array.isArray(tableData) && tableData.length > 0) {
+      setAllColumns(Object.keys(tableData[0]));
+    }
+  }, [tableData]);
 
   // Lista de columnas a ocultar
-  const hiddenColumns = ["sesion_descripcion", "fecha_inicio", "ubicacion", "id_dato_concatenado"];
+  const [hiddenColumns, setHiddenColumns] = useState(["sesion_descripcion", "fecha_inicio", "ubicacion", "id_dato_concatenado"]);
 
   // Filtra las columnas visibles
   const visibleKeys = Object.keys(tableData[0]).filter(key => !hiddenColumns.includes(key));
 
+  // Maneja el cambio de visibilidad de columnas
+  const handleColumnVisibilityChange = (col) => {
+    setHiddenColumns((prev) =>
+      prev.includes(col)
+        ? prev.filter(c => c !== col) // Mostrar columna (quitar de ocultas)
+        : [...prev, col]              // Ocultar columna (agregar a ocultas)
+    );
+  };
 
   // Renderiza los datos en orden inverso
   // const renderedTableData = (order === "desc") ? [...tableData].reverse() : [...tableData];
 
+  const [showFilters, setShowFilters] = useState(false);
+
   return (
     <div style={{ overflowX: 'auto' }}>
+
+      <div className="col-12 px-0 d-flex flex-row justify-content-between bg-light">
+        <button onClick={() => setShowFilters(!showFilters)} className='btn btn-secondary'>Filtros:</button>
+        {allColumns.includes("fecha") && (
+          <button className='btn btn-secondary ms-auto'>Ordenar por fecha:</button>
+        )}
+      </div>
+
+      {/* Componente para filtros */}
+      {showFilters && (
+        <div className='card mx-0 col-12'>
+          <label><small><strong>Columnas visibles:</strong></small></label>
+          <div className='col-12' style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '8px 0', fontSize: '0.875rem' }}>
+            {allColumns.map((col, idx) => (
+              <label key={idx} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <input
+                  type="checkbox"
+                  checked={visibleKeys.includes(col)}
+                  onChange={() => handleColumnVisibilityChange(col)}
+                // disabled={hiddenColumns.includes(col)}
+                // readOnly
+                />
+                {col}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
+
+
       <h3 style={{ fontSize: '1.5rem' }}>{tableTitle}</h3>
+
       <table className="table table-bordered">
         <thead style={{ fontSize: '1.25rem' }}>
           <tr>

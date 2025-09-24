@@ -30,6 +30,7 @@
     "react-select": "^5.8.3",
     "react-tooltip": "^5.28.0",
     "simple-datatables": "^9.0.4",
+    "socket.io-client": "^4.8.1",
     "three": "^0.154.0"
   },
   "devDependencies": {

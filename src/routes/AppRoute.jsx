@@ -6,6 +6,7 @@ import {RegisterPage} from '../pages/RegisterPage'
 import {DataPage} from '../pages/DataPage'
 import { ProtocolosPage } from "../pages/ProtocolosPage"
 import { PruebaPage } from "../pages/PruebaPage"
+import { PruebaObservador } from "../pages/PruebaObservador"
 
 export const AppRoute = () => {
     return (
@@ -19,6 +20,7 @@ export const AppRoute = () => {
             <Route path="/protocolos" element={<ProtocolosPage/>}/>
             <Route path="/administrador" element={<AdministradorPage/>}/>
             <Route path="/prueba" element={<PruebaPage/>}/>
+            <Route path="/pruebaObservador" element={<PruebaObservador/>}/>
         </Routes>
     )
 }
