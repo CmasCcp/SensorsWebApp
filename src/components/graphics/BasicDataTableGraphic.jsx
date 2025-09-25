@@ -98,11 +98,13 @@ export const BasicDataTableGraphic = ({
   return (
     <div style={{ overflowX: 'auto' }}>
 
-      <div className="col-12 px-0 d-flex flex-row justify-content-between bg-light">
-        <button onClick={() => setShowFilters(!showFilters)} className='btn btn-secondary'>Filtros:</button>
-        {allColumns.includes("fecha") && (
-          <button className='btn btn-secondary ms-auto'>Ordenar por fecha:</button>
-        )}
+      <div className="col-12 p-1 d-flex flex-row justify-content-between">
+        <button onClick={() => setShowFilters(!showFilters)} className='btn btn-outline-dark'>Filtros:</button>
+        
+        {/* TODO: Habilitar funcionalidad */}
+        {/* {allColumns.includes("fecha") && (
+          <button className='btn btn-outline-dark ms-auto'>Ordenar por fecha:</button>
+        )} */}
       </div>
 
       {/* Componente para filtros */}

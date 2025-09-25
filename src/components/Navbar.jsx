@@ -39,6 +39,9 @@ export const Navbar = () => {
                             )}
 
                             <li className="nav-item active">
+                                <Link to="observador" className="nav-link text-customdark">EN VIVO<span className="sr-only">(current)</span></Link>
+                            </li>
+                            <li className="nav-item active">
                                 <LoginPage/>
                             </li>
                                                
