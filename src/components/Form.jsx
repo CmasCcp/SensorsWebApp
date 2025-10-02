@@ -12,6 +12,8 @@ export const Form = ({ properties = [], data, onChange, tableName, pkValue }) =>
   // Estado para almacenar los datos de las columnas foráneas
   const [foreignData, setForeignData] = useState({});
 
+  console.log(tableName)
+
   useEffect(() => {
     const fetchForeignData = async () => {
       const results = {};
@@ -138,7 +140,7 @@ export const Form = ({ properties = [], data, onChange, tableName, pkValue }) =>
                 )}
                 {inputRenderType === "normal" && (
                   <>
-                    {prop.Field === "codigo_interno" && (
+                    {prop.Field === "codigo_interno" && tableName === "dispositivos" && (
                       <small className="form-text text-muted">
                         Sigue el siguiente formato: nombre + guión + número.
                         <br />

@@ -9,12 +9,18 @@ export const PruebaObservador = () => {
         const api = `${import.meta.env.VITE_API_URL}`;
         const socket = io(api);
 
-        // Escucha mensajes
+        socket.on('connect', () => {
+            console.log('Conectado al WebSocket');
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Error de conexión:', error);
+        });
+
         socket.on("medicion_insertada", (msg) => {
             setMessages(prev => [...prev, msg]);
         });
 
-        // Limpia la conexión al desmontar
         return () => {
             socket.disconnect();
         };
