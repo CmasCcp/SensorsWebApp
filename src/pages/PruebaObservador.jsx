@@ -3,11 +3,11 @@ import { io } from "socket.io-client";
 
 export const PruebaObservador = () => {
     const [messages, setMessages] = useState([]);
+    // Crea la conexión solo una vez
+    const api = `${import.meta.env.VITE_API_URL}`;
+    const socket = io(api);
 
     useEffect(() => {
-        // Crea la conexión solo una vez
-        const api = `${import.meta.env.VITE_API_URL}`;
-        const socket = io(api);
 
         socket.on('connect', () => {
             console.log('Conectado al WebSocket');
@@ -22,7 +22,9 @@ export const PruebaObservador = () => {
         });
 
         return () => {
-            socket.disconnect();
+            // socket.disconnect();
+            socket.off('medicion_insertada');
+            socket.off('connect');
         };
     }, []);
 
