@@ -4,6 +4,10 @@ import Select from 'react-select';
 import { useFetch } from '../hooks/useFetch';
 import { BasicDataTableGraphic } from '../components/graphics/BasicDataTableGraphic';
 import { Spinner } from '../components/Spinner';
+import { ChartComponent } from '../components/graphics/ChartComponent';
+import noVariables from '../helpers/noVariables.json';
+
+// 2025-06-20T21:04:33
 
 export const DataPage = () => {
   // login
@@ -25,8 +29,12 @@ export const DataPage = () => {
   const [startDate, setStartDate] = useState(''); // Fecha de inicio
   const [endDate, setEndDate] = useState(''); // Fecha de fin
 
+  // Graficos
+  const [showChart, setShowChart] = useState(false);
   // Datos de la tabla
   const [tableData, setTableData] = useState([]);
+  // datos del gráfico
+  const [chartData, setChartData] = useState([]);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -64,7 +72,7 @@ export const DataPage = () => {
         value: device.id_dispositivo,
         label: device.codigo_interno,
       }));
-      
+
       setDeviceOptions(options);
       setIsLoading(false);
     }
@@ -78,15 +86,15 @@ export const DataPage = () => {
       const deviceIds = selectedDevices.map((device) => device.label).join(',');
       setIsLoading(true);
       devicesSetUrl(`${import.meta.env.VITE_API_URL}/listarDatos?tabla=${devicesTableName}&id_proyecto=${projectIds}`);
-      
-      
+
+
       let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructuradosV2?tabla=datos&disp.id_proyecto=${projectIds}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
-      
+
       if (selectedDevices.length > 0) {
         url += `&disp.codigo_interno=${deviceIds}`;
         if (startDate) url += `&fecha_inicio=${startDate}`;
         if (endDate) url += `&fecha_fin=${endDate}`;
-        
+
         sensorsSetUrl(url);
         setIsLoading(false);
       } else {
@@ -109,6 +117,11 @@ export const DataPage = () => {
       setTotalPages(0);
     }
   }, [sensorsData]);
+
+  useEffect(() => {
+    setChartData([...tableData].reverse());
+    console.log('tableData', tableData);
+  }, [tableData]);
 
   const handleProjectChange = (selectedProjects) => {
     setSelectedProjects(selectedProjects || []); // Permite deseleccionar todo
@@ -244,7 +257,7 @@ export const DataPage = () => {
     console.log(`/eliminarDatos?tabla=datos&id_dato=${id_datos_sin_espacios}`);
 
     try {
-        setIsLoading(true);
+      setIsLoading(true);
       const response = await fetch(`${import.meta.env.VITE_API_URL}/eliminarDatos?tabla=datos&id_dato=${id_datos_sin_espacios}`, {
         method: 'GET',
       });
@@ -255,7 +268,7 @@ export const DataPage = () => {
         alert("Datos eliminados correctamente");
         window.location.reload(); // Recargar la página para actualizar los datos
         console.log("Datos eliminados correctamente");
-        
+
       } else {
         setIsLoading(false);
         throw new Error('Error al eliminar los datos');
@@ -275,7 +288,7 @@ export const DataPage = () => {
       <div className="container-fluid d-flex justify-content-center align-items-center">
         <div className="card w-100">
           <h2 className="card-title">Datos</h2>
-          <div className="card-content">
+          <div className="card-content mt-2">
             {(visitorLoggedIn || username) && (
               <div>
                 <p>Utilice esta página para visualizar y descargar sus datos.</p>
@@ -329,9 +342,15 @@ export const DataPage = () => {
                     />
                   </div>
                 </div>
+
+
                 <div className='row d-flex justify-content-around my-2'>
                   {selectedProjects.length > 0 && tableData.length > 0 && (
                     <div className='row'>
+                      <button className="btn m-1 ml-auto custom-button" onClick={()=> setShowChart(!showChart)}>
+                        <span className="btn-text">{showChart ? "Ocultar" : "Mostrar"} gráfico</span>
+                        <i className="fas fa-eye me-2" aria-hidden="true"></i>
+                      </button>
                       <button className="btn m-1 ml-auto custom-button" onClick={downloadFile}>
                         <span className="btn-text">Descargar CSV</span>
                         <i className="fas fa-plus-circle"></i>
@@ -343,7 +362,13 @@ export const DataPage = () => {
                     </div>
                   )}
 
+
                 </div>
+                {selectedProjects.length > 0 && tableData.length > 0 && showChart && (
+                  <div className="row">
+                    <ChartComponent datos={chartData} />
+                  </div>
+                )}
                 <div className="row">
                   {/* Selección de ordenación */}
                   {/* <div className="mb-3">

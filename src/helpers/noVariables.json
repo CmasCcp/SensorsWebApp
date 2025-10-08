@@ -1,0 +1,11 @@
+[
+    "fecha",
+    "id_sesion",
+    "sesion_descripcion",
+    "fecha_inicio",
+    "ubicacion",
+    "id_proyecto",
+    "codigo_interno",
+    "dispositivo_descripcion",
+    "id_dato_concatenado"
+]
