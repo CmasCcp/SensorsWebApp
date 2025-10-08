@@ -7,7 +7,9 @@ import { Spinner } from '../components/Spinner';
 import { ChartComponent } from '../components/graphics/ChartComponent';
 import noVariables from '../helpers/noVariables.json';
 
-// 2025-06-20T21:04:33
+// 2025-06-23T21:33:25
+
+
 
 export const DataPage = () => {
   // login
