@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 
 export const useFetch = (apiUrl) => {
-  const [url, setUrl] = useState(apiUrl);
+  const [url, setUrlState] = useState(apiUrl);
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(null);
+  const [trigger, setTrigger] = useState(0); // para forzar fetch aunque la url no cambie
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
+      console.log('[useFetch] fetching URL:', url);
 
       try {
         const response = await fetch(url,{
@@ -17,13 +19,15 @@ export const useFetch = (apiUrl) => {
             'User-agent': 'learning app',
           }
         });
-        const responseData = await response.json();
+  const responseData = await response.json();
+  console.log('[useFetch] fetched:', { url, success: true });
         setData(responseData);
         setIsLoading(false);
         setHasError(null);
       } catch (error) {
         setIsLoading(false);
         setHasError(error);
+        console.error('[useFetch] fetch error for', url, error);
       }
     };
     if(url !== ''){
@@ -33,7 +37,19 @@ export const useFetch = (apiUrl) => {
       setData(null);
       setHasError(null);
     }
-  }, [url]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [url, trigger]);
 
-  return { data, isLoading, hasError, setUrl, url};
+  const forceFetch = () => setTrigger(t => t + 1);
+
+  // wrapper for setUrl: if the new url is equal to the current one, trigger a fetch
+  const setUrl = (newUrl) => {
+    if (newUrl === url) {
+      // mismo valor: forzar fetch
+      forceFetch();
+    }
+    setUrlState(newUrl);
+  };
+
+  return { data, isLoading, hasError, setUrl, url, forceFetch };
 };
