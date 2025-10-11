@@ -1,0 +1,29 @@
+Fecha de medición
+
+stale_data: La muestra llegó “vieja” (timestamp anterior a ahora − max_age). Detecta atrasos/colas.
+
+future_dating: Timestamp en el futuro más allá de una tolerancia. Indica reloj/ZH mal configurados.
+
+gap_detection: El tiempo entre dos mediciones consecutivas supera un umbral. Señal de caída o detención.
+
+out_of_order: Llegó una medición con timestamp menor al último conocido. Reenvíos fuera de orden.
+
+duplicate_timestamp: Dos muestras con exactamente el mismo timestamp para la misma entidad. Duplicados.
+
+Parámetros
+
+missing_value: Valor nulo/vacío/NaN. Pérdida de dato o falla de medición.
+
+between_range: Valor fuera/dentro de un rango [min, max]. Verifica cumplimiento de límites esperados/normativos.
+
+range_threshold: Comparación simple contra un límite usando un operador (>, <, etc.). Umbral directo.
+
+rate_of_change: Cambio absoluto o porcentual entre lecturas supera un tope. Detecta saltos bruscos/anómalos.
+
+rolling_outlier: Atípico respecto a ventana móvil (z-score/IQR/MAD). Anomalía contextual.
+
+stuck_value: Sin (o casi sin) variación durante una ventana. Sensor “pegado”/bloqueado.
+
+categorical_allowed: El valor debe pertenecer a un catálogo permitido. Control de estados válidos.
+
+cross_parameter_rule: Relación lógica entre dos campos (p. ej., temp_min <= temp_max). Consistencia interna.

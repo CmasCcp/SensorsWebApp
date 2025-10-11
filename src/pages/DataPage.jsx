@@ -6,6 +6,8 @@ import { BasicDataTableGraphic } from '../components/graphics/BasicDataTableGrap
 import { Spinner } from '../components/Spinner';
 import { ChartComponent } from '../components/graphics/ChartComponent';
 import noVariables from '../helpers/noVariables.json';
+import AlertsCreator from '../components/AlertsCreator';
+import Otro from '../Otro';
 
 // 2025-06-23T21:33:25
 
@@ -104,21 +106,21 @@ export const DataPage = () => {
       // let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructuradosV2?tabla=datos&disp.id_proyecto=${projectIds}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}&${refreshParam}`;
       let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructuradosV2?tabla=datos&disp.id_proyecto=${projectIds}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
 
-        if (selectedDevices.length > 0) {
-          url += `&disp.codigo_interno=${deviceIds}`;
-          if (startDate) url += `&fecha_inicio=${startDate}`;
-          if (endDate) url += `&fecha_fin=${endDate}`;
+      if (selectedDevices.length > 0) {
+        url += `&disp.codigo_interno=${deviceIds}`;
+        if (startDate) url += `&fecha_inicio=${startDate}`;
+        if (endDate) url += `&fecha_fin=${endDate}`;
 
-          console.log('refleshTableData url:', url);
+        console.log('refleshTableData url:', url);
 
-          sensorsSetUrl(url);
-          setIsLoading(false);
-        } else {
-          sensorsSetUrl("");
-          setIsLoading(false);
-        }
+        sensorsSetUrl(url);
+        setIsLoading(false);
+      } else {
+        sensorsSetUrl("");
+        setIsLoading(false);
       }
     }
+  }
 
 
   // Procesa datos de sensores
@@ -301,6 +303,8 @@ export const DataPage = () => {
       {isLoading || isLoadingProjects || isLoadingDevices || isLoadingSensors && (
         <Spinner />
       )}
+
+
       <div className="container-fluid d-flex justify-content-center align-items-center">
         <div className="card w-100">
           <h2 className="card-title">Datos</h2>
@@ -386,6 +390,15 @@ export const DataPage = () => {
                           aria-hidden="true"
                         />
                       </button>
+                      {/* Alerts modal (uncontrolled) */}
+                      <AlertsCreator
+                        projects={selectedProjects}
+                        indicators={tableData.length > 0 ? Object.keys(tableData[0]) : []}
+                        onSave={(alertObj) => { console.log('Alerta guardada:', alertObj); }}
+                        triggerLabel="Crear alerta"
+                      />
+
+                      {/* <Otro /> */}
                     </div>
                   )}
 
