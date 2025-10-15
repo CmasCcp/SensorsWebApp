@@ -286,7 +286,7 @@
     },
     "ejemplos": [
         {
-            "id_regla": "R1",
+            "id": "R1",
             "tipo": "fecha_de_medicion",
             "validacion": "stale_data",
             "config": {
@@ -301,10 +301,10 @@
             }
         },
         {
-            "id_regla": "R2",
-            "tipo": "parametros",
-            "parametro": "ph",
-            "validacion": "between_range",
+            "id": "alert_1",
+            "ruleType": "parametros",
+            "parameter": "ph",
+            "validationId": "between_range",
             "config": {
                 "min": 6.5,
                 "max": 8.5,

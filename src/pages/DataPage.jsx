@@ -8,6 +8,7 @@ import { ChartComponent } from '../components/graphics/ChartComponent';
 import noVariables from '../helpers/noVariables.json';
 import AlertsCreator from '../components/AlertsCreator';
 import Otro from '../Otro';
+import AlertsList from '../components/AlertsList';
 
 // 2025-06-23T21:33:25
 
@@ -35,6 +36,7 @@ export const DataPage = () => {
 
   // Graficos
   const [showChart, setShowChart] = useState(false);
+  const [showAlerts, setShowAlerts] = useState(false);
   // Datos de la tabla
   const [tableData, setTableData] = useState([]);
   // datos del gráfico
@@ -371,6 +373,10 @@ export const DataPage = () => {
                         <span className="btn-text">{showChart ? "Ocultar" : "Mostrar"} gráfico</span>
                         <i className="fas fa-eye me-2" aria-hidden="true"></i>
                       </button>
+                      <button className="btn m-1 ml-auto custom-button" onClick={() => setShowAlerts(!showAlerts)}>
+                        <span className="btn-text">{showAlerts ? "Ocultar" : "Mostrar"} Alertas</span>
+                        <i className="fas fa-eye me-2" aria-hidden="true"></i>
+                      </button>
                       <button className="btn m-1 ml-auto custom-button" onClick={downloadFile}>
                         <span className="btn-text">Descargar CSV</span>
                         <i className="fas fa-plus-circle"></i>
@@ -393,10 +399,11 @@ export const DataPage = () => {
                       {/* Alerts modal (uncontrolled) */}
                       <AlertsCreator
                         projects={selectedProjects}
+                        devices={deviceOptions}
                         indicators={tableData.length > 0 ? Object.keys(tableData[0]) : []}
-                        onSave={(alertObj) => { console.log('Alerta guardada:', alertObj); }}
-                        triggerLabel="Crear alerta"
                       />
+
+
 
                       {/* <Otro /> */}
                     </div>
@@ -405,9 +412,18 @@ export const DataPage = () => {
 
                 </div>
                 {selectedProjects.length > 0 && tableData.length > 0 && showChart && (
-                  <div className="row">
-                    <ChartComponent datos={chartData} />
-                  </div>
+                  <>
+                    <div className="row">
+                      <ChartComponent datos={chartData} />
+                    </div>
+                  </>
+                )}
+                {selectedProjects.length > 0 && tableData.length > 0 && showAlerts && (
+                  <>
+                    <div className="row">
+                      <AlertsList projects={selectedProjects} devices={selectedDevices} />
+                    </div>
+                  </>
                 )}
                 <div className="row">
                   {/* Selección de ordenación */}

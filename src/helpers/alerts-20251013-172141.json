@@ -1,0 +1,96 @@
+[
+    {
+        "id": "alert_1760164396981",
+        "projectId": 21,
+        "projectLabel": "21. Eolo MP",
+        "ruleType": "parametros",
+        "validationId": "range_threshold",
+        "parameter": "fecha",
+        "config": {},
+        "active": true
+    },
+    {
+        "id": "alert_1760382392996",
+        "projectId": 1,
+        "projectLabel": "1. Licitación CMPC",
+        "ruleType": "parametros",
+        "validationId": "cross_parameter_rule",
+        "parameter": "DS18B20 [Grados celcius (°C)]",
+        "config": {
+            "izq": "DS18B20 [Grados celcius (°C)]",
+            "relacion": "",
+            "der": "Divisor de Voltaje [Voltaje (V)]"
+        },
+        "active": true
+    },
+    {
+        "id": "alert_1760382477808",
+        "projectId": 1,
+        "projectLabel": "1. Licitación CMPC",
+        "ruleType": "parametros",
+        "validationId": "cross_parameter_rule",
+        "parameter": "DS18B20 [Grados celcius (°C)]",
+        "config": {
+            "izq": "DS18B20 [Grados celcius (°C)]",
+            "relacion": "=",
+            "der": "Divisor de Voltaje [Voltaje (V)]"
+        },
+        "active": true
+    },
+    {
+        "id": "alert_1760382780520",
+        "projectId": 1,
+        "projectLabel": "1. Licitación CMPC",
+        "ruleType": "parametros",
+        "validationId": "cross_parameter_rule",
+        "parameter": "DS18B20 [Grados celcius (°C)]",
+        "config": {
+            "izq": "Divisor de Voltaje [Voltaje (V)]",
+            "relacion": ">",
+            "der": "ENV-20-EC-K1.0 [Electroconductividad ambiental (µS/cm)]"
+        },
+        "active": true
+    },
+    {
+        "id": "alert_1760384710206",
+        "projectId": 1,
+        "projectLabel": "1. Licitación CMPC",
+        "ruleType": "parametros",
+        "validationId": "cross_parameter_rule",
+        "parameter": "DS18B20 [Grados celcius (°C)]",
+        "config": {
+            "izq": "DS18B20 [Grados celcius (°C)]",
+            "relacion": "",
+            "der": "ENV-20-EC-K1.0 [Electroconductividad ambiental (µS/cm)]"
+        },
+        "active": true
+    },
+    {
+        "id": "alert_1760384828520",
+        "projectId": 1,
+        "projectLabel": "1. Licitación CMPC",
+        "ruleType": "parametros",
+        "validationId": "cross_parameter_rule",
+        "parameter": "DS18B20 [Grados celcius (°C)]",
+        "config": {
+            "izq": "DS18B20 [Grados celcius (°C)]",
+            "relacion": "<",
+            "der": "Divisor de Voltaje [Voltaje (V)]"
+        },
+        "active": true
+    },
+    {
+        "id": "alert_1760386091207",
+        "projectId": 1,
+        "projectLabel": "1. Licitación CMPC",
+        "ruleType": "parametros",
+        "validationId": "cross_parameter_rule",
+        "parameter": "DS18B20 [Grados celcius (°C)]",
+        "config": {
+            "izq": "DS18B20 [Grados celcius (°C)]",
+            "relacion": "<",
+            "der": "Divisor de Voltaje [Voltaje (V)]"
+        },
+        "active": true
+    }
+]

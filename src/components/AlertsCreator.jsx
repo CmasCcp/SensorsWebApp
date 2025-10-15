@@ -10,7 +10,7 @@ import noVariables from '../helpers/noVariables.json';
  * - onSave: function(alertObj)
  */
 
-const AlertsCreator = ({ projects = [], indicators = [], onSave }) => {
+const AlertsCreator = ({ projects = [], devices = [], indicators = [] }) => {
     const [show, setShow] = useState(false);
     const getProjectValue = (p) => (p == null ? '' : (p.value ?? p.id ?? ''));
     const getProjectLabel = (p) => (p == null ? '' : (p.label ?? p.name ?? ''));
@@ -22,6 +22,9 @@ const AlertsCreator = ({ projects = [], indicators = [], onSave }) => {
     const [configValues, setConfigValues] = useState({});
     const [active, setActive] = useState(true);
     const [message, setMessage] = useState(null);
+    const [email, setEmail] = useState('');
+    const [applyToAllDevices, setApplyToAllDevices] = useState(true);
+    const [selectedDevices, setSelectedDevices] = useState([]);
 
     useEffect(() => { if (projects.length > 0 && !projectId) setProjectId(getProjectValue(projects[0])); }, [projects]);
     useEffect(() => { if (indicators.length > 0 && !indicator) setIndicator(indicators[0]); }, [indicators]);
@@ -43,6 +46,16 @@ const AlertsCreator = ({ projects = [], indicators = [], onSave }) => {
         if (ruleType === 'parametros' && !indicator) return 'Debe elegir un indicador';
         // check validation selected
         if (!validationId) return 'Debe seleccionar una validación';
+        // check devices if not applying to all
+        if (!applyToAllDevices && (!selectedDevices || selectedDevices.length === 0)) return 'Seleccione al menos un dispositivo o marque "Aplicar a todos"';
+        // validate email if provided (allow comma-separated list)
+        if (email) {
+            const parts = email.split(',').map(s => s.trim()).filter(Boolean);
+            const emailRx = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+            for (const e of parts) {
+                if (!emailRx.test(e)) return `Email inválido: ${e}`;
+            }
+        }
         // basic config validation: if any config field required and empty, skip deep validation
         return null;
     };
@@ -60,19 +73,52 @@ const AlertsCreator = ({ projects = [], indicators = [], onSave }) => {
             validationId,
             parameter: ruleType === 'parametros' ? indicator : null,
             config: configValues,
+            email: email ? email.split(',').map(s => s.trim()).filter(Boolean) : [],
+            applyToAllDevices,
+            targetDevices: applyToAllDevices ? [] : selectedDevices,
             active
         };
 
-        // persistir localmente
-        const existing = JSON.parse(localStorage.getItem('alerts') || '[]');
-        existing.push(alertObj);
-        localStorage.setItem('alerts', JSON.stringify(existing));
+        // call parent onSave instead of persisting locally
+        // if (typeof onSave === 'function') onSave(alertObj);
 
-        if (typeof onSave === 'function') onSave(alertObj);
-        setMessage({ type: 'success', text: 'Alerta guardada' });
-        setThreshold('');
-        setComparator('>');
-        setShow(false);
+        fetch(`${import.meta.env.VITE_API_URL}/insertarAlerta`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(alertObj)
+        })
+        .then(res => {
+            console.log(res)
+            if (!res.ok) return res.text().then(t => { throw new Error(t || res.statusText); });
+            return res.json().catch(() => ({}));
+        })
+        .then(data => {
+            console.log('Alerta enviada al backend', data);
+            setMessage({ type: 'success', text: 'Alerta guardada exitosamente' });
+            
+            // Limpiar todos los campos del formulario después del envío exitoso
+            setConfigValues({});
+            setValidationId('');
+            setEmail('');
+            setApplyToAllDevices(true);
+            setSelectedDevices([]);
+            setActive(true);
+            setRuleType('parametros');
+            if (indicators.length > 0) setIndicator(indicators[0]);
+            if (projects.length > 0) setProjectId(getProjectValue(projects[0]));
+            
+            // Cerrar modal después de un breve delay para que el usuario vea el mensaje
+            setTimeout(() => {
+                setShow(false);
+                setMessage(null);
+            }, 1500);
+        })
+        .catch(err => {
+            console.error('Error enviando alerta:', err);
+            setMessage({ type: 'error', text: 'Error enviando alerta: ' + (err.message || 'error de red') });
+        });
+
+        console.log(alertObj)
     };
 
     const handleClose = () => setShow(false);
@@ -85,6 +131,34 @@ const AlertsCreator = ({ projects = [], indicators = [], onSave }) => {
 
     const onChangeConfigField = (key, value) => {
         setConfigValues(prev => ({ ...prev, [key]: value }));
+    };
+
+    const handleValidationChange = (valId) => {
+        setValidationId(valId);
+        const v = getValidationsForRule().find(x => x.id === valId);
+        if (!v || !v.config) { setConfigValues({}); return; }
+        const defaults = {};
+        Object.entries(v.config).forEach(([k, vv]) => {
+            // If the config indicates a parameter placeholder (parametro_izq/parametro_der
+            // or config key 'izq'/'der' with placeholder strings), prefill left param with
+            // the currently-selected indicator so the user doesn't have to reselect it.
+            if (vv === 'parametro_izq' || vv === 'parametro_der' || k === 'izq' || k === 'der') {
+                if (vv === 'parametro_izq' || k === 'izq') {
+                    defaults[k] = indicator || '';
+                } else {
+                    defaults[k] = '';
+                }
+            } else if (Array.isArray(vv)) {
+                // For relational operator choose a sensible default (first option),
+                // otherwise leave empty so user must pick.
+                if (k === 'relacion') defaults[k] = Array.isArray(vv) && vv.length > 0 ? vv[0] : '';
+                else defaults[k] = '';
+            }
+            else if (typeof vv === 'number') defaults[k] = vv;
+            else if (typeof vv === 'boolean') defaults[k] = vv;
+            else defaults[k] = '';
+        });
+        setConfigValues(defaults);
     };
 
     const renderConfigInputs = () => {
@@ -105,6 +179,7 @@ const AlertsCreator = ({ projects = [], indicators = [], onSave }) => {
                                 <div className="form-check mb-2" key={key}>
                                     <label className="form-label">{key}</label>
                                     <select className="form-select form-control" value={current} onChange={e => onChangeConfigField(key, e.target.value)}>
+                                        <option value="">-- Seleccione --</option>
                                         {val.map(opt => (<option key={opt} value={opt}>{opt}</option>))}
                                     </select>
                                     {/* <input className="form-control" value={current} onChange={e => onChangeConfigField(key, e.target.value)} /> */}
@@ -115,7 +190,7 @@ const AlertsCreator = ({ projects = [], indicators = [], onSave }) => {
                             return (
                                 <div className="form-check mb-2" key={key}>
                                     <label className="form-label">{key}</label>
-                                    <input type="number" className="form-control" value={val} onChange={e => onChangeConfigField(key, Number(e.target.value))} />
+                                    <input type="number" className="form-control" defaultValue={val} onChange={e => onChangeConfigField(key, Number(e.target.value))} />
                                 </div>
                             );
                         }
@@ -128,11 +203,13 @@ const AlertsCreator = ({ projects = [], indicators = [], onSave }) => {
                             );
                         }
                         if (val === 'parametro_izq' || val === 'parametro_der') {
+                            // bind these selects to configValues by key so they are independent
                             return (
                                 <div className="form-check mb-2" key={key}>
-                                    <label className="form-label">Parámetro</label>
-                                    <select className="form-select form-control" value={indicator} onChange={e => setIndicator(e.target.value)}>
-                                        {indicators.map(ind => (<option key={ind} value={ind}>{ind}</option>))}
+                                    <label className="form-label">Parámetro: {val}</label>
+                                    <select name={val} className="form-select form-control" value={configValues[key] ?? ''} onChange={e => onChangeConfigField(key, e.target.value)}>
+                                        <option value="">-- Seleccione --</option>
+                                        {indicators.map(ind => (!noVariables.includes(ind) && <option key={ind} value={ind}>{ind}</option>))}
                                     </select>
                                 </div>
                             );
@@ -169,15 +246,15 @@ const AlertsCreator = ({ projects = [], indicators = [], onSave }) => {
                 aria-modal={show}
                 onClick={handleClose}
             >
-                <div className="modal-dialog modal-lg" role="document" onClick={e => e.stopPropagation()}>
-                    <div className="modal-content">
-                        <div className="modal-header d-flex flex-column w-100">
+                <div className="modal-dialog modal-lg" role="document" onClick={e => e.stopPropagation()} style={{ maxHeight: '90vh', display: 'flex', alignItems: 'center' }}>
+                    <div className="modal-content" style={{ maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                        <div className="modal-header d-flex flex-column w-100" style={{ flexShrink: 0 }}>
                             <h5 className="w-100 text-center">Crear alerta</h5>
                             <br />
                             <p>Las alertas se aplicarán a todos los dispositivos del proyecto y se aplicaran por cada uno de ellos.</p>
                             {/* <button type="button" className="btn-close" aria-label="Close" onClick={handleClose}></button> */}
                         </div>
-                        <div className="modal-body">
+                        <div className="modal-body" style={{ overflowY: 'auto', flexGrow: 1, padding: '1rem' }}>
                             <div className="form-check mb-3">
                                 <label className="form-label">Proyecto</label>
                                 <input disabled className="form-select form-control" value={projects[0].label} onChange={e => setProjectId(e.target.value)}>
@@ -205,7 +282,7 @@ const AlertsCreator = ({ projects = [], indicators = [], onSave }) => {
 
                                 <div className="col-md-4 mb-2">
                                     <label className="form-label">Validación</label>
-                                    <select className="form-select form-control" value={validationId} onChange={e => { setValidationId(e.target.value); setConfigValues({}); }}>
+                                    <select className="form-select form-control" value={validationId} onChange={e => handleValidationChange(e.target.value)}>
                                         <option value="">-- Seleccione --</option>
                                         {getValidationsForRule().map(v => (
                                             <option key={v.id} value={v.id}>{v.nombre || v.id}</option>
@@ -216,6 +293,31 @@ const AlertsCreator = ({ projects = [], indicators = [], onSave }) => {
 
                             {renderConfigInputs()}
 
+                            <div className="mb-3">
+                                <label className="form-label d-block">Aplicar alerta a dispositivos</label>
+                                <div className="form-check form-switch mb-2">
+                                    <input className="form-check-input" type="checkbox" disabled checked={true} onChange={e => setApplyToAllDevices(e.target.checked)} id="applyAllDevices" />
+                                    <label className="form-check-label" htmlFor="applyAllDevices">Aplicar a todos los dispositivos</label>
+                                </div>
+                                {!applyToAllDevices && (
+                                    <div>
+                                        <label className="form-label">Seleccionar dispositivos</label>
+                                        <select multiple className="form-select" value={selectedDevices} onChange={e => setSelectedDevices(Array.from(e.target.selectedOptions).map(o => o.value))}>
+                                            {devices.map(d => (
+                                                <option key={d.value} value={d.value}>{d.label}</option>
+                                            ))}
+                                        </select>
+                                        <div className="form-text">Mantén Ctrl/Cmd para seleccionar múltiples.</div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="mb-3">
+                                <label className="form-label">Emails (coma-separados)</label>
+                                <input className="form-control" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="ops@org.cl, mantenimiento@org.cl" />
+                                <div className="form-text">Direcciones separadas por coma. Se validan antes de guardar.</div>
+                            </div>
+
                             <div className="form-check form-switch my-2">
                                 <input className="form-check-input" type="checkbox" checked={active} onChange={e => setActive(e.target.checked)} id="alertActive" />
                                 <label className="form-check-label" htmlFor="alertActive">Activa</label>
@@ -223,8 +325,16 @@ const AlertsCreator = ({ projects = [], indicators = [], onSave }) => {
 
                             {message && (<div className={`alert ${message.type === 'error' ? 'alert-danger' : 'alert-success'}`} role="alert">{message.text}</div>)}
                         </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" onClick={() => { setThreshold(''); setComparator('>'); setMessage(null); }}>Limpiar</button>
+                        <div className="modal-footer" style={{ flexShrink: 0 }}>
+                            <button type="button" className="btn btn-secondary" onClick={() => {
+                                // reset form fields we actually have
+                                setConfigValues({});
+                                setValidationId('');
+                                setEmail('');
+                                setMessage(null);
+                                setActive(true);
+                                if (indicators.length > 0) setIndicator(indicators[0]);
+                            }}>Limpiar</button>
                             <button type="button" className="btn btn-dark" onClick={handleSave}>Guardar alerta</button>
                         </div>
                     </div>
