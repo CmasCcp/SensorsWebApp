@@ -1,5 +1,6 @@
 [
     "fecha",
+    "fecha_insercion",
     "id_sesion",
     "sesion_descripcion",
     "fecha_inicio",
