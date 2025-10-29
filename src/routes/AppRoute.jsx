@@ -7,6 +7,7 @@ import {DataPage} from '../pages/DataPage'
 import { ProtocolosPage } from "../pages/ProtocolosPage"
 import { PruebaPage } from "../pages/PruebaPage"
 import { PruebaObservador } from "../pages/PruebaObservador"
+import { BancoDatosPage } from "../pages/BancoDatosPage"
 
 export const AppRoute = () => {
     return (
@@ -21,6 +22,7 @@ export const AppRoute = () => {
             <Route path="/administrador" element={<AdministradorPage/>}/>
             <Route path="/prueba" element={<PruebaPage/>}/>
             <Route path="/observador" element={<PruebaObservador/>}/>
+            <Route path="/banco-de-datos" element={<BancoDatosPage/>}/>
         </Routes>
     )
 }

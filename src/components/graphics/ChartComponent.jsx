@@ -46,24 +46,32 @@ export const ChartComponent = ({ datos, fechaName = "fecha", title }) => {
   const remainingProperty = filteredProperties.length > 0 ? filteredProperties[0] : null;
   return (
     <>
-      <div className="row mb-3">
-        {Array.isArray(datos) && datos.length > 0 && Array.isArray(properties) && properties.length > 0 ? (
-          properties
-            .map((prop) => (
-              <button
-                key={prop}
-                type="button"
-                className={`btn btn-outline-secondary m-1 ${prop === property ? 'active' : ''}`}
-                onClick={() => setProperty(prop)}
-                title={`Propiedad: ${prop}`}
-              >
-                {prop}
-              </button>
-            ))
-        ) : (
-          <small className="text-muted">No hay propiedades disponibles</small>
-        )}
 
+      <div className="mb-3" style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '10px' }}>
+        <div className="d-flex" style={{ gap: '8px', minWidth: 'max-content' }}>
+          {Array.isArray(datos) && datos.length > 0 && Array.isArray(properties) && properties.length > 0 ? (
+            properties
+              .map((prop) => (
+                <button
+                  key={prop}
+                  type="button"
+                  className={`btn btn-outline-secondary ${prop === property ? 'active' : ''}`}
+                  onClick={() => setProperty(prop)}
+                  title={`Propiedad: ${prop}`}
+                  style={{ 
+                    fontSize: '0.75rem', 
+                    padding: '4px 8px', 
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
+                  }}
+                >
+                  {prop}
+                </button>
+              ))
+          ) : (
+            <small className="text-muted">No hay propiedades disponibles</small>
+          )}
+        </div>
       </div>
       <div className='card'>
         {datos.length > 0 && (<div className='' >
