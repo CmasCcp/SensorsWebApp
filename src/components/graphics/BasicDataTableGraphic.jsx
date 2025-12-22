@@ -130,7 +130,7 @@ export const BasicDataTableGraphic = ({
 
 
 
-      <h3 style={{ fontSize: '1.5rem' }}>{tableTitle}</h3>
+      <h3 style={{ fontSize: '1.1rem' }}>{tableTitle}</h3>
 
       <table className="table table-bordered">
         <thead style={{ fontSize: '0.85rem' }}>

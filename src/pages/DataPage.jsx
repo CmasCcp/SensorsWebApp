@@ -23,6 +23,7 @@ export const DataPage = () => {
   // Nombre de las tablas
   const projectsTableName = "proyectos";
   const devicesTableName = "dispositivos";
+  const [descripcion, setDescripcion] = useState("");
 
   // Opciones de filtros
   const [projectOptions, setProjectOptions] = useState([]);
@@ -89,6 +90,16 @@ export const DataPage = () => {
   }, [devicesData]);
   useEffect(() => {
     refleshTableData();
+    const desc = projectsData?.data?.tableData?.filter(proj => proj?.id_proyecto === selectedProjects[0]?.value);
+    const handleSetDesc = () => {
+      if (desc && desc.length > 0) {
+        setDescripcion(desc[0]?.descripcion || "");
+      }
+    }
+    handleSetDesc();
+    // console.log(projectsData.data.tableData);
+    // console.log(selectedProjects[0]?.value);
+
   }, [selectedProjects, selectedDevices, startDate, endDate, currentPage, refreshCount]);
   const handleRefresh = () => {
     setRefreshCount(c => c + 1);
@@ -368,45 +379,50 @@ export const DataPage = () => {
 
                 <div className='row d-flex justify-content-around my-2'>
                   {selectedProjects.length > 0 && tableData.length > 0 && (
-                    <div className='row'>
-                      <button className="btn m-1 ml-auto custom-button" onClick={() => setShowChart(!showChart)}>
-                        <span className="btn-text">{showChart ? "Ocultar" : "Mostrar"} gráfico</span>
-                        <i className="fas fa-eye me-2" aria-hidden="true"></i>
-                      </button>
-                      <button className="btn m-1 ml-auto custom-button" onClick={() => setShowAlerts(!showAlerts)}>
-                        <span className="btn-text">{showAlerts ? "Ocultar" : "Mostrar"} Alertas</span>
-                        <i className="fas fa-eye me-2" aria-hidden="true"></i>
-                      </button>
-                      <button className="btn m-1 ml-auto custom-button" onClick={downloadFile}>
-                        <span className="btn-text">Descargar CSV</span>
-                        <i className="fas fa-plus-circle"></i>
-                      </button>
-                      <button className="btn m-1 ml-auto custom-button" onClick={downloadExcel}>
-                        <span className="btn-text">Descargar Excel</span>
-                        <i className="fas fa-plus-circle"></i>
-                      </button>
-                      <button className="btn m-1 ml-auto custom-button"
-                        // onClick={async () => { await refleshTableData(); }}>
-                        onClick={handleRefresh}>
-                        <span className="btn-text">Actualizar</span>
-                        <i
-                          className="fas fa-sync-alt me-2"
-                          title="Refrescar"
-                          style={{ cursor: 'pointer' }}
-                          aria-hidden="true"
+                    <>
+                      <blockquote>{descripcion}</blockquote>
+
+                      <div className='row'>
+                        <button className="btn m-1 ml-auto custom-button" onClick={() => setShowChart(!showChart)}>
+                          <span className="btn-text">{showChart ? "Ocultar" : "Mostrar"} gráfico</span>
+                          <i className="fas fa-eye me-2" aria-hidden="true"></i>
+                        </button>
+                        <button className="btn m-1 ml-auto custom-button" onClick={() => setShowAlerts(!showAlerts)}>
+                          <span className="btn-text">{showAlerts ? "Ocultar" : "Mostrar"} Alertas</span>
+                          <i className="fas fa-eye me-2" aria-hidden="true"></i>
+                        </button>
+                        <button className="btn m-1 ml-auto custom-button" onClick={downloadFile}>
+                          <span className="btn-text">Descargar CSV</span>
+                          <i className="fas fa-plus-circle"></i>
+                        </button>
+                        <button className="btn m-1 ml-auto custom-button" onClick={downloadExcel}>
+                          <span className="btn-text">Descargar Excel</span>
+                          <i className="fas fa-plus-circle"></i>
+                        </button>
+                        <button className="btn m-1 ml-auto custom-button"
+                          // onClick={async () => { await refleshTableData(); }}>
+                          onClick={handleRefresh}>
+                          <span className="btn-text">Actualizar</span>
+                          <i
+                            className="fas fa-sync-alt me-2"
+                            title="Refrescar"
+                            style={{ cursor: 'pointer' }}
+                            aria-hidden="true"
+                          />
+                        </button>
+                        {/* Alerts modal (uncontrolled) */}
+                        <AlertsCreator
+                          projects={selectedProjects}
+                          devices={deviceOptions}
+                          indicators={tableData.length > 0 ? Object.keys(tableData[0]) : []}
                         />
-                      </button>
-                      {/* Alerts modal (uncontrolled) */}
-                      <AlertsCreator
-                        projects={selectedProjects}
-                        devices={deviceOptions}
-                        indicators={tableData.length > 0 ? Object.keys(tableData[0]) : []}
-                      />
 
 
 
-                      {/* <Otro /> */}
-                    </div>
+                        {/* <Otro /> */}
+                      </div>
+                    </>
+
                   )}
 
 
@@ -445,7 +461,7 @@ export const DataPage = () => {
                 </div>
                 <div className="row d-flex justify-content-around my-4">
                   {selectedProjects.length > 0 && tableData.length > 0 ? (
-                    <div  style={{ overflowX: 'auto', fontSize: '0.75rem' }}>
+                    <div style={{ overflowX: 'auto', fontSize: '0.75rem' }}>
                       <BasicDataTableGraphic order={sortOrder} tableTitle={"Datos"} tableData={tableData} tablePrimaryKey={"id_dato_concatenado"}
                         onDelete={handleDelete}
                       // handleOnClickEdit={() => console.log("handleOnClickEdit")} 
