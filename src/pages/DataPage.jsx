@@ -106,7 +106,7 @@ export const DataPage = () => {
       // parámetro único para forzar el fetch
       const refreshParam = `refresh=${Date.now()}`;
       // let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructuradosV2?tabla=datos&disp.id_proyecto=${projectIds}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}&${refreshParam}`;
-      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructuradosV2?tabla=datos&disp.id_proyecto=${projectIds}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
+      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructuradosV2?tabla=datos&order_by=fecha_insercion&disp.id_proyecto=${projectIds}&limite=${rowsPerPage}&offset=${(currentPage - 1) * rowsPerPage}`;
 
       if (selectedDevices.length > 0) {
         url += `&disp.codigo_interno=${deviceIds}`;
@@ -217,7 +217,7 @@ export const DataPage = () => {
       const deviceIds = selectedDevices.map((device) => device.label).join(',');
 
       // Construye la URL sin los límites de filas ni el offset (esto descarga todos los datos)
-      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructuradosV2?tabla=datos&disp.id_proyecto=${projectIds}&formato=csv`;
+      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructuradosV2?tabla=datos&order_by=fecha_insercion&disp.id_proyecto=${projectIds}&formato=csv`;
 
       // Añadir los filtros de fechas si se han especificado
       if (startDate) url += `&fecha_inicio=${startDate}`;
@@ -243,7 +243,7 @@ export const DataPage = () => {
       const deviceIds = selectedDevices.map((device) => device.label).join(',');
 
       // Construye la URL sin los límites de filas ni el offset (esto descarga todos los datos)
-      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructuradosV2?tabla=datos&disp.id_proyecto=${projectIds}&formato=xlsx`;
+      let url = `${import.meta.env.VITE_API_URL}/listarDatosEstructuradosV2?tabla=datos&order_by=fecha_insercion&disp.id_proyecto=${projectIds}&formato=xlsx`;
 
       // Añadir los filtros de fechas si se han especificado
       if (startDate) url += `&fecha_inicio=${startDate}`;
@@ -445,7 +445,7 @@ export const DataPage = () => {
                 </div>
                 <div className="row d-flex justify-content-around my-4">
                   {selectedProjects.length > 0 && tableData.length > 0 ? (
-                    <div style={{ overflowX: 'auto' }}>
+                    <div  style={{ overflowX: 'auto', fontSize: '0.75rem' }}>
                       <BasicDataTableGraphic order={sortOrder} tableTitle={"Datos"} tableData={tableData} tablePrimaryKey={"id_dato_concatenado"}
                         onDelete={handleDelete}
                       // handleOnClickEdit={() => console.log("handleOnClickEdit")} 

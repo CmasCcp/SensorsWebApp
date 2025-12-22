@@ -76,7 +76,7 @@ export const BasicDataTableGraphic = ({
   }, [tableData]);
 
   // Lista de columnas a ocultar
-  const [hiddenColumns, setHiddenColumns] = useState(["sesion_descripcion", "fecha_inicio", "ubicacion", "id_dato_concatenado"]);
+  const [hiddenColumns, setHiddenColumns] = useState(["id_sesion","sesion_descripcion", "fecha_inicio", "ubicacion", "id_proyecto","codigo_interno","dispositivo_descripcion","id_dato_concatenado"]);
 
   // Filtra las columnas visibles
   const visibleKeys = Object.keys(tableData[0]).filter(key => !hiddenColumns.includes(key));
@@ -133,7 +133,7 @@ export const BasicDataTableGraphic = ({
       <h3 style={{ fontSize: '1.5rem' }}>{tableTitle}</h3>
 
       <table className="table table-bordered">
-        <thead style={{ fontSize: '1.25rem' }}>
+        <thead style={{ fontSize: '0.85rem' }}>
           <tr>
             <th>
               <input
