@@ -1,0 +1,137 @@
+{
+                "id": "missing_value",
+                "nombre": "Valor ausente/nulo",
+                "descripcion": "Valor nulo/vacío/NaN. Pérdida de dato o falla de medición."
+            },
+            {
+                "id": "stale_data",
+                "nombre": "Dato atrasado",
+                "descripcion": "La muestra llegó “vieja” (timestamp anterior a ahora − max_age). Detecta atrasos/colas.",
+                "config": {
+                    "max_age": [
+                        "PT30S",
+                        "PT1M",
+                        "PT2M",
+                        "PT5M",
+                        "PT10M",
+                        "PT15M",
+                        "PT30M",
+                        "PT45M",
+                        "PT1H",
+                        "PT1H30M",
+                        "PT2H",
+                        "PT3H",
+                        "PT6H",
+                        "PT12H",
+                        "P1D",
+                        "P2D",
+                        "P3D",
+                        "P7D",
+                        "P14D",
+                        "P30D"
+                    ]
+                }
+            },
+            {
+                "id": "future_dating",
+                "nombre": "Fecha futura",
+                "descripcion": "Timestamp en el futuro más allá de una tolerancia. Indica reloj/ZH mal configurados.",
+                "config": {
+                    "tolerancia": [
+                        "PT30S",
+                        "PT1M",
+                        "PT2M",
+                        "PT5M",
+                        "PT10M",
+                        "PT15M",
+                        "PT30M",
+                        "PT45M",
+                        "PT1H",
+                        "PT1H30M",
+                        "PT2H",
+                        "PT3H",
+                        "PT6H",
+                        "PT12H",
+                        "P1D",
+                        "P2D",
+                        "P3D",
+                        "P7D",
+                        "P14D",
+                        "P30D"
+                    ]
+                }
+            },
+            {
+                "id": "gap_detection",
+                "nombre": "Brecha de muestreo",
+                "descripcion": "El tiempo entre dos mediciones consecutivas supera un umbral. Señal de caída o detención.",
+                "config": {
+                    "intervalo_esperado": [
+                        "PT30S",
+                        "PT1M",
+                        "PT2M",
+                        "PT5M",
+                        "PT10M",
+                        "PT15M",
+                        "PT30M",
+                        "PT45M",
+                        "PT1H",
+                        "PT1H30M",
+                        "PT2H",
+                        "PT3H",
+                        "PT6H",
+                        "PT12H",
+                        "P1D",
+                        "P2D",
+                        "P3D",
+                        "P7D",
+                        "P14D",
+                        "P30D"
+                    ],
+                    "umbral_gap": [
+                        "PT30S",
+                        "PT1M",
+                        "PT2M",
+                        "PT5M",
+                        "PT10M",
+                        "PT15M",
+                        "PT30M",
+                        "PT45M",
+                        "PT1H",
+                        "PT1H30M",
+                        "PT2H",
+                        "PT3H",
+                        "PT6H",
+                        "PT12H",
+                        "P1D",
+                        "P2D",
+                        "P3D",
+                        "P7D",
+                        "P14D",
+                        "P30D"
+                    ],
+                    "clave_agrupacion": [
+                        "dispositivo_id"
+                    ]
+                }
+            },
+            {
+                "id": "out_of_order",
+                "nombre": "Desorden temporal",
+                "descripcion": "Llegó una medición con timestamp menor al último conocido. Reenvíos fuera de orden.",
+                "config": {
+                    "clave_agrupacion": [
+                        "dispositivo_id"
+                    ]
+                }
+            },
+            {
+                "id": "duplicate_timestamp",
+                "nombre": "Timestamp duplicado",
+                "descripcion": "Dos muestras con exactamente el mismo timestamp para la misma entidad. Duplicados.",
+                "config": {
+                    "clave_agrupacion": [
+                        "dispositivo_id"
+                    ]
+                }
+            }
