@@ -29,7 +29,7 @@ export const BancoDatosPage = () => {
 
   return (
     <div style={{ padding: 24 }}>
-      <h2>Archivos CSV por Proyecto y Sensor</h2>
+      <h2>Archivos CSV por Proyecto y Dispositivo</h2>
       {Object.entries(estructura).map(([proyecto, sensores]) => (
         <div key={proyecto} style={{ marginBottom: 48 }}>
           <h2>{proyecto}</h2>
@@ -37,7 +37,7 @@ export const BancoDatosPage = () => {
             <TablaArchivos
               key={sensor}
               archivos={archivos}
-              nombreTabla={`Sensor: ${sensor}`}
+              nombreTabla={`Dispositivo: ${sensor}`}
             />
           ))}
         </div>
